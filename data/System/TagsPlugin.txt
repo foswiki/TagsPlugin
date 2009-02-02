@@ -44,8 +44,12 @@ with the =taggedwith(tagname)= operator
 
 ---++ Installation Instructions
 
-*To initialise the tag database* and to tag each topic with the webname it is in, goto
-%SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
+   1 set ={DbiContrib}{DBI_dsn}=, ={DbiContrib}{DBI_username}= and ={DbiContrib}{DBI_password}=
+      * currently only tested using MySQL - =dbi:mysql:tags:localhost=
+   2 create the database in MySql server and add the user with permission to create tables
+   3 *initialise the tag database* and to tag each topic with the webname it is in, goto
+      * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
+
 
 If you want to preload the tags database with Country Names, you need to install Geo::GeoNames and click
 %SCRIPTURL{rest}%/TagsPlugin/updateGeoTags
@@ -62,8 +66,8 @@ but treating Tags as Items, so that you can tag a tag (creating a heirarchy of t
 
 
 |  Plugin Author(s): | Foswiki:Main.SvenDowideit |
-|  Copyright: | © SvenDowideit@home.org.au |
-|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Copyright: | &copy; SvenDowideit@fosiki.com |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License 3)]] |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order --> |
 |  Dependencies: | %$DEPENDENCIES% |
