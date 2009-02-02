@@ -4,5 +4,11 @@
     Tags:
     <a alt="add tag" title="add tag" href="#" onclick="var s=document.getElementById('foswikiTagInput');if(s.style.display=='inline'){s.style.display='none';s.value='enter new tag'}else{s.style.display='inline'};return 0;">+</a>
     %TAGENTRY%
-    %TAGLIST{show="all" type="topic" item="%BASEWEB%.%BASETOPIC%" separator=" " format="[[%SCRIPTURL{view}%/$percntURLENCODE{$tag}$percnt][$percntFLAG{$tag}$percnt]]"}%
+    %TAGLIST{
+        show="all" 
+        type="topic" 
+        item="%BASEWEB%.%BASETOPIC%" 
+        separator=" " 
+        format="[[%SCRIPTURL{view}%/$percntURLENCODE{$tag}$percnt][$tag]]"
+     }%
     </span>%TMPL:END%

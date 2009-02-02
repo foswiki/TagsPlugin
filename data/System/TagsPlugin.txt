@@ -49,6 +49,10 @@ with the =taggedwith(tagname)= operator
    2 create the database in MySql server and add the user with permission to create tables
    3 *initialise the tag database* and to tag each topic with the webname it is in, goto
       * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
+      
+add a tag entry to each topic, by adding =tagsplugin= to your skin path
+
+eg Set SKIN=tagsplugin,pattern
 
 
 If you want to preload the tags database with Country Names, you need to install Geo::GeoNames and click
