@@ -51,7 +51,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD );
 
     Foswiki::Func::registerRESTHandler('tag', \&tagCall);
-    Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
+#    Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
    
     Foswiki::Func::registerRESTHandler('initialiseDatabase', \&initialiseDatabase);
 
@@ -497,29 +497,6 @@ END
    $db->disconnect();  #force a commit
 
    return 'ok '.$count;
-}
-
-sub updateGeoTags {
-    my ($session) = @_;
-    my $user_id = getUserId($session);
-
-    my $countryAliases = 'my %aliases;'."\n";
-
-    use Geo::GeoNames;
-    my $geo = new Geo::GeoNames();
-    my $countryInfo = $geo->country_info();
-    foreach my $hash (@{$countryInfo}) {
-        tagItem('tag', $hash->{countryName}, 'geotag', $user_id);
-        tagItem('tag', $hash->{countryName}, 'country', $user_id);
-        print STDERR $hash->{countryName}."\n";
-        $countryAliases .= '    $aliases{\''.lc($hash->{countryName}).'\'} = \''.lc($hash->{countryCode}).'\';'."\n";
-    }
-    my $db = new Foswiki::Contrib::DbiContrib;
-    $db->disconnect();  #force a commit
-
-    Foswiki::Func::saveFile(Foswiki::Func::getWorkArea($pluginName).'/CountryCodes.pm', $countryAliases);
-
-    return 'DONE';
 }
 
 1;
