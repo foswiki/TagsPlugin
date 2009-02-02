@@ -1,10 +1,8 @@
 %TMPL:INCLUDE{view}%
 
 %TMPL:DEF{"contentheader"}%<span class="foswikiTagsPlugin">
-    Tags:
-    <a alt="add tag" title="add tag" href="#" onclick="var s=document.getElementById('foswikiTagInput');if(s.style.display=='inline'){s.style.display='none';s.value='enter new tag'}else{s.style.display='inline'};return 0;">+</a>
-    %TAGENTRY%
-    %TAGLIST{
+    Tags:    <a alt="add tag" title="add tag" href="#" onclick="var s=document.getElementById('foswikiTagInput');if(s.style.display=='inline'){s.style.display='none';s.value='enter new tag'}else{s.style.display='inline'};return 0;">+</a>
+    %TAGENTRY%    %TAGLIST{
         show="all" 
         type="topic" 
         item="%BASEWEB%.%BASETOPIC%" 
