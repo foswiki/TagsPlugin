@@ -1,0 +1,39 @@
+
+
+%TMPL:DEF{tagsplugin:tagentry}% <form class='foswikiTagsPlugin' type='post' action='%SCRIPTURL{rest}%/TagsPlugin/tag' >
+    <input id="foswikiTagInput" type='text' name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
+    <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
+    <input type='hidden' name='type' value='topic' />
+</form> %TMPL:END%
+
+%{ TAGLIST }%
+%TMPL:DEF{tagsplugin:taglist:header}%<span class="tagList">%TMPL:END%
+%TMPL:DEF{tagsplugin:taglist:format}%<a class="foswikiTag" href="$tagurl">$tag</a>%TMPL:END%
+%TMPL:DEF{tagsplugin:taglist:separator}%, %TMPL:END%
+%TMPL:DEF{tagsplugin:taglist:footer}%</span>%TMPL:END%
+
+%{ TAGCLOUD }%
+%TMPL:DEF{tagsplugin:tagcloud:css}%
+<!-- from http://24ways.org/2006/marking-up-a-tag-cloud -->
+    <style type='text/css'>
+        .tag-cloud {padding:0px 60px;}
+        /* display the individual items next to each other, not one-per-line */
+        .tag-cloud LI { display: inline; padding-right:10px;}
+        /* hide the extra context from CSS-enabled browsers, but not screenreaders */
+        .tag-cloud SPAN { position: absolute; left: -999px; width: 990px; }
+        /* size is purely presentational, based upon the class */
+        .tag-cloud .not-popular { font-size: 1em; }
+        .tag-cloud .not-very-popular { font-size: 1.3em; }
+        .tag-cloud .somewhat-popular { font-size: 1.6em; }
+        .tag-cloud .popular { font-size: 1.9em; }
+        .tag-cloud .very-popular { font-size: 2.2em; }
+        .tag-cloud .ultra-popular { font-size: 2.5em; }
+        /* no underlines */
+        .tag-cloud a { text-decoration:none; background-color:#fbfeff;border-bottom:1px solid #e5edff;font-weight:normal; }
+        .tag-cloud .foswikiTagCount {font-size:0.5em;}
+    </style>%TMPL:END%
+%TMPL:DEF{tagsplugin:tagcloud:header}%%TMPL:P{tagsplugin:tagcloud:css}%<ol class='tag-cloud'>%TMPL:END%
+%TMPL:DEF{tagsplugin:tagcloud:format}%<li class="$tagrange"><span>$count items are tagged with </span><a href='$tagurl' class='foswikiTag'>$tag <font class="foswikiTagCount">($count)</font></a></li>%TMPL:END%
+%TMPL:DEF{tagsplugin:tagcloud:separator}%
+%TMPL:END%
+%TMPL:DEF{tagsplugin:tagcloud:footer}%</ol>%TMPL:END%

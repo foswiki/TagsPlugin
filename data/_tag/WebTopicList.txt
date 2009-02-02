@@ -1,0 +1,5 @@
+%META:TOPICINFO{author="ProjectContributor" date="1163619832" format="1.0" version="$Rev: 14617 $"}%
+
+%MAKETEXT{"See also the verbose [_1]." args="[[%BASEWEB%.WebIndex][WebIndex]]"}%
+
+%SEARCH{"%WEB%" type="tag" web="all" nosearch="on" format="   * %WEB%.$topic"}%

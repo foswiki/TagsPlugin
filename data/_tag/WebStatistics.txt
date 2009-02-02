@@ -1,0 +1,7 @@
+%META:TOPICINFO{author="ProjectContributor" date="1112697648" format="1.0" version="$Rev: 16803 $"}%
+%META:TOPICPARENT{name="WebHome"}%
+---++ Statistics for <nop>%WEB% Web
+
+This is a pseudo-web displayed dynamically based on a Tag: %WEB%
+
+No TWiki WebStatistics can be shown for it.

@@ -1,0 +1,27 @@
+# Release manifest for TagsPlugin
+data/System/TagsPlugin.txt 0644 Documentation
+data/System/TagsPluginViews.txt 0644 Documentation
+lib/System/Plugins/TagsPlugin.pm 0644 Perl module
+templates/tagsplugin.tmpl
+templates/view.tagsplugin.tmpl
+
+lib/Foswiki/Store/TagsStore.pm
+lib/Foswiki/Plugins/TagsPlugin/Config.spec
+
+data/System/WebSearch.txt
+data/System/WebSearchAdvanced.txt
+
+data/_tag/WebNotify.txt
+data/_tag/WebSearch.txt
+data/_tag/WebSearchAdvanced.txt
+data/_tag/WebIndex.txt
+data/_tag/WebTopicList.txt
+data/_tag/WebHome.txt
+data/_tag/WebLeftBar.txt
+data/_tag/WebCreateNewTopic.txt
+data/_tag/WebChanges.txt
+data/_tag/WebRss.txt
+data/_tag/WebRssBase.txt
+data/_tag/WebPreferences.txt
+data/_tag/WebAtom.txt
+data/_tag/WebStatistics.txt

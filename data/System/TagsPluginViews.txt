@@ -1,0 +1,43 @@
+---+++ list of everyone's tags on the current topic
+%TAGLIST{item="%BASEWEB%.%BASETOPIC%" }% 
+---+++ list of %NOP%%WIKINAME%'s tags on the current topic
+%TAGLIST{item="%BASEWEB%.%BASETOPIC%" show="user"}% 
+
+---+++ tag cloud of everyone's tags
+%TAGCLOUD{}%
+
+---+++ tag cloud of everyone's tags on ?tag=%URLPARAM{"tag" default="undef"}%
+
+%TAGCLOUD{item="%URLPARAM{tag}%"}%
+
+
+
+---+++ tag cloud of Tags tagged with %URLPARAM{tag}% (inverse tag lookup)
+
+%TAGCLOUD{
+    type="tag"
+    tag="%URLPARAM{tag}%"
+    format="[[$tagurl][$tag]]"
+    separator=" "
+}%
+
+---+++ List of topics tagged with %URLPARAM{tag}% (inverse tag lookup)
+
+%TAGCLOUD{
+    type="topic"
+    tag="%URLPARAM{tag}%"
+    format=" $tag"
+    separator=" "
+}%
+
+
+---+++ topics tagged with ?tag=%URLPARAM{"tag" default="undef"}%
+   * =%<nop>SEARCH{"%URLPARAM{tag}%" type="tag"}%=
+   * TODO: add $count, $relatedTags etc.
+%SEARCH{"%URLPARAM{tag}%" type="tag" web="all" nonoise="on" format="| $web.$topic | $summary | $percntTAGLIST{item=$quot$web.$topic$quot format=$quot[[$tagurl][$tag]]$quot}$percnt |"}%
+
+----
+need to be able to
+   1 rename a tag
+   2 delete a tag
+   3 change a tag's location in the tag graph - note that it _is_ a rgaph, not a tree - unless I wrote code to make sure it is a tree.

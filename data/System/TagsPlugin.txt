@@ -1,0 +1,79 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1211031581" format="1.1" version="1.6"}%
+---+!! !TagsPlugin
+ <!--
+One line description, required for extensions repository catalog.
+   * Set SHORTDESCRIPTION = Full strength Tagging system
+-->
+%SHORTDESCRIPTION%
+
+%TOC%
+
+---++ Usage
+ TagsPlugin allows users to tag resources of differing types - and so the TML used to access the
+ tags specifies this information too.
+
+ TagsPluginViews defines the common Tag widgets that can be re-used via Sectional includes.
+
+---++ Tag Filters
+step 1: add ?tagfilter=Tag,More+Tags will thus use that filter instead of the web as a context??
+
+
+There are session settable 'Filters' that will reduce the set of topics in a similar way
+to 'Webs' - they are _session_ based - at least
+until I can work out howto save a filter to a Name, that can be used as a Pseudo-Web.
+
+---+++ =TAGLIST=
+ Lists the tags for the requested resource
+---+++ =TAGENTRY=
+ allows users to add, remove and manipulate tags for a resource
+---+++ =TAGCLOUD=
+ WebTwoyGoodness.
+---+++ SEARCHing
+To search for topics that are tagged with (or not tagged with), use a %SYSTEMWEB%.QuerySearch
+with the =taggedwith(tagname)= operator
+
+
+
+---++ Examples
+---+++ list of all user's tags on the current topic
+%TAGLIST{show="user"}%
+---+++ edit (the current user's) the tags on the current topic
+%TAGENTRY%
+---+++ tag cloud of all user's tags on the current topic
+%TAGCLOUD%
+
+---++ Installation Instructions
+
+*To initialise the tag database* and to tag each topic with the webname it is in, goto
+%SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
+
+If you want to preload the tags database with Country Names, you need to install Geo::GeoNames and click
+%SCRIPTURL{rest}%/TagsPlugin/updateGeoTags
+   * uses the CC licenced http://www.geonames.org
+
+
+%$INSTALL_INSTRUCTIONS%
+
+---++ Plugin Info
+ This Plugin uses DbiContrib to store the tagmap in a database for fast querying.
+
+Schema & design inspired from [[http://forge.mysql.com/wiki/TagSchema][MySQL Forge]],
+but treating Tags as Items, so that you can tag a tag (creating a heirarchy of tags)
+
+
+|  Plugin Author(s): | Foswiki:Main.SvenDowideit |
+|  Copyright: | © SvenDowideit@home.org.au |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Plugin Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order --> |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Plugin Home: | http://foswiki.org/Extensions/TagsPlugin |
+
+
+__Related Topics:__ %SYSTEMWEB%.FoswikiPlugins, %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %SYSTEMWEB%.SitePreferences
+
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on foswiki.org instead. -->
+
+   * [[%ATTACHURL%/tagging_folksonomy.pdf][tagging_folksonomy.pdf]]: mysql slide presentation
+
+%META:FILEATTACHMENT{name="tagging_folksonomy.pdf" attachment="tagging_folksonomy.pdf" attr="" comment="mysql slide presentation" date="1211023942" path="tagging_folksonomy.pdf" size="905979" stream="tagging_folksonomy.pdf" tmpFilename="/var/tmp/CGItemp63078" user="BaseUserMapping_333" version="1"}%

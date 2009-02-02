@@ -1,0 +1,14 @@
+%META:TOPICINFO{author="ProjectContributor" date="1163619832" format="1.0" version="$Rev: 14617 $"}%
+
+---++ Topics Tagged with %NOP%%WEB%
+
+| *Topic* |  *Tags*||
+%SEARCH{
+    "%WEB%"
+    type="tag"
+    web="all"
+    nosearch="on"
+    format="| %WEB%.$topic |   |  $percntTAGLIST{item=$quot$web.$topic$quot format=$quot[[$tag.WebHome][$tag]]$quot}$percnt|$n| $summary |||"}%
+
+
+%MAKETEXT{"See also the faster [_1]" args="[[%BASEWEB%.WebTopicList][WebTopicList]]"}%
