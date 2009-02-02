@@ -1,8 +1,7 @@
-%META:TOPICINFO{author="ProjectContributor" date="1112002813" format="1.0" version="$Rev: 8551 $"}%
+%META:TOPICINFO{author="ProjectContributor" date="1231502400" format="1.0" version="$Rev: 1838 $"}%
 ---+!! %MAKETEXT{"Welcome to the [_1] web" args="<nop>%WEB%"}%
 
----++ %MAKETEXT{"Available Information"}%
-Topics about %NOP%%WEB%:
+---++ Topics about %NOP%%WEB%:
 %SEARCH{
     "%WEB%"
     type="tag"
@@ -15,7 +14,7 @@ Topics about %NOP%%WEB%:
  
 ---++ <nop>%WEB% Web Utilities
 <form action='%SCRIPTURLPATH{"search"}%/%WEB%/'>
-   * <input type="text" name="search" size="22" />&nbsp;<input type="submit" class="twikiSubmit" value="%MAKETEXT{"Search"}%" /> - [[WebSearchAdvanced][%MAKETEXT{"advanced search"}%]]
+   * <input type="text" name="search" size="22" />&nbsp;<input type="submit" class="foswikiSubmit" value="%MAKETEXT{"Search"}%" /> - [[WebSearchAdvanced][%MAKETEXT{"advanced search"}%]]
    * WebTopicList - all topics in alphabetical order
    * WebChanges - recent topic changes in this web
    * WebNotify - subscribe to an e-mail alert sent when topics change

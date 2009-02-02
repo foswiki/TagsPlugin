@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1163619832" format="1.0" version="$Rev: 14617 $"}%
+%META:TOPICINFO{author="ProjectContributor" date="1231502400" format="1.0" version="$Rev: 1838 $"}%
 
 ---++ Topics Tagged with %NOP%%WEB%
 
@@ -8,7 +8,8 @@
     type="tag"
     web="all"
     nosearch="on"
-    format="| %WEB%.$topic |   |  $percntTAGLIST{item=$quot$web.$topic$quot format=$quot[[$tag.WebHome][$tag]]$quot}$percnt|$n| $summary |||"}%
+    format="| %WEB%.$topic |   |  $percntTAGLIST{item=$quot$web.$topic$quot format=$quot[[$tag.WebHome][$tag]]$quot}$percnt|$n| $summary |||"
+}%
 
 
 %MAKETEXT{"See also the faster [_1]" args="[[%BASEWEB%.WebTopicList][WebTopicList]]"}%
