@@ -1,7 +1,7 @@
 # Release manifest for TagsPlugin
 data/System/TagsPlugin.txt 0644 Documentation
 data/System/TagsPluginViews.txt 0644 Documentation
-lib/System/Plugins/TagsPlugin.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
 templates/tagsplugin.tmpl
 templates/view.tagsplugin.tmpl
 
