@@ -51,10 +51,9 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD );
 
     Foswiki::Func::registerRESTHandler('tag', \&tagCall);
-    Foswiki::Func::registerRESTHandler('initialiseDatabase', \&initialiseDatabase);
-
     Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
-
+   
+    Foswiki::Func::registerRESTHandler('initialiseDatabase', \&initialiseDatabase);
 
     #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
 
@@ -120,6 +119,7 @@ sub _TAGLIST {
     if (!defined($showUser) || (lc($showUser) ne 'user')) {
     } else {
        my $user_id = getUserId($session);
+       return '' unless (defined($user_id));
        push @whereClauses, " i2t.user_id = '$user_id' ";
     }
     my $showType = $params->{type};
@@ -332,7 +332,8 @@ sub updateTopicTags {
     my( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
     my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
     #my $capitalized = qr/[$upper][$alpha]+/;
-    $text =~ s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id)/geo ;
+    
+    $text =~ s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo ;
 
     #add formname as tag - if present
     my $formName = $meta->getFormName();
