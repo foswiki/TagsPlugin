@@ -1,4 +1,4 @@
 # Dependencies for TagsPlugin
 Geo::GeoNames,>=0,cpan,Required
-DbiContrib,,perl,Required
+Foswiki::Contrib::DbiContrib,,perl,Required
 

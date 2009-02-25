@@ -82,6 +82,4 @@ __Related Topics:__ %SYSTEMWEB%.FoswikiPlugins, %SYSTEMWEB%.DeveloperDocumentati
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on foswiki.org instead. -->
 
-   * [[%ATTACHURL%/tagging_folksonomy.pdf][tagging_folksonomy.pdf]]: mysql slide presentation
-
-%META:FILEATTACHMENT{name="tagging_folksonomy.pdf" attachment="tagging_folksonomy.pdf" attr="" comment="mysql slide presentation" date="1211023942" path="tagging_folksonomy.pdf" size="905979" stream="tagging_folksonomy.pdf" tmpFilename="/var/tmp/CGItemp63078" user="BaseUserMapping_333" version="1"}%
+   * [[http://faculty.philau.edu/kayk/kkay/articles/Tagging_folksonomy.pdf][Intranet Applications for Tagging and Folksonomies]] 
