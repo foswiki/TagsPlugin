@@ -55,9 +55,9 @@ add a tag entry to each topic, by adding =tagsplugin= to your skin path
 eg Set SKIN=tagsplugin,pattern
 
 
-If you want to preload the tags database with Country Names, you need to install Geo::GeoNames and click
+If you want to preload the tags database with Country Names, you need to install CPAN:Geo::GeoNames and click
 %SCRIPTURL{rest}%/TagsPlugin/updateGeoTags
-   * uses the CC licenced http://www.geonames.org
+   * uses the CC licenced http://www.geonames.org (http://download.geonames.org/export/dump/allCountries.zip)
 
 
 %$INSTALL_INSTRUCTIONS%
