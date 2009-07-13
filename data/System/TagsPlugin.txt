@@ -45,12 +45,12 @@ with the =taggedwith(tagname)= operator
 ---++ Installation Instructions
 
    1 set ={DbiContrib}{DBI_dsn}=, ={DbiContrib}{DBI_username}= and ={DbiContrib}{DBI_password}=
-      * currently only tested using MySQL - =dbi:mysql:tags:localhost=
+      * currently only tested using MySQL - =dbi:mysql:example_com_tags:localhost=
    2 create the database in MySQL server and add the user with permission to create tables
    3 *initialise the tag database* and to tag each topic with the webname it is in, goto
       * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
       
-add a tag entry to each topic, by adding =tagsplugin= to your skin path
+to  automatically add a tag entry to each topic, add =tagsplugin= to your skin path
 
 eg Set SKIN=tagsplugin,pattern
 
