@@ -1,6 +1,6 @@
 # Module of Foswiki Enterprise Collaboration Platform, http://foswiki.org/
 #
-# Copyright (C) 2008 Sven Dowideit, SvenDowideit@hfosiki.com
+# Copyright (C) 2008, 2009 Sven Dowideit, SvenDowideit@fosiki.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

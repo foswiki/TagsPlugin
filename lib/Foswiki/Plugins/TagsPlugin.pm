@@ -1,4 +1,5 @@
-# Copyright 2008 SvenDowideit@home.org.au
+# Copyright 2008, 2009 SvenDowideit@fosiki.com
+# distributed under GPL 3.
 
 =pod
 

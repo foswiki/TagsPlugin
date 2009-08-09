@@ -78,8 +78,10 @@ but treating Tags as Items, so that you can tag a tag (creating a heirarchy of t
 |  Plugin Home: | http://foswiki.org/Extensions/TagsPlugin |
 
 
-__Related Topics:__ %SYSTEMWEB%.FoswikiPlugins, %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %MAINWEB%.SitePreferences
+__Related Topics:__ %SYSTEMWEB%.InstalledPlugins, %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory,
+%MAINWEB%.SitePreferences
 
-<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on foswiki.org instead. -->
+<!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on
+foswiki.org instead. -->
 
    * [[http://faculty.philau.edu/kayk/kkay/articles/Tagging_folksonomy.pdf][Intranet Applications for Tagging and Folksonomies]] 
