@@ -8,8 +8,8 @@ templates/view.tagsplugin.tmpl
 lib/Foswiki/Store/TagsStore.pm
 lib/Foswiki/Plugins/TagsPlugin/Config.spec
 
-data/System/WebSearch.txt
-data/System/WebSearchAdvanced.txt
+#data/System/WebSearch.txt
+#data/System/WebSearchAdvanced.txt
 
 data/_tag/WebNotify.txt
 data/_tag/WebSearch.txt
