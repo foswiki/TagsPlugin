@@ -466,6 +466,9 @@ sub tagItem {
             }
         }
     }
+    
+    # flushing the changes
+    $db->commit();
 
     return $rowCount;
 }
