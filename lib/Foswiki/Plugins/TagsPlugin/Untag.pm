@@ -26,23 +26,25 @@ use Error qw(:try);
 This is the REST wrapper for untag.
 
 Takes the following url parameters:
-item : name of the topic to be untagged (format: Sandbox.TestTopic)
-tag  : name of the tag
-user : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+ item : name of the topic to be untagged (format: Sandbox.TestTopic)
+ tag  : name of the tag
+ user : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
 
 If "user" is a groupname, the currently logged in user has to be member of that group. 
 Guest user is only permitted, if he wants to delete his own tags.
 
 It checks the prerequisites and sets the following status codes:
-200 : Ok
-400 : url parameter(s) are missing
-401 : access denied for unauthorized user
-403 : the user is not allowed to untag 
-500 : server error (presumably db related)
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 401 : access denied for unauthorized user
+ 403 : the user is not allowed to untag 
 
 Return:
 In case of an error (!=200 ) just the status code incl. short description is returned.
 Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
+
+TODO:
+ force http POST method
 =cut
 
 sub rest {
@@ -172,19 +174,25 @@ sub do {
     
     # update statistics
     #
-    # altering only UserItemStat
     if ( $affected_rows > 0 ) {
+        # ...in UserTagStat
         $statement =
           sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ? AND %s = ?',
             qw( UserTagStat num_items num_items tag_id user_id) );
         my $modified = $db->dbInsert( $statement, $tag_id, $cuid );
-        # Foswiki::Func::writeDebug("Untag: $statement; ($tag_id, $cuid) -> $modified") if $debug;
+
+        # ... in TagStat
+        $statement =
+          sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ?',
+            qw( TagStat num_items num_items tag_id) );
+        $modified = $db->dbInsert( $statement, $tag_id );
     }
 
     # flushing data to dbms
     #    
     $db->commit();
 
+    # add extra space, so that zero affected rows does not clash with returning "0" from rest invocation
     return " $affected_rows";
 }
 

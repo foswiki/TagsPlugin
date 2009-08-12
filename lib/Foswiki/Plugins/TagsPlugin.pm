@@ -52,13 +52,11 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'TAGENTRY', \&_TAGENTRY );
     Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD );
 
-    Foswiki::Func::registerRESTHandler( 'tag',   \&tagCall );
-    Foswiki::Func::registerRESTHandler( 'untag', \&untagCall );    
-
-    #    Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
-
-    Foswiki::Func::registerRESTHandler( 'initialiseDatabase',
-        \&initialiseDatabase );
+    Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'untag',  \&untagCall );
+    Foswiki::Func::registerRESTHandler( 'delete', \&deleteCall ); 
+    # Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
+    Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
 
     #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
 
@@ -320,6 +318,11 @@ sub tagCall {
 sub untagCall {
     use Foswiki::Plugins::TagsPlugin::Untag;
     return Foswiki::Plugins::TagsPlugin::Untag::rest( @_ );    
+}
+
+sub deleteCall {
+    use Foswiki::Plugins::TagsPlugin::Delete;
+    return Foswiki::Plugins::TagsPlugin::Delete::rest( @_ );    
 }
 
 sub getUserId {
