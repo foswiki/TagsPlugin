@@ -52,7 +52,8 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'TAGENTRY', \&_TAGENTRY );
     Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD );
 
-    Foswiki::Func::registerRESTHandler( 'tag', \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'tag',   \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'untag', \&untagCall );    
 
     #    Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
@@ -314,6 +315,11 @@ sub tagCall {
         $toUrl = Foswiki::Func::getScriptUrl( $web, $topic, 'view' );
     }
     Foswiki::Func::redirectCgiQuery( undef, $toUrl );
+}
+
+sub untagCall {
+    use Foswiki::Plugins::TagsPlugin::Untag;
+    return Foswiki::Plugins::TagsPlugin::Untag::rest( @_ );    
 }
 
 sub getUserId {
