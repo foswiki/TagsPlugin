@@ -372,21 +372,26 @@ sub updateTopicTags {
 
     tagItem( $item_type, "$web.$topic", $web, $user_id );
 
-    #open the topic, find WikiWords ending in Category, and add that as a tag.
-    my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
-    my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
+    my ( $meta, $text );
+    if ( $Foswiki::cfg{TagsPlugin}{EnableDataForms} || $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {
+        ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );        
+    }
+    
+    if ( defined($Foswiki::cfg{TagsPlugin}{EnableCategories}) && $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {
+        #open the topic, find WikiWords ending in Category, and add that as a tag.
+        my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
+        #my $capitalized = qr/[$upper][$alpha]+/;
+        $text =~
+          s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo;
+    }
 
-    #my $capitalized = qr/[$upper][$alpha]+/;
-
-    $text =~
-s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo;
-
-    #add formname as tag - if present
-    my $formName = $meta->getFormName();
-    if ( $formName ne '' ) {
-        tagItem( $item_type, "$web.$topic", $formName, $user_id );
-
-        #TODO: tag that tag with FormName..
+    if ( defined($Foswiki::cfg{TagsPlugin}{EnableDataForms}) && $Foswiki::cfg{TagsPlugin}{EnableDataForms} ) {
+        #add formname as tag - if present
+        my $formName = $meta->getFormName();
+        if ( $formName ne '' ) {
+            tagItem( $item_type, "$web.$topic", $formName, $user_id );    
+            #TODO: tag that tag with FormName..
+        }
     }
     return;
 }

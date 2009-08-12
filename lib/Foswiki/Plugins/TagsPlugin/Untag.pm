@@ -178,7 +178,7 @@ sub do {
           sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ? AND %s = ?',
             qw( UserTagStat num_items num_items tag_id user_id) );
         my $modified = $db->dbInsert( $statement, $tag_id, $cuid );
-        Foswiki::Func::writeDebug("Untag: $statement; ($tag_id, $cuid) -> $modified") if $debug;
+        # Foswiki::Func::writeDebug("Untag: $statement; ($tag_id, $cuid) -> $modified") if $debug;
     }
 
     # flushing data to dbms
