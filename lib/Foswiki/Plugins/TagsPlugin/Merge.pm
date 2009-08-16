@@ -32,14 +32,15 @@ Takes the following url parameters:
 It checks the prerequisites and sets the following status codes:
  200 : Ok
  400 : url parameter(s) are missing
- 403 : the user is not allowed to rename 
+ 403 : the user is not allowed to merge 
 
 Return:
 In case of an error (!=200) just the status code incl. short description is returned.
-Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
+Otherwise a 200 and the number is returned (0 indicates an update error, any positive number is fine).
 
 TODO:
  force http POST method
+ create/return proper http status codes on errors
 =cut
 
 sub rest {
