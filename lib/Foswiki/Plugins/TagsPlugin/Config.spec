@@ -13,5 +13,5 @@ $Foswiki::cfg{TagsPlugin}{EnableCategories} = 1;
 $Foswiki::cfg{TagsPlugin}{EnableDataForms} = 1;
 
 # **STRING**
-# Name of the TagAdminGroup (which is allowed to delete and merge tags)
+# Name of the TagAdminGroup (which is allowed to delete, rename and merge tags)
 $Foswiki::cfg{TagsPlugin}{TagAdminGroup} = "AdminGroup";
