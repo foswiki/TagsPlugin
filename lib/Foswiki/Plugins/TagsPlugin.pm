@@ -287,34 +287,8 @@ Add new tag: (aparently SELECT then INSERT is faster than REPLACE)
 =cut
 
 sub tagCall {
-    my ($session) = @_;
-    my $query = Foswiki::Func::getCgiQuery();
-
-    my $item_name  = $query->param('item');
-    my $item_type  = $query->param('type') || 'topic';
-    my $tag_text   = $query->param('tag');
-    my $redirectto = $query->param('redirectto');
-
-    $item_name = Foswiki::Sandbox::untaintUnchecked($item_name);
-    $item_type = Foswiki::Sandbox::untaintUnchecked($item_type);
-    $tag_text  = Foswiki::Sandbox::untaintUnchecked($tag_text);
-
-    my $user_id = getUserId($session);
-    tagItem( $item_type, $item_name, $tag_text, $user_id );
-
-    my $db = new Foswiki::Contrib::DbiContrib;
-    $db->disconnect();    #force a commit
-
-    my $toUrl = '';
-    if ( defined($redirectto) ) {
-        $toUrl = $redirectto;
-    }
-    else {
-        my ( $web, $topic ) =
-          Foswiki::Func::normalizeWebTopicName( '', $item_name );
-        $toUrl = Foswiki::Func::getScriptUrl( $web, $topic, 'view' );
-    }
-    Foswiki::Func::redirectCgiQuery( undef, $toUrl );
+    use Foswiki::Plugins::TagsPlugin::Tag;
+    return Foswiki::Plugins::TagsPlugin::Tag::rest( @_ );    
 }
 
 sub untagCall {
@@ -338,9 +312,10 @@ sub mergeCall {
 }
 
 sub getUserId {
-    my $session = shift;
+    my $session = $_[0];
+    my $user    = $_[1]; 
 
-    my $FoswikiCuid = $session->{user};
+    my $FoswikiCuid = Foswiki::Func::getCanonicalUserID($user) || $session->{user};
 
   #    if ($session->{users}->isAdmin($FoswikiCuid)) {
   #        $FoswikiCuid = '333';
@@ -385,7 +360,8 @@ sub updateTopicTags {
     my ( $item_type, $web, $topic, $user_id ) = @_;
     my $session = $Foswiki::Plugins::SESSION;
 
-    tagItem( $item_type, "$web.$topic", $web, $user_id );
+    use Foswiki::Plugins::TagsPlugin::Tag;
+    Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $web, $user_id );
 
     my ( $meta, $text );
     if ( $Foswiki::cfg{TagsPlugin}{EnableDataForms} || $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {
@@ -404,99 +380,11 @@ sub updateTopicTags {
         #add formname as tag - if present
         my $formName = $meta->getFormName();
         if ( $formName ne '' ) {
-            tagItem( $item_type, "$web.$topic", $formName, $user_id );    
+            Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $formName, $user_id );    
             #TODO: tag that tag with FormName..
         }
     }
     return;
-}
-
-#TODO: if you use item_type='tag' I think it needs to create the tagstat for that too
-sub tagItem {
-    my ( $item_type, $item_name, $tag_text, $user_id ) = @_;
-
-    return unless ( ( defined($tag_text) )  && ( $tag_text  ne '' ) );
-    return unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
-
-    my $db = new Foswiki::Contrib::DbiContrib;
-    my $item_id;
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    my $arrayRef = $db->dbSelect( $statement, $item_name, $item_type );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $item_id = $arrayRef->[0][0];
-    }
-    else {
-        $statement = sprintf( 'INSERT INTO %s (%s, %s) VALUES (?,?)',
-            qw( Items item_name item_type) );
-        my $rowCount = $db->dbInsert( $statement, $item_name, $item_type );
-        $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-            qw( item_id Items item_name item_type) );
-        $arrayRef = $db->dbSelect( $statement, $item_name, $item_type );
-        $item_id = $arrayRef->[0][0];
-    }
-
-    my $tag_id;
-    my $new_tag = 0;
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id = $arrayRef->[0][0];
-    }
-    else {
-        $statement = sprintf( 'INSERT INTO %s (%s,%s) VALUES (?,?)',
-            qw(Items item_name item_type) );
-        my $rowCount = $db->dbInsert( $statement, $tag_text, 'tag' );
-        $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-            qw(item_id Items item_name item_type) );
-        $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-        $tag_id = $arrayRef->[0][0];
-
-        $statement =
-          sprintf( 'INSERT INTO %s (%s) VALUES (?)', qw( TagStat tag_id) );
-        $db->dbInsert( $statement, $tag_id );
-        $statement = sprintf( 'INSERT INTO %s (%s,%s) VALUES (?,?)',
-            qw( UserTagStat tag_id user_id) );
-        $db->dbInsert( $statement, $tag_id, $user_id );
-        $new_tag = 1;
-    }
-
-    my $rowCount = 0;
-    $statement =
-      sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ?',
-        qw(tag_id UserItemTag user_id item_id tag_id) );
-    $arrayRef = $db->dbSelect( $statement, $user_id, $item_id, $tag_id );
-    if ( !defined( $arrayRef->[0][0] ) ) {
-        $statement = sprintf( 'INSERT INTO %s (%s, %s, %s) VALUES (?,?,?)',
-            qw( UserItemTag user_id item_id tag_id) );
-        $rowCount = $db->dbInsert( $statement, $user_id, $item_id, $tag_id );
-
-        unless ($new_tag) {
-            $statement = sprintf( 'UPDATE %s SET %s=%s+1 WHERE %s = ?',
-                qw( TagStat num_items num_items tag_id) );
-            my $modified = $db->dbInsert( $statement, $tag_id );
-            if ( $modified == 0 ) {
-                $statement = sprintf( 'INSERT INTO %s (%s) VALUES (?)',
-                    qw( TagStat tag_id) );
-                $db->dbInsert( $statement, $tag_id );
-            }
-            $statement =
-              sprintf( 'UPDATE %s SET %s=%s+1 WHERE %s = ? AND %s = ?',
-                qw( UserTagStat num_items num_items tag_id user_id) );
-            $modified = $db->dbInsert( $statement, $tag_id, $user_id );
-            if ( $modified == 0 ) {
-                $statement = sprintf( 'INSERT INTO %s (%s,%s) VALUES (?,?)',
-                    qw( UserTagStat tag_id user_id) );
-                $db->dbInsert( $statement, $tag_id, $user_id );
-            }
-        }
-    }
-    
-    # flushing the changes
-    $db->commit();
-
-    return $rowCount;
 }
 
 sub initialiseDatabase {
@@ -571,6 +459,7 @@ END
     # - import TagMe tags
     my $count   = 0;
     my $user_id = getUserId($session);
+    use Foswiki::Plugins::TagsPlugin::Tag;
     my @weblist = Foswiki::Func::getListOfWebs();
     foreach my $web (@weblist) {
         my @topiclist = Foswiki::Func::getTopicList($web);
@@ -578,7 +467,7 @@ END
             updateTopicTags( 'topic', $web, $topic, $user_id );
             $count++;
         }
-        tagItem( 'tag', $web, 'web', $user_id );
+        Foswiki::Plugins::TagsPlugin::Tag::do( 'tag', $web, 'web', $user_id );
     }
 
     #my $db = new Foswiki::Contrib::DbiContrib;

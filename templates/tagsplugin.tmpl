@@ -4,6 +4,7 @@
     <input id="foswikiTagInput" type='text' name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
     <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
     <input type='hidden' name='type' value='topic' />
+    <input type='hidden' name='redirectto' value='%SCRIPTURL{view}%/%BASEWEB%.%BASETOPIC%' />
 </form> %TMPL:END%
 
 %{ TAGLIST }%
