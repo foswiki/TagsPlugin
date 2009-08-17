@@ -315,7 +315,7 @@ sub getUserId {
     my $session = $_[0];
     my $user    = $_[1]; 
 
-    my $FoswikiCuid = Foswiki::Func::getCanonicalUserID($user) || $session->{user};
+    my $FoswikiCuid = $user || $session->{user};
 
   #    if ($session->{users}->isAdmin($FoswikiCuid)) {
   #        $FoswikiCuid = '333';

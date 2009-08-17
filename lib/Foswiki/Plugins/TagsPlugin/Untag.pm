@@ -53,11 +53,11 @@ sub rest {
 
     my $item_name = $query->param('item') || '';
     my $tag_text  = $query->param('tag')  || '';
-    my $user_id   = $query->param('user') || Foswiki::Func::getWikiName();
+    my $user      = $query->param('user') || Foswiki::Func::getWikiName();
 
     $item_name = Foswiki::Sandbox::untaintUnchecked($item_name);
     $tag_text  = Foswiki::Sandbox::untaintUnchecked($tag_text);
-    $user_id   = Foswiki::Sandbox::untaintUnchecked($user_id);
+    $user      = Foswiki::Sandbox::untaintUnchecked($user);
 
     #
     # checking prerequisites
@@ -81,11 +81,11 @@ sub rest {
         return "<h1>401 Access denied for unauthorized user</h1>";
     }
 
-    # can $currentUser speak for $user_id?
-    if ( Foswiki::Func::isGroup($user_id) ) {
+    # can $currentUser speak for $user?
+    if ( Foswiki::Func::isGroup($user) ) {
         if (
             !Foswiki::Func::isGroupMember(
-                $user_id, Foswiki::Func::getWikiName()
+                $user, Foswiki::Func::getWikiName()
             )
           )
         {
@@ -93,7 +93,7 @@ sub rest {
             return "<h1>403 Forbidden</h1>";
         }
     }
-    elsif ( Foswiki::Func::getWikiName() ne $user_id ) {
+    elsif ( Foswiki::Func::getWikiName() ne $user ) {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
     }
@@ -104,19 +104,18 @@ sub rest {
     $session->{response}->status(200);
     
     # returning the number of affected tags
-    return Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
-
+    return Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user );
 }
 
 =begin TML
 
----++ do( $item_name, $tag_text, $user_id )
+---++ do( $item_name, $tag_text, $user )
 This does untagging.
 
 Takes the following parameters:
  item_name : name of the topic to be untagged (format: Sandbox.TestTopic)
  tag_text  : name of the tag
- user_id   : Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+ user      : Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
 
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 the given item_name, tag_text or user_id was not found.
@@ -126,7 +125,7 @@ Return:
 =cut
 
 sub do {
-    my ( $item_name, $tag_text, $user_id ) = @_;
+    my ( $item_name, $tag_text, $user ) = @_;
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine item_id for given item_name and exit if its not there
@@ -140,7 +139,7 @@ sub do {
     if ( defined( $arrayRef->[0][0] ) ) {
         $item_id = $arrayRef->[0][0];
     }
-    else { return 0; }
+    else { return " -1"; }
 
     # determine tag_id for given tag_text and exit if its not there
     #
@@ -151,18 +150,18 @@ sub do {
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id = $arrayRef->[0][0];
     }
-    else { return 0; }
+    else { return " -2"; }
 
     # determine cuid for given user_id and exit if its not there
     #
     my $cuid;
     $statement =
       sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-    $arrayRef = $db->dbSelect( $statement, $user_id );
+    $arrayRef = $db->dbSelect( $statement, $user );
     if ( defined( $arrayRef->[0][0] ) ) {
         $cuid = $arrayRef->[0][0];
     }
-    else { return 0; }
+    else { return " -3"; }
 
     # now we are ready to actually untag
     #
