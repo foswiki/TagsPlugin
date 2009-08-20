@@ -13,11 +13,11 @@
      <script type="text/javascript">
         (function($){ 
           $(function(){
-            $("#foswikiTagsPluginEntryForm").submit(function(event) {
-                x = $("#foswikiTagInput").val();
-                alert(x);
-                event.preventDefault();
-            });
+            // $("#foswikiTagsPluginEntryForm").submit(function(event) {
+            //    x = $("#foswikiTagInput").val();
+            //    alert(x);
+            //    event.preventDefault();
+            //});
             $("#foswikiTagInput").autocomplete("%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagEntrySearch", {
                 extraParams: { skin:"text", cover:"text" },
                 multiple:    false,
