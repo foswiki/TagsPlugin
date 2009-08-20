@@ -21,7 +21,7 @@ use vars
   qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC $doneLoadTemplate );
 $VERSION           = '$Rev$';
 $RELEASE           = 'Foswiki-1.0.0';
-$SHORTDESCRIPTION  = '  Full strength Tagging system ';
+$SHORTDESCRIPTION  = 'Full strength Tagging system ';
 $NO_PREFS_IN_TOPIC = 1;
 $pluginName        = 'TagsPlugin';
 
@@ -45,12 +45,12 @@ sub initPlugin {
         return 0;
     }
 
-    my $setting = $Foswiki::cfg{Plugins}{TagsPlugin}{ExampleSetting} || 0;
-    $debug = $Foswiki::cfg{Plugins}{TagsPlugin}{Debug} || 0;
+    # $debug = $Foswiki::cfg{Plugins}{TagsPlugin}{Debug} || 0;
 
-    Foswiki::Func::registerTagHandler( 'TAGLIST',  \&_TAGLIST );
-    Foswiki::Func::registerTagHandler( 'TAGENTRY', \&_TAGENTRY );
-    Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD );
+    Foswiki::Func::registerTagHandler( 'TAGLIST',   \&_TAGLIST );
+    Foswiki::Func::registerTagHandler( 'TAGENTRY',  \&_TAGENTRY );
+    Foswiki::Func::registerTagHandler( 'TAGCLOUD',  \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
+    Foswiki::Func::registerTagHandler( 'TAGSEARCH', \&_TAGSEARCH );
 
     Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
     Foswiki::Func::registerRESTHandler( 'untag',  \&untagCall );
@@ -97,6 +97,26 @@ sub afterSaveHandler {
     $db->disconnect();    #force a commit
 
     return;
+}
+
+sub afterRenameHandler {
+    my ( $oldWeb, $oldTopic, $oldAttachment,
+         $newWeb, $newTopic, $newAttachment ) = @_;
+
+    # ignore attachment renamings
+    # TODO: we should not ignore web renamings
+    if ( $oldTopic && $newTopic ) {
+        my $oldLocation = "$oldWeb.$oldTopic";
+        my $newLocation = "$newWeb.$newTopic";
+        
+        my $db = new Foswiki::Contrib::DbiContrib;
+        my $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?', qw(Items item_name item_name item_type) );
+        my $rowCount = $db->dbInsert( $statement, $newLocation, $oldLocation, "topic" );
+        $db->disconnect();
+        Foswiki::Func::writeDebug("- ${pluginName}::afterSaveHandler( SQL: $statement, $newLocation, $oldLocation, topic -> $rowCount )");
+    }
+    
+    return "";
 }
 
 sub _loadTemplate {
@@ -267,6 +287,11 @@ sub _TAGCLOUD {
     return _TAGLIST( $session, $params, $theTopic, $theWeb );
 }
 
+sub _TAGSEARCH {
+    use Foswiki::Plugins::TagsPlugin::TAGSEARCH;
+    return Foswiki::Plugins::TagsPlugin::TAGSEARCH::do( @_ );
+}
+
 =pod
 
 ---++ tagCall($session) -> $text
@@ -313,9 +338,9 @@ sub mergeCall {
 
 sub getUserId {
     my $session = $_[0];
-    my $user    = $_[1]; 
+    my $user_id    = $_[1]; 
 
-    my $FoswikiCuid = $user || $session->{user};
+    my $FoswikiCuid = $user_id || $session->{user};
 
   #    if ($session->{users}->isAdmin($FoswikiCuid)) {
   #        $FoswikiCuid = '333';
@@ -358,10 +383,12 @@ update the tags for this topic
 
 sub updateTopicTags {
     my ( $item_type, $web, $topic, $user_id ) = @_;
-    my $session = $Foswiki::Plugins::SESSION;
-
+        
     use Foswiki::Plugins::TagsPlugin::Tag;
-    Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $web, $user_id );
+    
+    if ( defined($Foswiki::cfg{TagsPlugin}{EnableWebTags}) && $Foswiki::cfg{TagsPlugin}{EnableWebTags} ) {    
+        Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $web, Foswiki::Func::getCanonicalUserID("AdminUser") );
+    }    
 
     my ( $meta, $text );
     if ( $Foswiki::cfg{TagsPlugin}{EnableDataForms} || $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {

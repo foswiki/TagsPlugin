@@ -104,7 +104,8 @@ sub rest {
     $session->{response}->status(200);
     
     # returning the number of affected tags
-    return Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user );
+    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
+    return Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
 }
 
 =begin TML
@@ -125,7 +126,7 @@ Return:
 =cut
 
 sub do {
-    my ( $item_name, $tag_text, $user ) = @_;
+    my ( $item_name, $tag_text, $cuid ) = @_;
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine item_id for given item_name and exit if its not there
@@ -152,16 +153,6 @@ sub do {
     }
     else { return " -2"; }
 
-    # determine cuid for given user_id and exit if its not there
-    #
-    my $cuid;
-    $statement =
-      sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-    $arrayRef = $db->dbSelect( $statement, $user );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $cuid = $arrayRef->[0][0];
-    }
-    else { return " -3"; }
 
     # now we are ready to actually untag
     #

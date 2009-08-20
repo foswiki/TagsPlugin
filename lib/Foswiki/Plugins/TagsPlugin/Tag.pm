@@ -112,7 +112,7 @@ sub rest {
     $session->{response}->status(200);
     
     # returning nothing of interest
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, $user);
+    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
     my $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id );
     
     # redirect on request
@@ -121,7 +121,6 @@ sub rest {
     }
 
     return $retval;
-
 }
 
 =begin TML

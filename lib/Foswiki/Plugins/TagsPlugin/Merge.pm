@@ -122,7 +122,7 @@ sub do {
     my $tag_id2;
     $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
-    my $arrayRef = $db->dbSelect( $statement, $tag2, 'tag' );
+    $arrayRef = $db->dbSelect( $statement, $tag2, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id2 = $arrayRef->[0][0];
     }
