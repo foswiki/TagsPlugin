@@ -1,0 +1,10 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1251232495" format="1.1" version="1.2"}%
+<noautolink>
+%TAGSEARCH{ 
+  query="tag" 
+  web="%URLPARAM{"tagweb" default="%SYSTEMWEB%"}%"
+  topic="%URLPARAM{"tagtopic" default="SomeTHiNg_verY-unLIKelY" }%" 
+  format="      <span class='tagsplugin_tag $untaggable' tag='$tag' topic='$item' user='$user'>$tag</span>$n" 
+  sep=" " 
+}%
+</noautolink>
