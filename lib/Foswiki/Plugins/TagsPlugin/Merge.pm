@@ -23,35 +23,26 @@ use Error qw(:try);
 =begin TML
 
 ---++ rest( $session )
-This is the REST wrapper for merge.
+see Foswiki::Plugins::TagsPlugin::mergeCall()
 
-Takes the following url parameters:
- tag1 : name of the tag to be renamed
- tag2 : new name for the old tag
-
-It checks the prerequisites and sets the following status codes:
- 200 : Ok
- 400 : url parameter(s) are missing
- 403 : the user is not allowed to merge 
-
-Return:
-In case of an error (!=200) just the status code incl. short description is returned.
-Otherwise a 200 and the number is returned (0 indicates an update error, any positive number is fine).
-
-TODO:
- force http POST method
- create/return proper http status codes on errors
 =cut
 
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $tag1 = $query->param('tag1') || '';
     my $tag2 = $query->param('tag2') || '';
 
     $tag1 = Foswiki::Sandbox::untaintUnchecked($tag1);
     $tag2 = Foswiki::Sandbox::untaintUnchecked($tag2);
+    
+    # input data is assumed to be utf8 (usually in AJAX environments) 
+    require Unicode::MapUTF8;
+    $tag1 = Unicode::MapUTF8::from_utf8( { -string => $tag1, -charset => $charset } );
+    $tag2 = Unicode::MapUTF8::from_utf8( { -string => $tag2, -charset => $charset } );
+    
 
     #
     # checking prerequisites

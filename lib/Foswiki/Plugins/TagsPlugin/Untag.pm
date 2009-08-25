@@ -23,41 +23,29 @@ use Error qw(:try);
 =begin TML
 
 ---++ rest( $session )
-This is the REST wrapper for untag.
+see Foswiki::Plugins::TagsPlugin::untagCall()
 
-Takes the following url parameters:
- item : name of the topic to be untagged (format: Sandbox.TestTopic)
- tag  : name of the tag
- user : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
-
-If "user" is a groupname, the currently logged in user has to be member of that group. 
-Guest user is only permitted, if he wants to delete his own tags.
-
-It checks the prerequisites and sets the following status codes:
- 200 : Ok
- 400 : url parameter(s) are missing
- 401 : access denied for unauthorized user
- 403 : the user is not allowed to untag 
-
-Return:
-In case of an error (!=200 ) just the status code incl. short description is returned.
-Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
-
-TODO:
- force http POST method
 =cut
 
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
+    my $charset = $Foswiki::cfg{Site}{CharSet};    
 
-    my $item_name = $query->param('item') || '';
-    my $tag_text  = $query->param('tag')  || '';
-    my $user      = $query->param('user') || Foswiki::Func::getWikiName();
+    my $item_name     = $query->param('item') || '';
+    my $tag_text      = $query->param('tag')  || '';
+    my $user          = $query->param('user') || Foswiki::Func::getWikiName();
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
     $item_name = Foswiki::Sandbox::untaintUnchecked($item_name);
     $tag_text  = Foswiki::Sandbox::untaintUnchecked($tag_text);
     $user      = Foswiki::Sandbox::untaintUnchecked($user);
+    
+    # input data is assumed to be utf8 (usually in AJAX environments) 
+    require Unicode::MapUTF8;
+    $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
+    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
+    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );    
 
     #
     # checking prerequisites
@@ -93,7 +81,9 @@ sub rest {
             return "<h1>403 Forbidden</h1>";
         }
     }
-    elsif ( Foswiki::Func::getWikiName() ne $user ) {
+    elsif (    Foswiki::Func::getWikiName() ne $user 
+           && !Foswiki::Func::isAnAdmin() 
+           && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
     }

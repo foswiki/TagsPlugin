@@ -23,32 +23,22 @@ use Error qw(:try);
 =begin TML
 
 ---++ rest( $session )
-This is the REST wrapper for delete.
+see Foswiki::Plugins::TagsPlugin::deleteCall()
 
-Delete purges the given tag and all its instances from the database.
-
-Takes the following url parameters:
- tag  : name of the tag
-
-It checks the prerequisites and sets the following status codes:
- 200 : Ok
- 400 : url parameter(s) are missing
- 403 : the user is not allowed to delete tags 
-
-Return:
-In case of an error (!=200 ) just the status code incl. short description is returned.
-Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
-
-TODO:
- force http POST method
 =cut
 
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
+    my $charset = $Foswiki::cfg{Site}{CharSet};    
 
     my $tag_text = $query->param('tag')  || '';
     $tag_text    = Foswiki::Sandbox::untaintUnchecked($tag_text);
+    
+    # input data is assumed to be utf8 (usually in AJAX environments) 
+    require Unicode::MapUTF8;
+    $tag_text = Unicode::MapUTF8::from_utf8( { -string => $tag_text, -charset => $charset } );
+    
 
     #
     # checking prerequisites

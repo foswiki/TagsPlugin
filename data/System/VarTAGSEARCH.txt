@@ -1,0 +1,34 @@
+%META:TOPICINFO{author="ProjectContributor" date="1231502400" format="1.1" version="$Rev: 3863 $"}%
+%META:TOPICPARENT{name="Macros"}%
+#VarTAGSEARCH
+
+---+++ TAGSEARCH -- search the tags
+   * Inline tag search, shows a tag search result embedded in a topic
+   * Syntax: =%<nop>TAGSEARCH{...}%=
+   * Supported parameters:
+     | *Parameter:* | *Description:* | *Default:* |
+     | =query="tag"= <br /> =query="topic"= <br /> =query="user"= | This defines the primary dimension for your search. Every search has three dimensions: =tag=, =topic= and =user=. This affects the sorting, too. | ="tag"= |
+     | =tag="text"= <br /> =tag="all"= | Filter the =tag= dimension with this setting. Use =%= as a wildcard. | ="all"= |
+     | =user="wikiname"= <br /> =user="all"= | Filter the =user= dimension with this setting. Leave out the =%MAINWEB%= part here. | ="all"= |
+     | =web="Name"= <br /> =web="%USERSWEB%, Know"= <br /> =web="all"= | Comma-separated list of webs to search. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
+     | =topic="Name"= <br /> =topic="!TestTopic1, !TestTopic2"= <br /> =topic="all"= | Comma-separated list of topics (without a webname) to search. The special word =all= means all topics. Use =%= as a wildcard. | ="all"= |
+     | =header="..."= <br /> =format="..."= <br /> =footer="..."= | Custom format results: see table below for allowed variables. | depending on the =query= parameter, a simple list |
+     | =separator=", "= <br /> =sep=", "= | Separator _between_ search hits | =", "= |
+   * If two hits only differ in (tag|topic|user) and the =format= does not contain a (tag|topic|user) variable, the (two) hits clash into a single hit.
+   * Supported variables in custom formatting:
+     | *Name:* | *Expands To:* |
+     | =$item= | short for =$web.$topic= |
+     | =$web= | the web |
+     | =$topic= | the topic |
+     | =$cuid= | the cUID of the user |
+     | =$user= | the user in !WikiName format |
+     | =$tag= | the tag name|
+     | =$count= | tag count (the scope is always the whole database and *not* the current query) |
+     | =$isAdmin= | =tagsplugin_isAdmin=, if the current logged in user is allowed to rename/merge/delete (is in the !TagAdminGroup), otherwise this is removed |
+     | =$untaggable= | =tagsplugin_untaggable=, if the current logged in user is allowed to untag the current tag, otherwise this is removed |
+     | =$n= or =$n()= | New line. Use =$n()= if followed by alphanumeric character, e.g. write =Foo$n()Bar= instead of =Foo$nBar= |
+     | =$quot= | Double quote (="=) |
+     | =$percnt= | Percent sign (=%=) |
+     | =$dollar= | Dollar sign (=$=) |
+   * See %SYSTEMWEB%.TagsPluginViewsTagSearch for examples.
+

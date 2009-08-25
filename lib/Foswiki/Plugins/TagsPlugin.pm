@@ -296,6 +296,31 @@ sub _TAGSEARCH {
 
 ---++ tagCall($session) -> $text
 
+This is the REST wrapper for tag.
+
+Takes the following url parameters:
+ item       : name of the topic to be tagged (format: Sandbox.TestTopic)
+ type       : either "topic" or "tag", defaults to "topic"
+ tag        : name of the tag
+ user       : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe)
+ redirectto : (optional) redirect target after action is performed
+
+If "user" is a groupname, the currently logged in user has to be member of that group. 
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 401 : access denied for unauthorized user
+ 403 : the user is not allowed to untag 
+
+Return:
+In case of an error (!=200 ) just the status code incl. short description is returned.
+Otherwise a 200 is returned or if requested a redirect is performed.
+
+TODO:
+ force http POST method
+ if you use item_type='tag' I think it needs to create the tagstat for that too 
+
 Add new tag: (aparently SELECT then INSERT is faster than REPLACE)
    1 if 'item' not in Items table
       * INSERT INTO Items (item_name, item_type) VALUES ("$web.$name", 'topic');
@@ -307,8 +332,7 @@ Add new tag: (aparently SELECT then INSERT is faster than REPLACE)
    6 increment counters
       * UPDATE TagStat SET num_items=num_items+1 WHERE  tag_id = $tag_id
       * UPDATE UserTagStat SET num_items=num_items+1 WHERE  tag_id = $tag_id AND user_id = $user_id
-
-
+      
 =cut
 
 sub tagCall {
@@ -316,29 +340,146 @@ sub tagCall {
     return Foswiki::Plugins::TagsPlugin::Tag::rest( @_ );    
 }
 
+=begin TML
+
+---++ untagCall($session) -> $text
+This is the REST wrapper for untag.
+
+Takes the following url parameters:
+ item : name of the topic to be untagged (format: Sandbox.TestTopic)
+ tag  : name of the tag
+ user : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+
+If "user" is a groupname, the currently logged in user has to be member of that group. 
+Guest user is only permitted, if he wants to delete his own tags.
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 401 : access denied for unauthorized user
+ 403 : the user is not allowed to untag 
+
+Return:
+In case of an error (!=200 ) just the status code incl. short description is returned.
+Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
+
+TODO:
+ force http POST method
+
+=cut
+
 sub untagCall {
     use Foswiki::Plugins::TagsPlugin::Untag;
     return Foswiki::Plugins::TagsPlugin::Untag::rest( @_ );    
 }
+
+
+=begin TML
+
+---++ deleteCall( $session )
+This is the REST wrapper for delete.
+
+Delete purges the given tag and all its instances from the database.
+
+Takes the following url parameters:
+ tag  : name of the tag
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 403 : the user is not allowed to delete tags 
+
+Return:
+In case of an error (!=200 ) just the status code incl. short description is returned.
+Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
+
+TODO:
+ force http POST method
+
+=cut
 
 sub deleteCall {
     use Foswiki::Plugins::TagsPlugin::Delete;
     return Foswiki::Plugins::TagsPlugin::Delete::rest( @_ );    
 }
 
+
+=begin TML
+
+---++ renameCall( $session )
+This is the REST wrapper for rename.
+
+Takes the following url parameters:
+ oldtag : name of the tag to be renamed
+ newtag : new name for the old tag
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 403 : the user is not allowed to rename 
+
+Return:
+In case of an error (!=200) just the status code incl. short description is returned.
+Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
+
+TODO:
+ force http POST method
+
+=cut
+
 sub renameCall {
     use Foswiki::Plugins::TagsPlugin::Rename;
     return Foswiki::Plugins::TagsPlugin::Rename::rest( @_ );    
 }
+
+=begin TML
+
+---++ mergeCall( $session )
+This is the REST wrapper for merge.
+
+Takes the following url parameters:
+ tag1 : name of the tag to be renamed
+ tag2 : new name for the old tag
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing
+ 403 : the user is not allowed to merge 
+
+Return:
+In case of an error (!=200) just the status code incl. short description is returned.
+Otherwise a 200 and the number is returned (0 indicates an update error, any positive number is fine).
+
+TODO:
+ force http POST method
+ create/return proper http status codes on errors
+ 
+=cut
 
 sub mergeCall {
     use Foswiki::Plugins::TagsPlugin::Merge;
     return Foswiki::Plugins::TagsPlugin::Merge::rest( @_ );    
 }
 
+=begin TML
+
+---++ getUserId( $session, $user_id )
+Resolves a given wikiname to the id in the database. Creates a new entry if necessary.
+
+If the user_id is not given, the currently logged in user is taken.
+
+Parameters:
+ session : a Foswiki session
+ user_id : a wikiname (NOT a cuid) of a user or group.
+
+Return:
+ (numerical) ID from the database, which identifies the user.
+
+=cut
+
 sub getUserId {
     my $session = $_[0];
-    my $user_id    = $_[1]; 
+    my $user_id = $_[1]; 
 
     my $FoswikiCuid = $user_id || $session->{user};
 
@@ -371,13 +512,23 @@ sub getUserId {
     return $cuid;
 }
 
-=pod
+=begin TML
 
 --+++ updateTopicTags($item_type, $web, $topic, $user_id)
-update the tags for this topic
+Update some (automatic) tags for the given topic.
 
-#TODO: remove formname tags if the form is changed..
-#TODO: remove category tags if they are removed from topic text..
+Parameters:
+ item_type : currently either "tag" or "topic"; see note below
+ web       : webname of the topic to be updated
+ topic     : topicname of the topic to be updated
+ user_id   : a wikiname (ie. JohnDoe ) of a user or group, who the (new) tags shall belong to.
+
+If enabled by {EnableWebTags} this topic is tagged with a tag named after the web (!AdminUser as owner).
+If enabled by {EnableDataForms} and a =<nop>FooForm= is attached to the topic, it is tagged with the =<nop>FooForm=.
+If enabled by {EnableCategories}, the topic is tagged with =Foo= for each link to a =<nop>FooCategory= in the topic text. 
+
+#TODO: remove formname tags if the form is changed.
+#TODO: remove category tags if they are removed from topic text.
 
 =cut
 

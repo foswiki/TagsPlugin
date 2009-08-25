@@ -82,6 +82,8 @@ sub do {
         my @webs = split( /,/, $theWeb );
         my @clauses;
         foreach my $w (@webs) {
+            $w =~ s/^\s*//g;
+            $w =~ s/\s*$//g;            
             push @clauses, " i.item_name like '$w%' ";
         }
         push @whereClauses, join( ' OR ', @clauses );
@@ -93,6 +95,8 @@ sub do {
         my @topics = split( /,/, $theTopic );
         my @clauses;
         foreach my $t (@topics) {
+            $t =~ s/^\s*//g;
+            $t =~ s/\s*$//g;            
             push @clauses, " i.item_name like '%.$t' ";
         }
         push @whereClauses, join( ' OR ', @clauses );
@@ -104,6 +108,8 @@ sub do {
         my @tags = split( /,/, $theTag );
         my @clauses;
         foreach my $t (@tags) {
+            $t =~ s/^\s*//g;
+            $t =~ s/\s*$//g;
             push @clauses, " t.item_name like '$t' ";
         }
         push @whereClauses, join( ' OR ', @clauses );
@@ -185,11 +191,11 @@ $order";
         $entry =~ s/\$tag/$tag/g;
         $entry =~ s/\$count/$tag_count/g;
         
-        # flag this entry as renameable (useful for css classes)
+        # flag this entry with "isAdmin" (useful for css classes)
         if ( $isTagAdmin ) {
-            $entry =~ s/\$renameable/tagsplugin_renameable/g;   
+            $entry =~ s/\$isAdmin/tagsplugin_isAdmin/gi;   
         } else {
-            $entry =~ s/\$renameable//g;
+            $entry =~ s/\$isAdmin//gi;
         }
         
         # flag this entry as untaggable

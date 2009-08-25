@@ -25,47 +25,35 @@ use Error qw(:try);
 =begin TML
 
 ---++ rest( $session )
-This is the REST wrapper for tag.
+see Foswiki::Plugins::TagsPlugin::tagCall()
 
-Takes the following url parameters:
- item       : name of the topic to be tagged (format: Sandbox.TestTopic)
- type       : either "topic" or "tag", defaults to "topic"
- tag        : name of the tag
- user       : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe)
- redirectto : (optional) redirect target after action is performed
-
-If "user" is a groupname, the currently logged in user has to be member of that group. 
-
-It checks the prerequisites and sets the following status codes:
- 200 : Ok
- 400 : url parameter(s) are missing
- 401 : access denied for unauthorized user
- 403 : the user is not allowed to untag 
-
-Return:
-In case of an error (!=200 ) just the status code incl. short description is returned.
-Otherwise a 200 is returned or if requested a redirect is performed.
-
-TODO:
- force http POST method
- if you use item_type='tag' I think it needs to create the tagstat for that too 
 =cut
 
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $item_name  = $query->param('item');
-    my $item_type  = $query->param('type') || 'topic';
-    my $tag_text   = $query->param('tag');
-    my $redirectto = $query->param('redirectto');
-    my $user       = $query->param('user') || Foswiki::Func::getWikiName();
+    my $item_name     = $query->param('item');
+    my $item_type     = $query->param('type') || 'topic';
+    my $tag_text      = $query->param('tag');
+    my $redirectto    = $query->param('redirectto');
+    my $user          = $query->param('user') || Foswiki::Func::getWikiName();
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";    
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
     $item_type  = Foswiki::Sandbox::untaintUnchecked($item_type);
     $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
+
+    # input data is assumed to be utf8 (usually in AJAX environments) 
+    require Unicode::MapUTF8;
+    $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
+    $item_type  = Unicode::MapUTF8::from_utf8( { -string => $item_type,  -charset => $charset } );
+    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );
+    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
 
     #
     # checking prerequisites
@@ -101,7 +89,10 @@ sub rest {
             return "<h1>403 Forbidden</h1>";
         }
     }
-    elsif ( Foswiki::Func::getWikiName() ne $user ) {
+    elsif (    Foswiki::Func::getWikiName() ne $user 
+           && !Foswiki::Func::isAnAdmin() 
+           && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
+
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
     }

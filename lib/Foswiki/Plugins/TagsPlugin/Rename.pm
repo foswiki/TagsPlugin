@@ -23,34 +23,26 @@ use Error qw(:try);
 =begin TML
 
 ---++ rest( $session )
-This is the REST wrapper for rename.
+see Foswiki::Plugins::TagsPlugin::renameCall()
 
-Takes the following url parameters:
- oldtag : name of the tag to be renamed
- newtag : new name for the old tag
-
-It checks the prerequisites and sets the following status codes:
- 200 : Ok
- 400 : url parameter(s) are missing
- 403 : the user is not allowed to rename 
-
-Return:
-In case of an error (!=200) just the status code incl. short description is returned.
-Otherwise a 200 and the number of affected tags (usually 0 or 1) is returned.
-
-TODO:
- force http POST method
 =cut
 
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $tag_old = $query->param('oldtag') || '';
     my $tag_new = $query->param('newtag') || '';
 
     $tag_old = Foswiki::Sandbox::untaintUnchecked($tag_old);
     $tag_new = Foswiki::Sandbox::untaintUnchecked($tag_new);
+    
+    # input data is assumed to be utf8 (usually in AJAX environments) 
+    require Unicode::MapUTF8;
+    $tag_old = Unicode::MapUTF8::from_utf8( { -string => $tag_old, -charset => $charset } );
+    $tag_new = Unicode::MapUTF8::from_utf8( { -string => $tag_new, -charset => $charset } );
+    
 
     #
     # checking prerequisites
