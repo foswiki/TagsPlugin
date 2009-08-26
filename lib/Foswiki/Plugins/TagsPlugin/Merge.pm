@@ -32,16 +32,19 @@ sub rest {
     my $query   = Foswiki::Func::getCgiQuery();
     my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $tag1 = $query->param('tag1') || '';
-    my $tag2 = $query->param('tag2') || '';
+    my $tag1       = $query->param('tag1')        || '';
+    my $tag2       = $query->param('tag2')        || '';
+    my $redirectto = $query->param('redirectto')  || '';    
 
-    $tag1 = Foswiki::Sandbox::untaintUnchecked($tag1);
-    $tag2 = Foswiki::Sandbox::untaintUnchecked($tag2);
+    $tag1       = Foswiki::Sandbox::untaintUnchecked($tag1);
+    $tag2       = Foswiki::Sandbox::untaintUnchecked($tag2);
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
     # input data is assumed to be utf8 (usually in AJAX environments) 
     require Unicode::MapUTF8;
-    $tag1 = Unicode::MapUTF8::from_utf8( { -string => $tag1, -charset => $charset } );
-    $tag2 = Unicode::MapUTF8::from_utf8( { -string => $tag2, -charset => $charset } );
+    $tag1       = Unicode::MapUTF8::from_utf8( { -string => $tag1,       -charset => $charset } );
+    $tag2       = Unicode::MapUTF8::from_utf8( { -string => $tag2,       -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
     
 
     #
@@ -73,7 +76,14 @@ sub rest {
     $session->{response}->status(200);
     
     # returning 0 on failure and some other positive number on success
-    return Foswiki::Plugins::TagsPlugin::Merge::do( $tag1, $tag2 );
+    my $retval = Foswiki::Plugins::TagsPlugin::Merge::do( $tag1, $tag2 );
+    
+    # redirect on request
+    if ( $redirectto ) {
+        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+    }    
+    
+    return $retval;
 
 }
 

@@ -32,16 +32,19 @@ sub rest {
     my $query   = Foswiki::Func::getCgiQuery();
     my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $tag_old = $query->param('oldtag') || '';
-    my $tag_new = $query->param('newtag') || '';
+    my $tag_old    = $query->param('oldtag')     || '';
+    my $tag_new    = $query->param('newtag')     || '';
+    my $redirectto = $query->param('redirectto') || '';    
 
-    $tag_old = Foswiki::Sandbox::untaintUnchecked($tag_old);
-    $tag_new = Foswiki::Sandbox::untaintUnchecked($tag_new);
+    $tag_old    = Foswiki::Sandbox::untaintUnchecked($tag_old);
+    $tag_new    = Foswiki::Sandbox::untaintUnchecked($tag_new);
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
     # input data is assumed to be utf8 (usually in AJAX environments) 
     require Unicode::MapUTF8;
-    $tag_old = Unicode::MapUTF8::from_utf8( { -string => $tag_old, -charset => $charset } );
-    $tag_new = Unicode::MapUTF8::from_utf8( { -string => $tag_new, -charset => $charset } );
+    $tag_old    = Unicode::MapUTF8::from_utf8( { -string => $tag_old,    -charset => $charset } );
+    $tag_new    = Unicode::MapUTF8::from_utf8( { -string => $tag_new,    -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
     
 
     #
@@ -73,8 +76,14 @@ sub rest {
     $session->{response}->status(200);
     
     # returning the number of affected tags
-    return Foswiki::Plugins::TagsPlugin::Rename::do( $tag_old, $tag_new );
-
+    my $retval = Foswiki::Plugins::TagsPlugin::Rename::do( $tag_old, $tag_new );
+    
+    # redirect on request
+    if ( $redirectto ) {
+        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+    }
+        
+    return $retval; 
 }
 
 =begin TML

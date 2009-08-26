@@ -32,20 +32,23 @@ sub rest {
     my $query   = Foswiki::Func::getCgiQuery();
     my $charset = $Foswiki::cfg{Site}{CharSet};    
 
-    my $item_name     = $query->param('item') || '';
-    my $tag_text      = $query->param('tag')  || '';
+    my $item_name     = $query->param('item')        || '';
+    my $tag_text      = $query->param('tag')         || '';
+    my $redirectto    = $query->param('redirectto')  || '';    
     my $user          = $query->param('user') || Foswiki::Func::getWikiName();
     my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
-    $item_name = Foswiki::Sandbox::untaintUnchecked($item_name);
-    $tag_text  = Foswiki::Sandbox::untaintUnchecked($tag_text);
-    $user      = Foswiki::Sandbox::untaintUnchecked($user);
+    $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
+    $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
+    $user       = Foswiki::Sandbox::untaintUnchecked($user);
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
     # input data is assumed to be utf8 (usually in AJAX environments) 
     require Unicode::MapUTF8;
     $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
     $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
-    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );    
+    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );        
 
     #
     # checking prerequisites
@@ -95,7 +98,14 @@ sub rest {
     
     # returning the number of affected tags
     my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
-    return Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
+    my $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
+
+    # redirect on request
+    if ( $redirectto ) {
+        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+    }    
+    
+    return $retval;
 }
 
 =begin TML

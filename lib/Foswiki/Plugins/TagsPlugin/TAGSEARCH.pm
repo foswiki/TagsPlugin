@@ -214,7 +214,7 @@ $order";
         }
     }
 
-    $output = $theHeader . $output . $theFooter;
+    $output = $theHeader . $output . $theFooter if ($output);
 
     # expand standard escapes
     $output =~ s/\$n/\n/g;

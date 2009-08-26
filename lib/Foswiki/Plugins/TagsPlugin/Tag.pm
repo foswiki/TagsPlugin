@@ -35,10 +35,10 @@ sub rest {
     my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $item_name     = $query->param('item');
-    my $item_type     = $query->param('type') || 'topic';
+    my $item_type     = $query->param('type')                    || 'topic';
     my $tag_text      = $query->param('tag');
-    my $redirectto    = $query->param('redirectto');
-    my $user          = $query->param('user') || Foswiki::Func::getWikiName();
+    my $redirectto    = $query->param('redirectto')              || '';
+    my $user          = $query->param('user')                    || Foswiki::Func::getWikiName();
     my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";    
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);

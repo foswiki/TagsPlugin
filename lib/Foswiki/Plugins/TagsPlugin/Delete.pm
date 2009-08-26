@@ -32,12 +32,15 @@ sub rest {
     my $query   = Foswiki::Func::getCgiQuery();
     my $charset = $Foswiki::cfg{Site}{CharSet};    
 
-    my $tag_text = $query->param('tag')  || '';
-    $tag_text    = Foswiki::Sandbox::untaintUnchecked($tag_text);
+    my $tag_text   = $query->param('tag')         || '';
+    my $redirectto = $query->param('redirectto')  || '';    
+    $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
     # input data is assumed to be utf8 (usually in AJAX environments) 
     require Unicode::MapUTF8;
-    $tag_text = Unicode::MapUTF8::from_utf8( { -string => $tag_text, -charset => $charset } );
+    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
     
 
     #
@@ -65,7 +68,14 @@ sub rest {
     $session->{response}->status(200);
     
     # returning the number of affected tags
-    return Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
+    my $retval = Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
+    
+    # redirect on request
+    if ( $redirectto ) {
+        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+    }    
+    
+    return $retval;
 }
 
 =begin TML
