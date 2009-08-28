@@ -45,12 +45,16 @@ sub initPlugin {
         return 0;
     }
 
+    Foswiki::Func::addToHEAD('TAGSPLUGIN','<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />');
+
     # $debug = $Foswiki::cfg{Plugins}{TagsPlugin}{Debug} || 0;
 
-    Foswiki::Func::registerTagHandler( 'TAGLIST',   \&_TAGLIST );
-    Foswiki::Func::registerTagHandler( 'TAGENTRY',  \&_TAGENTRY );
-    Foswiki::Func::registerTagHandler( 'TAGCLOUD',  \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
-    Foswiki::Func::registerTagHandler( 'TAGSEARCH', \&_TAGSEARCH );
+    Foswiki::Func::registerTagHandler( 'TAGLIST',    \&_TAGLIST );
+    Foswiki::Func::registerTagHandler( 'TAGENTRY',   \&_TAGENTRY );
+    Foswiki::Func::registerTagHandler( 'TAGCLOUD',   \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
+    Foswiki::Func::registerTagHandler( 'TAGSEARCH',  \&_TAGSEARCH );
+    Foswiki::Func::registerTagHandler( 'TAGGROUPS',  \&_TAGGROUPS );
+    Foswiki::Func::registerTagHandler( 'ISTAGADMIN', \&_ISTAGADMIN );
 
     Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
     Foswiki::Func::registerRESTHandler( 'untag',  \&untagCall );
@@ -290,6 +294,20 @@ sub _TAGCLOUD {
 sub _TAGSEARCH {
     use Foswiki::Plugins::TagsPlugin::TAGSEARCH;
     return Foswiki::Plugins::TagsPlugin::TAGSEARCH::do( @_ );
+}
+
+sub _TAGGROUPS {
+    use Foswiki::Plugins::TagsPlugin::TAGGROUPS;
+    return Foswiki::Plugins::TagsPlugin::TAGGROUPS::do( @_ );
+}
+
+sub _ISTAGADMIN {
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
+    if ( !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName()) ) {
+        return "0";
+    } else {
+        return "1";
+    }    
 }
 
 =pod

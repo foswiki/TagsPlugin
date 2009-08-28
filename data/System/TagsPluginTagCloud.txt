@@ -1,0 +1,8 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1251421038" format="1.1" reprev="1.6" version="1.6"}%
+%TAGCLOUD{ 
+  terms="$percntTAGSEARCH{ query=\"tag\" format=\"$tag:1:$web:$topic:$user\" sep=\",\" web=\"$percntTAGWEB$percnt\" user=\"$percntTAGUSER$percnt\" }$percnt" 
+  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%;text-decoration:none' title='$5' url='$percntSCRIPTURL{rest}$percnt/TagsPlugin/' class='tagsplugin_tagcloud_tag' item='$3.$4' topic='$4' web='$3' tag='$term' user='$5'>$term</span>"
+  footer="</div>"
+  warn="off"
+}%

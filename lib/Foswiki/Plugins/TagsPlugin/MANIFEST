@@ -3,8 +3,11 @@ data/System/TagsPlugin.txt 0644 Documentation
 data/System/TagsPluginViews.txt 0644 Documentation
 data/System/TagsPluginTagEntrySearch.txt 0644 Topic
 data/System/TagsPluginViewsTagSearch.txt 0644 Topic
+data/System/TagsPluginNoHeaderViewTemplate.txt 0644 Topic
 data/System/TagsPluginTagList.txt 0644 Topic
+data/System/TagsPluginTagCloud.txt 0644 Topic
 data/System/VarTAGSEARCH.txt 0644 Documentation
+pub/System/TagsPlugin/tagsplugin.css 0644 Stylesheets
 lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Tag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Untag.pm 0644 Perl module
@@ -12,6 +15,7 @@ lib/Foswiki/Plugins/TagsPlugin/Delete.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Rename.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Merge.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/TAGSEARCH.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/TAGGROUPS.pm 0644 Perl module
 templates/tagsplugin.tmpl
 templates/view.tagsplugin.tmpl
 

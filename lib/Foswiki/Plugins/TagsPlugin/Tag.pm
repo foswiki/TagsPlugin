@@ -104,6 +104,7 @@ sub rest {
     
     # returning nothing of interest
     my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
+    Foswiki::Func::writeDebug("ID: $user_id");
     my $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id );
     
     # redirect on request

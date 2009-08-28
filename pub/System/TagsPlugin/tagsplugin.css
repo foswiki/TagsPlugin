@@ -1,0 +1,44 @@
+    .tagsplugin_container {
+      border-style:dashed;
+      border-width:thin;
+      padding: 10px;
+    }
+    .tagsplugin_web {
+        background-color:#EEEEEE;
+        display:inline;
+        margin:2px;
+        padding:2px;
+        text-decoration:none;
+        color:black;
+        cursor:pointer;
+    }
+    .tagsplugin_web_active {
+        background-color:#B9DAFF;
+    }
+    .tagsplugin_tag {
+        background-color:#EEEEEE;
+        display:inline;
+        margin:2px;
+        padding:2px;
+        text-decoration:none;
+        color:black;
+    }
+    .tagsplugin_tagcloud {
+    }
+    .tagsplugin_tagcloud_tag {
+        cursor:pointer;
+    }
+    .tagsplugin_tagcloud_tag_tagged {
+        background-color:#B9DAFF;
+    }
+    .tagsplugin_tag_remove {
+        color:red;
+        cursor:pointer;
+        padding-left:5px;
+    }
+    .tagsplugin_clickable {
+        cursor:pointer;
+    }
+    .tagsplugin_hidden {
+        display:none;
+    }

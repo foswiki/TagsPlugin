@@ -65,15 +65,23 @@ sub do {
     # resolve the cUID from the database and exit with "" if it does not exist
     #
     if (  lc($theUser) ne 'all' ) {
-        my $cuid;
-        my $statement =
-          sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-        my $arrayRef = $db->dbSelect( $statement, Foswiki::Func::getCanonicalUserID( $theUser ) );
-        if ( defined( $arrayRef->[0][0] ) ) {
-            $cuid = $arrayRef->[0][0];
+        my @users = split( /,/, $theUser );
+        my @clauses;
+        foreach my $u (@users) {
+            $u =~ s/^\s*//g;
+            $u =~ s/\s*$//g; 
+            my $cuid;
+            my $statement =
+              sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
+            my $arrayRef = $db->dbSelect( $statement, Foswiki::Func::getCanonicalUserID( $u ) );
+            if ( defined( $arrayRef->[0][0] ) ) {
+                $cuid = $arrayRef->[0][0];
+            }
+            next unless ( defined($cuid) );
+            push @clauses, " i2t.user_id = '$cuid' ";
         }
-        return '' unless ( defined($cuid) );
-        push @whereClauses, " i2t.user_id = '$cuid' ";
+        if ( !defined(@clauses) ) { return ''; };
+        push @whereClauses, "(" . join( ' OR ', @clauses ) . ")";
     }
 
     # filter for webs
@@ -86,7 +94,7 @@ sub do {
             $w =~ s/\s*$//g;            
             push @clauses, " i.item_name like '$w%' ";
         }
-        push @whereClauses, join( ' OR ', @clauses );
+        push @whereClauses, "(" . join( ' OR ', @clauses ) . ")";
     }    
 
     # filter for topics
