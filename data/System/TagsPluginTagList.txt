@@ -1,8 +1,8 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1251400275" format="1.1" version="1.3"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1251896891" format="1.1" reprev="1.5" version="1.5"}%
 %TAGSEARCH{ 
   query="tag" 
-  web="%URLPARAM{"tagweb" default="%BASEWEB%"}%"
-  topic="%URLPARAM{"tagtopic" default="%BASETOPIC%" }%" 
-  format="      <span class='tagsplugin_tag $untaggable' tag='$tag' topic='$item' user='$user'><a class='tagsplugin_tag' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag'>$tag</a></span>"
+  web="%URLPARAM{"tagweb" default="%TAGWEB%"}%"
+  topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
+  format="      <span class='tagsplugin_tag_container'><a class='tagsplugin_tag' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag'>$tag</a><a class='tagsplugin_tag_remove $untaggable' href='%SCRIPTURL{rest}%/%SYSTEMWEB%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' tag='$tag' item='$item' user='$user' style='display:none;'>x</a></span>"
   sep=" " 
 }%
