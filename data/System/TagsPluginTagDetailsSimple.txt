@@ -1,0 +1,28 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252700229" format="1.1" reprev="1.4" version="1.4"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+<div style="text-align:left;">
+<noautolink>
+---+++ %MAKETEXT{"Topics, tagged with this tag"}%
+%TAGCLOUD{ 
+  terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$item:1:$web:$topic:$user\" }$percnt" 
+  split="[,]"
+  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$3/$4' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$4</a></span>"
+  footer="</div>"
+  warn="off"
+}%
+
+---+++ %MAKETEXT{"Users, who like this tag"}%
+%TAGCLOUD{ 
+  terms="$percntTAGSEARCH{ query=\"user\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$user:1:$web:$topic\" }$percnt" 
+  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$percntUSERSWEB$percnt/$term' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$term</a></span>"
+  footer="</div>"
+  warn="off"
+}%
+
+---+++ %MAKETEXT{"Maintain this tag"}%
+%ICON{trash}% <a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=%URLPARAM{"tag" default="undef"}%&item=%URLPARAM{"tagitem" default="undef"}%&user=%URLPARAM{"taguser" default="undef"}%' class='tagsplugin_untag_link' tag='%URLPARAM{"tag" default="undef"}%' item='%URLPARAM{"tagitem" default="undef"}%' user='%URLPARAM{"taguser" default="undef"}%'>Remove</a> %URLPARAM{"taguser" default="undef"}%'s <span class='foswikiGrayText'>%URLPARAM{"tag" default="undef"}%</span> tag from this topic.
+
+</noautolink>
+</div>

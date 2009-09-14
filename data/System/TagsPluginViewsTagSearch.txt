@@ -1,4 +1,5 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1250703240" format="1.1" reprev="1.4" version="1.4"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252340299" format="1.1" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
 <noautolink>
 
 ---+++ list of everyone's tags on the current topic

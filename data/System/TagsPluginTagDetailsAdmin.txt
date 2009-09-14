@@ -1,0 +1,5 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252340581" format="1.1" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+---+++ %MAKETEXT{"Delete this tag completely"}%
+
+---+++ %MAKETEXT{"Merge another tag into this one"}%

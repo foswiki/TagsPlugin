@@ -1,0 +1,23 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252698395" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+---++ <nop>TagsPlugin User Selector
+This topic is included by the =tagspluginjquery= template. 
+
+By default it presents the user two or more links: 
+   * one link for "all", 
+   * one for the user him/herself and 
+   * (optionally) one link for each group the user is member of. 
+
+Whenever a tagcloud is requested by the user (by clicking on the selector buttons), the %SYSTEMWEB%.TagsPlugin reads the custom attribute =user= from the html element which is marked with the class =tagsplugin_user_active=. 
+
+%X% Make sure, that initially this class is only set on one element.
+
+If you want to customize the "user buttons", this is the right place.
+
+---++ Implementation
+<verbatim>
+%STARTINCLUDE%        <span class='foswikiGrayText'>Users:</span>
+        <a href='#' class='tagsplugin_user tagsplugin_user_active' user='all'>%ICON{filter}% all</a>
+        <a href='#' class='tagsplugin_user' user='%WIKINAME%'>%ICON{filter}% %SPACEOUT{"%WIKINAME%"}%</a>
+%TAGGROUPS{format="        <a href='#' class='tagsplugin_user' user='$group'>$percntICON{filter}$percnt $percntSPACEOUT{\"$group\"}$percnt</a>" sep="$n" }%%STOPINCLUDE%
+</verbatim>

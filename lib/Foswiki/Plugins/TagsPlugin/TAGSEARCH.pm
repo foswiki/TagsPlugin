@@ -21,6 +21,8 @@ use strict;
 use warnings;
 use Error qw(:try);
 
+use constant DEBUG => 1; # toggle me
+
 =begin TML
 
 ---++ do( $session, $params, $topic, $web )
@@ -80,7 +82,7 @@ sub do {
             next unless ( defined($cuid) );
             push @clauses, " i2t.user_id = '$cuid' ";
         }
-        if ( !defined(@clauses) ) { return ''; };
+        if ( @clauses == 0 ) { return ''; };
         push @whereClauses, "(" . join( ' OR ', @clauses ) . ")";
     }
 
@@ -171,7 +173,7 @@ $where
 $groupby 
 $order";
 
-    # Foswiki::Func::writeDebug("TAGSEARCH: $statement");
+    Foswiki::Func::writeDebug("TAGSEARCH: $statement") if DEBUG;
 
     # get the data from the db and rotate through it 
     my $arrayRef = $db->dbSelect($statement);

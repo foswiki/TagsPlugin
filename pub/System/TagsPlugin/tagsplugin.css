@@ -1,44 +1,142 @@
-    .tagsplugin_container {
-      border-style:dashed;
-      border-width:thin;
-      padding: 10px;
-    }
-    .tagsplugin_web {
-        background-color:#EEEEEE;
-        display:inline;
-        margin:2px;
-        padding:2px;
-        text-decoration:none;
-        color:black;
-        cursor:pointer;
-    }
-    .tagsplugin_web_active {
-        background-color:#B9DAFF;
-    }
-    .tagsplugin_tag {
-        background-color:#EEEEEE;
-        display:inline;
-        margin:2px;
-        padding:2px;
-        text-decoration:none;
-        color:black;
-    }
-    .tagsplugin_tagcloud {
-    }
-    .tagsplugin_tagcloud_tag {
-        cursor:pointer;
-    }
-    .tagsplugin_tagcloud_tag_tagged {
-        background-color:#B9DAFF;
-    }
-    .tagsplugin_tag_remove {
-        color:red;
-        cursor:pointer;
-        padding-left:5px;
-    }
-    .tagsplugin_clickable {
-        cursor:pointer;
-    }
-    .tagsplugin_hidden {
-        display:none;
-    }
+/*
+ TagsPlugin CSS file
+
+ Author(s): Oliver Krüger, http://wiki-one.net/
+ License: GPLv2+
+
+ Note: If you customize this file, please do BACKUPS. This file will be overwritten on every plugin update.
+*/
+
+  div#tagsplugin {
+    display: block;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+  }
+  div:hover#tagsplugin {
+    filter: alpha(opacity=100);
+    opacity: 1.0;
+    -moz-opacity: 1.0;
+    -khtml-opacity: 1.0;
+  }
+  div#tagsplugin_view_basic {
+    display: block;
+    float: left;
+    width: 100%;
+    background-color: #EEEEEE;
+    padding: 5px;
+  }
+  div#tagsplugin_taginput {
+    display: block;
+    float: left;
+  }
+  input#tagsplugin_tagcloud_toggle {
+  }
+  input#tagsplugin_taginput {
+  }
+  ul#tagsplugin_taglist_tags {
+    display: block;
+    float: left;
+    margin-left: 5px;
+    padding: 0px;
+    width: 64%;
+  }
+  li.tagsplugin_tag {
+    float: left;
+    display: inline;
+    background-color:#FFFFFF;
+    border: 1px solid #BBBBBB;
+    color: #333333;
+    cursor: default;
+    white-space: nowrap;
+    position: relative;
+    margin: 2px;
+    padding: 1px 5px 0px 5px;
+  }
+  a.tagsplugin_tag_link {
+    text-decoration: none;
+  }
+  a.tagsplugin_tag_remove {
+    display: none;
+  }
+  a.tagsplugin_untaggable {
+    display: none;
+  }
+  a.tagsplugin_untag_link {
+    color: #FF0000;
+  }
+  div#tagsplugin_processing {
+    display: block;
+    float: left;
+  }
+  div#tagsplugin_processing img {
+    display: none;
+  }
+  div#tagsplugin_filters {
+    float: left;
+    display: none;
+    background-color: #DDDDDD;
+    width: 100%;
+    padding: 5px;
+  }
+  div#tagsplugin_webselector {
+    display: block;
+    float: left;
+  }
+  a.tagsplugin_web {
+    text-decoration: none;
+    background-color:#FFFFFF;
+    border:1px solid #BBBBBB;
+    color:#333333;
+    cursor:pointer;
+    white-space:nowrap;
+    position:relative;
+    margin:2px;
+    padding:1px 5px 0px 5px;
+  }
+  a:active.tagsplugin_web, a:link.tagsplugin_web, a:visited.tagsplugin_web, a:hover.tagsplugin_web {
+    text-decoration: none;
+    color:#4571D0;
+  }
+  a.tagsplugin_web_active {
+    background-color:#CCE7F1;
+  }
+  div#tagsplugin_userselector {
+    display: block;
+    float: left;
+  }
+  a.tagsplugin_user {
+    text-decoration: none;
+    background-color:#FFFFFF;
+    border:1px solid #BBBBBB;
+    color:#333333;
+    cursor:pointer;
+    white-space:nowrap;
+    position:relative;
+    margin:2px;
+    padding:1px 5px 0px 5px;
+  }
+  a:active.tagsplugin_user, a:link.tagsplugin_user, a:visited.tagsplugin_user, a:hover.tagsplugin_user {
+    text-decoration: none;
+    color:#4571D0;
+  }
+  a.tagsplugin_user_active {
+    background-color:#CCE7F1;
+  }
+  div#tagsplugin_tagcloud_tags {
+    float: left;
+    display: none;
+    width: 100%;
+    background-color: #DDDDDD;
+    text-align: center; 
+    padding: 5px;
+    line-height: 180%;
+  }
+  a.tagsplugin_tagcloud_tag {
+    line-height: 90%;
+    text-decoration: none;
+  }
+  div#tagsplugin_clear {
+    clear: both;
+  }

@@ -1,0 +1,26 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252698596" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+---++ <nop>TagsPlugin Web Selector
+This topic is included by the =tagspluginjquery= template. 
+
+By default it presents the user two or more links: 
+   * one link for "all" and 
+   * one link for each web.
+The current web is preselected with =tagsplugin_web_active=.
+
+Whenever a tagcloud is requested by the user (by clicking on the selector buttons), the %SYSTEMWEB%.TagsPlugin reads the custom attribute =web= from the html element which is marked with the class =tagsplugin_web_active=. 
+
+%X% Make sure, that initially this class is only set on one element.
+
+If you want to customize the "web buttons", this is the right place.
+
+---++ Implementation
+<verbatim>
+%STARTINCLUDE%        <span class='foswikiGrayText'>Webs:</span>
+        <a href='#' class='tagsplugin_web %IF{"$ TAGSPLUGIN_WEBSELECTOR_DEFAULT='all'" then="tagsplugin_web_active"}%' web='all'>%ICON{filter}% all</a>
+%FLEXWEBLIST{
+  webs="public, -Trash"
+  format="        <a href='#' class='tagsplugin_web $percntIF{\"$ TAGSPLUGIN_WEBSELECTOR_DEFAULT='$name'\" then=\"tagsplugin_web_active\"}$percnt' web='$name'>$percntICON{filter}$percnt $name</a>"
+  separator="$n"
+}%%STOPINCLUDE%
+</verbatim>

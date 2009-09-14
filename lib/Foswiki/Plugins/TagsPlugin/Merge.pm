@@ -20,6 +20,8 @@ use strict;
 use warnings;
 use Error qw(:try);
 
+use constant DEBUG => 0; # toggle me
+
 =begin TML
 
 ---++ rest( $session )
@@ -76,7 +78,23 @@ sub rest {
     $session->{response}->status(200);
     
     # returning 0 on failure and some other positive number on success
-    my $retval = Foswiki::Plugins::TagsPlugin::Merge::do( $tag1, $tag2 );
+    my $retval;
+
+    try {
+      $retval = Foswiki::Plugins::TagsPlugin::Merge::do( $tag1, $tag2 );
+    } catch Error::Simple with {
+      my $e = shift;
+      my $n = $e->{'-value'};
+      if ( $n == 1  || $n == 2 ) {
+        $session->{response}->status(404);
+        return "<h1>404 " . $e->{'-text'} . "</h1>";
+      } elsif ( $n == 3  || $n == 4 || $n == 5 || $n == 6 || $n == 7 ) {
+        $session->{response}->status(500);
+        return "<h1>500 " . $e->{'-text'} . "</h1>";
+      } else {
+        $e->throw();
+      }    
+    };
     
     # redirect on request
     if ( $redirectto ) {
@@ -110,24 +128,28 @@ sub do {
     # determine tag_id for given tag1 and exit if its not there
     #
     my $tag_id1;
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
+    my $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
     my $arrayRef = $db->dbSelect( $statement, $tag1, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id1 = $arrayRef->[0][0];
     }
-    else { return " 0"; }
+    else { 
+      throw Error::Simple("Database error: tag1 not found.", 1);
+    }
 
     # determine tag_id for given tag2 and exit if its not there
     #
     my $tag_id2;
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
+    $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
     $arrayRef = $db->dbSelect( $statement, $tag2, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id2 = $arrayRef->[0][0];
     }
-    else { return " 0"; }
+    else { 
+      throw Error::Simple("Database error: tag2 not found.", 2);
+    }
     
     # now we are ready to actually merge
     #
@@ -138,14 +160,20 @@ sub do {
       sprintf( 'UPDATE IGNORE %s SET %s = ? WHERE %s = ?',
         qw( UserItemTag tag_id tag_id ) );
     my $affected_rows = $db->dbInsert( $statement, $tag_id1, $tag_id2 );
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tag_id2) -> $affected_rows");
-    if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
+    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tag_id2) -> $affected_rows") if DEBUG;
+    if ( $affected_rows eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to update the tags.", 3);
+    };
+
     # DELETEing the garbage (usually tags on topics, which were tagged with tag1 and tag2)
     $statement =
       sprintf( 'DELETE from %s WHERE %s = ?',
         qw( UserItemTag tag_id) );
     my $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified");    
+    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
+    if ( $modified eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to clean up after the merge.", 4);
+    };
     
     # update stats in TagStat (rebuild it actually)
     my $tagstat = 0;
@@ -159,19 +187,25 @@ sub do {
       sprintf( 'UPDATE %s SET %s=? WHERE %s = ?',
         qw( TagStat num_items tag_id) );
     $modified = $db->dbInsert( $statement, $tagstat, $tag_id1 );
-    Foswiki::Func::writeDebug("Merge: $statement; ($tagstat, $tag_id1) -> $modified");        
+    Foswiki::Func::writeDebug("Merge: $statement; ($tagstat, $tag_id1) -> $modified") if DEBUG;        
+    if ( $modified eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to update the tag statistics.", 5);
+    };
     unless ( $modified ) {
         $statement =
           sprintf( 'INSERT INTO %s (%s, %s) VALUES (?, ?)',
             qw( TagStat tag_id num_items ) );
         $modified = $db->dbInsert( $statement, $tag_id1, $tagstat );
-        Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tagstat) -> $modified");        
+        Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tagstat) -> $modified") if DEBUG;        
     }
     $statement =
       sprintf( 'DELETE from %s WHERE %s = ?',
         qw( TagStat tag_id) );
     $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified");    
+    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
+    if ( $modified eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to clean up after updating the tag statistics.", 6);
+    };
     
     # update stats in UserTagStat    
     ### TODO: implement rebuilding UserTagStat rebuild
@@ -181,7 +215,10 @@ sub do {
       sprintf( 'DELETE from %s WHERE %s = ?',
         qw( Items item_id) );
     $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified");    
+    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
+    if ( $modified eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to delete the now obsolete tag2.", 7);
+    };
     
     # flushing data to dbms
     #    

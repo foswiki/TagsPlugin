@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1211031581" format="1.1" version="1.6"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252888172" format="1.1" reprev="1.3" version="1.3"}%
 ---+!! !TagsPlugin
  <!--
 One line description, required for extensions repository catalog.
@@ -8,72 +8,84 @@ One line description, required for extensions repository catalog.
 
 %TOC%
 
----++ Usage
- TagsPlugin allows users to tag resources of differing types - and so the TML used to access the
- tags specifies this information too.
+---++ For Administrators
+---+++ Installation Instructions
+   1 configure various TagsPlugin toggles in [[%SCRIPTURL{configure}%][configure]] (section Extensions, TagsPlugin)
+   1 setup your database (currently only tested using !MySQL)
+      1 create the database in !MySQL server and add the user with permission to create tables
+      1 set ={DbiContrib}{DBI_dsn}=, ={DbiContrib}{DBI_username}= and ={DbiContrib}{DBI_password}=
+      1 *initialise the tag database* 
+         * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase to automatically create the database tables and to add initial values
+   1 choose between the two flavors of the TagsPlugin and alter your SKIN variable
+      * %GRAY%classic flavor:%ENDCOLOR% Set SKIN = tagsplugin, pattern
+      * %GRAY%jquery flavor:%ENDCOLOR% Set SKIN = tagspluginjquery, pattern
 
- TagsPluginViews defines the common Tag widgets that can be re-used via Sectional includes.
+%GRAY%Optional:%ENDCOLOR%%BR%
+If you want to preload the tags database with Country Names, you need to install CPAN:Geo::GeoNames 
+and click [[%SCRIPTURL{rest}%/TagsPlugin/updateGeoTags][updateGeoTags]] (uses the CC licenced 
+http://www.geonames.org ([[http://download.geonames.org/export/dump/allCountries.zip][allCountries.zip]]).
 
----++ Tag Filters
-step 1: add ?tagfilter=Tag,More+Tags will thus use that filter instead of the web as a context??
+%$INSTALL_INSTRUCTIONS%
 
 
-There are session settable 'Filters' that will reduce the set of topics in a similar way
-to 'Webs' - they are _session_ based - at least
-until I can work out howto save a filter to a Name, that can be used as a Pseudo-Web.
+---++ For Users
+This plugin primarily manages triples: a tag basically has three dimensions:
+   * the tagname itself (called tag)
+   * the topic, it is attached to (called topic or item)
+   * the username, who the tag belongs to (called user or owner)
+
+You can use the following macros to display or alter tags:
 
 ---+++ =TAGLIST=
- Lists the tags for the requested resource
+Lists the tags for the requested resource
 ---+++ =TAGENTRY=
- allows users to add, remove and manipulate tags for a resource
+allows users to add, remove and manipulate tags for a resource
 ---+++ =TAGCLOUD=
-(to be filled)
+You can disable the <nop>TagsPlugin =TAGCLOUD= macro in =configure=, if you want to
+use the =TAGCLOUD= macro from the Foswiki:Extensions.TagCloudPlugin instead. See {TagsPlugin}{EnableTagCloud}.
 
 %INCLUDE{%SYSTEMWEB%.VarTAGSEARCH}%
 
 ---+++ SEARCHing
 To search for topics that are tagged with (or not tagged with), use a %SYSTEMWEB%.QuerySearch
-with the =taggedwith(tagname)= operator
+with the =taggedwith(tagname)= operator.
 
+TagsPluginViews defines the common Tag widgets that can be re-used via Sectional includes.
 
+---+++ Preferences (used by the jquery flavor)
+Available variables which can be used to change the (default) behaviour of the jquery skin:
 
----++ Examples
----+++ list of all user's tags on the current topic
+| *preference name* | *description* |
+| TAGSPLUGIN_WEBSELECTOR_DEFAULT | The default value for the <nop>TagCloud view: Default: the current web. |
+| TAGSPLUGIN_USERSELECTOR_DEFAULT | The default value for the <nop>TagCloud view. Default: =all= |
+| TAGSPLUGIN_TAGUSER | New tags are created with this user. Default: the current user. |
+
+---+++ Tag Filters (classic flavor only)
+(This section needs to be rewritten.)
+
+---+++ Examples
+---++++ list of all user's tags on the current topic
 %TAGLIST{show="user"}%
----+++ edit (the current user's) the tags on the current topic
+---++++ edit (the current user's) the tags on the current topic
 %TAGENTRY%
----+++ tag cloud of all user's tags on the current topic
+---++++ tag cloud of all user's tags on the current topic
 %TAGCLOUD%
 
----++ Installation Instructions
 
-   1 set ={DbiContrib}{DBI_dsn}=, ={DbiContrib}{DBI_username}= and ={DbiContrib}{DBI_password}=
-      * currently only tested using !MySQL - =dbi:mysql:example_com_tags:localhost=
-   2 create the database in !MySQL server and add the user with permission to create tables
-   3 *initialise the tag database* and to tag each topic with the webname it is in, goto
-      * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase
-      
-to  automatically add a tag entry to each topic, add =tagsplugin= to your skin path
-
-eg Set SKIN=tagsplugin,pattern
-
-
-If you want to preload the tags database with Country Names, you need to install CPAN:Geo::GeoNames and click
-%SCRIPTURL{rest}%/TagsPlugin/updateGeoTags
-   * uses the CC licenced http://www.geonames.org (http://download.geonames.org/export/dump/allCountries.zip)
-
-
-%$INSTALL_INSTRUCTIONS%
+---++ For Developers
+You can access all functions of this plugin via rest handlers. Please consult the inline
+documentation of TagsPlugin.pm for HTTP status codes, available handlers and URL 
+parameters.
 
 ---++ Plugin Info
- This Plugin uses DbiContrib to store the tagmap in a database for fast querying.
+This Plugin uses DbiContrib to store the tagmap in a database for fast querying.
 
 Schema & design inspired from [[http://forge.mysql.com/wiki/TagSchema][MySQL Forge]],
-but treating Tags as Items, so that you can tag a tag (creating a heirarchy of tags)
+but treating Tags as Items, so that you can tag a tag (creating a hierarchy of tags)
 
 
 |  Plugin Author(s): | Foswiki:Main.SvenDowideit %BR% Foswiki:Main.OliverKrueger |
-|  Copyright: | &copy; 2008-2009 SvenDowideit@fosiki.com %BR% &copy; 2009 [[mailto:oliver@wiki-one.net][Oliver Krueger]], [[http://wiki-one.net][(wiki-one.net)]] |
+|  Copyright: | &copy; 2008-2009 SvenDowideit@fosiki.com %BR% &copy; 2009 [[mailto:oliver@wiki-one.net][Oliver Kr&uuml;ger]], [[http://wiki-one.net][(wiki-one.net)]] |
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License 3)]] |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order --> |
@@ -82,9 +94,8 @@ but treating Tags as Items, so that you can tag a tag (creating a heirarchy of t
 
 
 __Related Topics:__ %SYSTEMWEB%.InstalledPlugins, %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory,
-%MAINWEB%.SitePreferences
+%MAINWEB%.SitePreferences, [[http://faculty.philau.edu/kayk/kkay/articles/Tagging_folksonomy.pdf][Intranet Applications for Tagging and Folksonomies]] 
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on
 foswiki.org instead. -->
 
-   * [[http://faculty.philau.edu/kayk/kkay/articles/Tagging_folksonomy.pdf][Intranet Applications for Tagging and Folksonomies]] 

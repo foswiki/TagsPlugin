@@ -327,9 +327,9 @@ If "user" is a groupname, the currently logged in user has to be member of that 
 
 It checks the prerequisites and sets the following status codes:
  200 : Ok
- 400 : url parameter(s) are missing
+ 400 : url parameter(s) are missing or empty
  401 : access denied for unauthorized user
- 403 : the user is not allowed to untag 
+ 403 : the user is not allowed to tag 
 
 Return:
 In case of an error (!=200 ) just the status code incl. short description is returned.
@@ -376,6 +376,8 @@ It checks the prerequisites and sets the following status codes:
  400 : url parameter(s) are missing
  401 : access denied for unauthorized user
  403 : the user is not allowed to untag 
+ 404 : tag or item not found
+ 500 : misc database errors
 
 Return:
 In case of an error (!=200 ) just the status code incl. short description is returned.
@@ -406,6 +408,7 @@ It checks the prerequisites and sets the following status codes:
  200 : Ok
  400 : url parameter(s) are missing
  403 : the user is not allowed to delete tags 
+ 404 : tag not found
 
 Return:
 In case of an error (!=200 ) just the status code incl. short description is returned.
@@ -435,6 +438,9 @@ It checks the prerequisites and sets the following status codes:
  200 : Ok
  400 : url parameter(s) are missing
  403 : the user is not allowed to rename 
+ 404 : oldtag not found
+ 409 : newtag already exists
+ 500 : database error
 
 Return:
 In case of an error (!=200) just the status code incl. short description is returned.
@@ -463,6 +469,8 @@ It checks the prerequisites and sets the following status codes:
  200 : Ok
  400 : url parameter(s) are missing
  403 : the user is not allowed to merge 
+ 404 : either tag1 or tag2 not found
+ 500 : misc database errors
 
 Return:
 In case of an error (!=200) just the status code incl. short description is returned.
@@ -470,7 +478,6 @@ Otherwise a 200 and the number is returned (0 indicates an update error, any pos
 
 TODO:
  force http POST method
- create/return proper http status codes on errors
  
 =cut
 
@@ -500,14 +507,6 @@ sub getUserId {
     my $user_id = $_[1]; 
 
     my $FoswikiCuid = $user_id || $session->{user};
-
-  #    if ($session->{users}->isAdmin($FoswikiCuid)) {
-  #        $FoswikiCuid = '333';
-  #    }
-  #    $FoswikiCuid =~ s/^c//;
-  #    $FoswikiCuid = '666' if (!defined($FoswikiCuid) || ($FoswikiCuid eq ''));
-  #    #TODO: possibly show Guest the stats for Home web?
-  #    $FoswikiCuid = '666' if ($FoswikiCuid =~ /BaseUserMapping_/);
 
     my $db = new Foswiki::Contrib::DbiContrib;
     my $cuid;
@@ -588,7 +587,7 @@ sub initialiseDatabase {
 
     #my $query = Foswiki::Func::getCgiQuery();
 
-#use the traditional file based view of webs and topics, so that we actually give them all tags
+    #use the traditional file based view of webs and topics, so that we actually give them all tags
     undef $Foswiki::cfg{WikiRingNetStore}{FilterByTags};
 
     #TODO: if the database tables are not there, create them
@@ -666,7 +665,6 @@ END
         Foswiki::Plugins::TagsPlugin::Tag::do( 'tag', $web, 'web', $user_id );
     }
 
-    #my $db = new Foswiki::Contrib::DbiContrib;
     $db->disconnect();    #force a commit
 
     return 'ok ' . $count;

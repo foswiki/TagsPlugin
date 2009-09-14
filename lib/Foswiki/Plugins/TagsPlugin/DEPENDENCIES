@@ -1,6 +1,6 @@
 # Dependencies for TagsPlugin
 Geo::GeoNames,,cpan,Optional
 Foswiki::Contrib::DbiContrib,,perl,Required
-Foswiki::Contrib::FamFamFamContrib,,perl,Optional
 Foswiki::Plugin::JQueryPlugin,,perl,Optional
 Foswiki::Plugin::TagCloudPlugin,,perl,Optional
+Foswiki::Plugin::FlexWebListPlugin,,perl,Optional

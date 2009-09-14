@@ -1,3 +1,5 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252340336" format="1.1" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
 ---+++ list of everyone's tags on the current topic
 %TAGLIST{item="%BASEWEB%.%BASETOPIC%" }% 
 ---+++ list of %NOP%%WIKINAME%'s tags on the current topic

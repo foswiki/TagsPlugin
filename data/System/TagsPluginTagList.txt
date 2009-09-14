@@ -1,8 +1,9 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1251896891" format="1.1" reprev="1.5" version="1.5"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252679284" format="1.1" version="1.13"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
 %TAGSEARCH{ 
   query="tag" 
   web="%URLPARAM{"tagweb" default="%TAGWEB%"}%"
   topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
-  format="      <span class='tagsplugin_tag_container'><a class='tagsplugin_tag' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag'>$tag</a><a class='tagsplugin_tag_remove $untaggable' href='%SCRIPTURL{rest}%/%SYSTEMWEB%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' tag='$tag' item='$item' user='$user' style='display:none;'>x</a></span>"
-  sep=" " 
+  format="      <li class='tagsplugin_tag'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' title='Owner: $percntSPACEOUT{\"$user\"}$percnt' item='$item' user='$user'>$percntICON{tag}$percnt $tag</a> <a class='tagsplugin_tag_remove $untaggable' href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' tag='$tag' item='$item' user='$user'>x</a></li>"
+  sep="$n" 
 }%

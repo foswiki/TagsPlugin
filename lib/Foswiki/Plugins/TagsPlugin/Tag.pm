@@ -22,6 +22,8 @@ use strict;
 use warnings;
 use Error qw(:try);
 
+use constant DEBUG => 0; # toggle me
+
 =begin TML
 
 ---++ rest( $session )
@@ -103,9 +105,22 @@ sub rest {
     $session->{response}->status(200);
     
     # returning nothing of interest
+    my $retval;
     my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
-    Foswiki::Func::writeDebug("ID: $user_id");
-    my $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id );
+    Foswiki::Func::writeDebug("ID: $user_id") if DEBUG;
+
+    try {
+      $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id );
+    } catch Error::Simple with {
+      my $e = shift;
+      my $n = $e->{'-value'};
+      if ( $n == 1 || $n == 2 ) {
+        $session->{response}->status(400);
+        return "<h1>400 " . $e->{'-text'} . "</h1>";
+      } else {
+        $e->throw();
+      }
+    };
     
     # redirect on request
     if ( $redirectto ) {
@@ -135,8 +150,8 @@ Return:
 sub do {
     my ( $item_type, $item_name, $tag_text, $user_id ) = @_;
 
-    return unless ( ( defined($tag_text) )  && ( $tag_text  ne '' ) );
-    return unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
+    throw Error::Simple("tag parameter missing", 1) unless ( ( defined($tag_text) )  && ( $tag_text  ne '' ) );
+    throw Error::Simple("item parameter missing", 2) unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
 
     my $db = new Foswiki::Contrib::DbiContrib;
     my $item_id;

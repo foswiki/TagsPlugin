@@ -1,13 +1,19 @@
 # Release manifest for TagsPlugin
 data/System/TagsPlugin.txt 0644 Documentation
 data/System/TagsPluginViews.txt 0644 Documentation
-data/System/TagsPluginTagEntrySearch.txt 0644 Topic
+data/System/TagsPluginAutoCompleteBackend.txt 0644 Topic
 data/System/TagsPluginViewsTagSearch.txt 0644 Topic
 data/System/TagsPluginNoHeaderViewTemplate.txt 0644 Topic
 data/System/TagsPluginTagList.txt 0644 Topic
 data/System/TagsPluginTagCloud.txt 0644 Topic
+data/System/TagsPluginTagDetails.txt  Topic
+data/System/TagsPluginTagDetailsSimple.txt  Topic
+data/System/TagsPluginTagDetailsAdmin.txt  Topic
+data/System/TagsPluginUserSelector.txt  Topic
+data/System/TagsPluginWebSelector.txt  Topic
 data/System/VarTAGSEARCH.txt 0644 Documentation
 pub/System/TagsPlugin/tagsplugin.css 0644 Stylesheets
+pub/System/TagsPlugin/tagsplugin.js 0644 Javascript
 lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Tag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Untag.pm 0644 Perl module
@@ -18,6 +24,7 @@ lib/Foswiki/Plugins/TagsPlugin/TAGSEARCH.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/TAGGROUPS.pm 0644 Perl module
 templates/tagsplugin.tmpl
 templates/view.tagsplugin.tmpl
+templates/view.tagspluginjquery.tmpl
 
 lib/Foswiki/Store/TagsStore.pm
 lib/Foswiki/Plugins/TagsPlugin/Config.spec

@@ -20,6 +20,8 @@ use strict;
 use warnings;
 use Error qw(:try);
 
+use constant DEBUG => 0; # toggle me
+
 =begin TML
 
 ---++ rest( $session )
@@ -67,8 +69,21 @@ sub rest {
     #
     $session->{response}->status(200);
     
-    # returning the number of affected tags
-    my $retval = Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
+    # handle errors and return the number of affected tags
+    my $retval;
+
+    try {
+       $retval = Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
+    } catch Error::Simple with {
+      my $e = shift;
+      my $n = $e->{'-value'};
+      if ( $n == 1 ) {
+        $session->{response}->status(404);
+        return "<h1>404 " . $e->{'-text'} . "</h1>";
+      } else {
+        $e->throw();
+      }
+    };
     
     # redirect on request
     if ( $redirectto ) {
@@ -107,7 +122,9 @@ sub do {
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id = $arrayRef->[0][0];
     }
-    else { return 0; }
+    else { 
+      throw Error::Simple("Database error: tag not found.", 1);
+    }
 
     # now we are ready to actually delete
     #

@@ -1,0 +1,42 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252340538" format="1.1" version="1.7"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+<div style="text-align:left;">
+<noautolink>
+---++ %MAKETEXT{"Tag Details on"}% %GRAY%%URLPARAM{"tag" default="undef"}%%ENDCOLOR%
+
+---+++ %MAKETEXT{"Topics, tagged with this tag"}%
+%TAGCLOUD{ 
+  terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$item:1:$web:$topic:$user\" }$percnt" 
+  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$3/$4' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$term</a></span>"
+  footer="</div>"
+  warn="off"
+}%
+
+---+++ %MAKETEXT{"Users, who like this tag"}%
+%TAGCLOUD{ 
+  terms="$percntTAGSEARCH{ query=\"user\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$user:1:$web:$topic\" }$percnt" 
+  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$percntUSERSWEB$percnt/$term' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$term</a></span>"
+  footer="</div>"
+  warn="off"
+}%
+
+---+++ %MAKETEXT{"List all occurrences of this tag"}%
+%TAGSEARCH{ 
+  query="topic" 
+  tag="%URLPARAM{"tag" default="undef"}%" 
+  header="|*%MAKETEXT{"Web"}%*|*%MAKETEXT{"Topic"}%*|*%MAKETEXT{"User"}%*|*%MAKETEXT{"Action"}%*|$n"
+  format="| [[$item][$web]] | [[$item][$topic]] | [[%USERSWEB%.$user][$user]] | <span class='tagsplugin_actions $untaggable'><a href='%SCRIPTURL{rest}%/TagsPlugin/untag?item=$item&tag=$tag&user=$user&redirectto=%SCRIPTURL{view}%/%WEB%/%TOPIC%?tag=$tag' class=''>Untag</a></span> |" 
+  sep="$n"
+}%
+
+<!-- 
+   * Local ROOT = %ISTAGADMIN%
+-->
+%IF{"$ ROOT" then="%INCLUDE{%SYSTEMWEB%.TagsPluginTagDetailsAdmin}%"}%
+
+</noautolink>
+</div>
+
+%META:PREFERENCE{name="VIEW_TEMPLATE" title="VIEW_TEMPLATE" type="Local" value="System.TagsPluginNoHeaderViewTemplate"}%

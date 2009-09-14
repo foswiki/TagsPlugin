@@ -20,6 +20,8 @@ use strict;
 use warnings;
 use Error qw(:try);
 
+use constant DEBUG => 0; # toggle me
+
 =begin TML
 
 ---++ rest( $session )
@@ -76,7 +78,25 @@ sub rest {
     $session->{response}->status(200);
     
     # returning the number of affected tags
-    my $retval = Foswiki::Plugins::TagsPlugin::Rename::do( $tag_old, $tag_new );
+    my $retval;
+    try {
+      $retval = Foswiki::Plugins::TagsPlugin::Rename::do( $tag_old, $tag_new );
+    } catch Error::Simple with {
+      my $e = shift;
+      my $n = $e->{'-value'};
+      if ( $n == 1 ) {
+        $session->{response}->status(404);
+        return "<h1>404 " . $e->{'-text'} . "</h1>";
+      } elsif ( $n == 2 ) {
+        $session->{response}->status(409);
+        return "<h1>409 " . $e->{'-text'} . "</h1>";
+      } elsif ( $n == 3 ) {
+        $session->{response}->status(500);
+        return "<h1>500 " . $e->{'-text'} . "</h1>";
+      } else {
+        $e->throw();
+      }
+    };
     
     # redirect on request
     if ( $redirectto ) {
@@ -114,8 +134,9 @@ sub do {
     my $arrayRef = $db->dbSelect( $statement, $tag_old, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id = $arrayRef->[0][0];
+    } else { 
+        throw Error::Simple("Database error: tag_old not found.", 1);
     }
-    else { return " 0"; }
     
     # check if new tagname already exists by probing for an tag_id
     #
@@ -123,7 +144,7 @@ sub do {
         qw( item_id Items item_name item_type) );
     $arrayRef = $db->dbSelect( $statement, $tag_new, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
-        return " 0"; 
+        throw Error::Simple("Database error: tag_new already exists.", 2);
     }    
 
     # now we are ready to actually rename
@@ -131,9 +152,11 @@ sub do {
     $statement =
       sprintf( 'UPDATE %s SET %s = ? WHERE %s = ?',
         qw( Items item_name item_id ) );
-    Foswiki::Func::writeDebug("Rename: $statement; ($tag_new, $tag_id)");
+    Foswiki::Func::writeDebug("Rename: $statement; ($tag_new, $tag_id)") if DEBUG;
     my $affected_rows = $db->dbInsert( $statement, $tag_new, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
+    if ( $affected_rows eq "0E0" ) { 
+      throw Error::Simple("Database error: failed to rename the tag.", 3);
+    };
     
     # flushing data to dbms
     #    
