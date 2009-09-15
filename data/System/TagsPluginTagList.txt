@@ -4,6 +4,6 @@
   query="tag" 
   web="%URLPARAM{"tagweb" default="%TAGWEB%"}%"
   topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
-  format="      <li class='tagsplugin_tag'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' title='Owner: $percntSPACEOUT{\"$user\"}$percnt' item='$item' user='$user'>$percntICON{tag}$percnt $tag</a> <a class='tagsplugin_tag_remove $untaggable' href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' tag='$tag' item='$item' user='$user'>x</a></li>"
+  format="      <li class='tagsplugin_tag'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' web='$web' topic='$topic'>$percntICON{tag}$percnt $tag</a></li>"
   sep="$n" 
 }%

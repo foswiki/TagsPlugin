@@ -1,10 +1,17 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1252700229" format="1.1" reprev="1.4" version="1.4"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1253030346" format="1.1" reprev="1.5" version="1.5"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
+<!--
+      * Set TAGNAME = %URLPARAM{"tag" default="undef"}%
+      * Set TAGUSER = %URLPARAM{"taguser" default="undef"}%
+      * Set TAGWEB = %URLPARAM{"tagweb" default="undef"}%
+      * Set TAGTOPIC = %URLPARAM{"tagtopic" default="undef"}%
+-->
+
 <div style="text-align:left;">
 <noautolink>
 ---+++ %MAKETEXT{"Topics, tagged with this tag"}%
 %TAGCLOUD{ 
-  terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$item:1:$web:$topic:$user\" }$percnt" 
+  terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntTAGNAME$percnt\" format=\"$item:1:$web:$topic:$user\" }$percnt" 
   split="[,]"
   header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
   format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$3/$4' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$4</a></span>"
@@ -14,7 +21,7 @@
 
 ---+++ %MAKETEXT{"Users, who like this tag"}%
 %TAGCLOUD{ 
-  terms="$percntTAGSEARCH{ query=\"user\" tag=\"$percntURLPARAM{\"tag\" default=\"undef\"}$percnt\" format=\"$user:1:$web:$topic\" }$percnt" 
+  terms="$percntTAGSEARCH{ query=\"user\" tag=\"$percntTAGNAME$percnt\" format=\"$user:1:$web:$topic\" }$percnt" 
   header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
   format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$percntUSERSWEB$percnt/$term' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$term</a></span>"
   footer="</div>"
@@ -22,7 +29,16 @@
 }%
 
 ---+++ %MAKETEXT{"Maintain this tag"}%
-%ICON{trash}% <a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=%URLPARAM{"tag" default="undef"}%&item=%URLPARAM{"tagitem" default="undef"}%&user=%URLPARAM{"taguser" default="undef"}%' class='tagsplugin_untag_link' tag='%URLPARAM{"tag" default="undef"}%' item='%URLPARAM{"tagitem" default="undef"}%' user='%URLPARAM{"taguser" default="undef"}%'>Remove</a> %URLPARAM{"taguser" default="undef"}%'s <span class='foswikiGrayText'>%URLPARAM{"tag" default="undef"}%</span> tag from this topic.
+%TAGSEARCH{
+  query="user" 
+  tag="%TAGNAME%" 
+  web="%TAGWEB%" 
+  topic="%TAGTOPIC%" 
+  format="<a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> $user's <span class='foswikiGrayText'>$tag</span> tag from this topic."
+  sep=" %BR% "
+}%
+
+
 
 </noautolink>
 </div>

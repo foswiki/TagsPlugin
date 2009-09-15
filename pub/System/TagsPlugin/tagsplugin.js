@@ -76,13 +76,14 @@
               'click',
               function(event) {
                 event.preventDefault();
-                var tag  = $(event.target).attr("tag");
-                var item = $(event.target).attr("item");
-                var user = $(event.target).attr("user");
+                var tag   = $(event.target).attr("tag");
+                var web   = $(event.target).attr("web");
+                var topic = $(event.target).attr("topic");
+                var user  = $(event.target).attr("user");
                 $("#tagsplugin_processing img").show();
                 $("#tagsplugin_dialog_details")
                 .load(
-                  foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsSimple?skin=text&cover=text&tag="+escape(tag)+"&tagitem="+escape(item)+"&taguser="+escape(user),
+                  foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsSimple?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic)+"&taguser="+escape(user),
                   null,
                   function() {
                     $("#tagsplugin_dialog_details")
