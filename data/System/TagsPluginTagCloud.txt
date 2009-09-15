@@ -4,4 +4,5 @@
   terms="$percntTAGSEARCH{ query=\"tag\" format=\"$tag:1:$web:$topic:$user\" sep=\",\" web=\"%URLPARAM{"tagweb" default="%TAGWEB%"}%\" user=\"%URLPARAM{"taguser" default="%TAGUSER%"}%\" }$percnt" 
   format="<a style='font-size:$weightpx;' class='tagsplugin_tagcloud_tag' href='$percntSCRIPTURL{view}$percnt/$percntSYSTEMWEB$percnt/TagsPluginTagDetails?tag=$term' item='$3.$4' topic='$4' web='$3' tag='$term' user='$5'>$term</a>"
   warn="off"
+  split="[,]+"
 }%

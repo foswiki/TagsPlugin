@@ -82,7 +82,7 @@
                 $("#tagsplugin_processing img").show();
                 $("#tagsplugin_dialog_details")
                 .load(
-                  foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsSimple?skin=text&cover=text&tag="+tag+"&tagitem="+item+"&taguser="+user,
+                  foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsSimple?skin=text&cover=text&tag="+escape(tag)+"&tagitem="+escape(item)+"&taguser="+escape(user),
                   null,
                   function() {
                     $("#tagsplugin_dialog_details")
