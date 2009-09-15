@@ -75,22 +75,27 @@ sub rest {
     }
 
     # can $currentUser speak for $user?
-    if ( Foswiki::Func::isGroup($user) ) {
-        if (
-            !Foswiki::Func::isGroupMember(
-                $user, Foswiki::Func::getWikiName()
-            )
-          )
-        {
+
+    # everybody can speak for WikiGuest by definition. 
+    # this is the way to say "this tag is public"
+    if ( $user ne $Foswiki::cfg{DefaultUserWikiName} ) {
+        if ( Foswiki::Func::isGroup($user) ) {
+            if (
+                !Foswiki::Func::isGroupMember(
+                    $user, Foswiki::Func::getWikiName()
+                )
+              )
+            {
+                $session->{response}->status(403);
+                return "<h1>403 Forbidden</h1>";
+            }
+        }
+        elsif (    Foswiki::Func::getWikiName() ne $user 
+               && !Foswiki::Func::isAnAdmin() 
+               && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
             $session->{response}->status(403);
             return "<h1>403 Forbidden</h1>";
         }
-    }
-    elsif (    Foswiki::Func::getWikiName() ne $user 
-           && !Foswiki::Func::isAnAdmin() 
-           && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
-        $session->{response}->status(403);
-        return "<h1>403 Forbidden</h1>";
     }
 
     #
