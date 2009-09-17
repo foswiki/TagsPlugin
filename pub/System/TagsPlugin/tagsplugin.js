@@ -76,10 +76,10 @@
               'click',
               function(event) {
                 event.preventDefault();
-                var tag   = $(event.target).closest("a.tagsplugin_tag_link").attr("tag");
-                var web   = $(event.target).closest("a.tagsplugin_tag_link").attr("web");
-                var topic = $(event.target).closest("a.tagsplugin_tag_link").attr("topic");
-                var user  = $(event.target).closest("a.tagsplugin_tag_link").attr("user");
+                var tag   = $(event.target).closest("a[tag]").attr("tag");
+                var web   = $(event.target).closest("a[tag]").attr("web");
+                var topic = $(event.target).closest("a[tag]").attr("topic");
+                var user  = $(event.target).closest("a[tag]").attr("user");
                 $("#tagsplugin_processing img").show();
                 $("#tagsplugin_dialog_details")
                 .load(
