@@ -70,16 +70,16 @@
           }); // ready handler
 
           function tagsplugin_fe_redirect_details() {
-            $(".tagsplugin_tag_link")
+            $(".tagsplugin_tag")
             .add(".tagsplugin_tagcloud_tag")
             .bind(
               'click',
               function(event) {
                 event.preventDefault();
-                var tag   = $(event.target).attr("tag");
-                var web   = $(event.target).attr("web");
-                var topic = $(event.target).attr("topic");
-                var user  = $(event.target).attr("user");
+                var tag   = $(event.target).closest("a.tagsplugin_tag_link").attr("tag");
+                var web   = $(event.target).closest("a.tagsplugin_tag_link").attr("web");
+                var topic = $(event.target).closest("a.tagsplugin_tag_link").attr("topic");
+                var user  = $(event.target).closest("a.tagsplugin_tag_link").attr("user");
                 $("#tagsplugin_processing img").show();
                 $("#tagsplugin_dialog_details")
                 .load(
