@@ -40,7 +40,6 @@
     float: left;
     margin-left: 5px;
     padding: 0px;
-    width: 64%;
   }
   li.tagsplugin_tag {
     float: left;
@@ -60,8 +59,10 @@
   a.tagsplugin_tag_remove {
     display: none;
   }
-  a.tagsplugin_untaggable {
-    display: none;
+  .tagsplugin_untaggable {
+  }
+  li.tagsplugin_public {
+    background-color: #B9DAFF;
   }
   a.tagsplugin_untag_link {
     color: #FF0000;

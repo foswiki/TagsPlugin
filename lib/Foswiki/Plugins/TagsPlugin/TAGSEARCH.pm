@@ -184,6 +184,7 @@ $order";
         my $item      = $row->[1];
         my $cuid      = $row->[2];
         my $tag_count = $row->[3];
+        my $user      = Foswiki::Func::getWikiName($cuid);                    
 
         # replace all variable occurrences
         if ( $entry =~ m/\$(item|topic|web)/ ) {
@@ -195,7 +196,7 @@ $order";
             
         if ( $entry =~ m/\$(cuid|user)/ ) {
             $entry =~ s/\$cuid/$cuid/g;
-            $entry =~ s/\$user/Foswiki::Func::getWikiName($cuid)/ge;                    
+            $entry =~ s/\$user/$user/ge;                    
         }
         
         $entry =~ s/\$tag/$tag/g;
@@ -213,6 +214,13 @@ $order";
             $entry =~ s/\$untaggable/tagsplugin_untaggable/g;   
         } else {
             $entry =~ s/\$untaggable//g;
+        }
+
+        # flag this entry as public
+        if ( $user eq $Foswiki::cfg{DefaultUserWikiName} ) {
+            $entry =~ s/\$public/tagsplugin_public/g;
+        } else {
+            $entry =~ s/\$public//g;
         }
             
         # insert seperator only if needed

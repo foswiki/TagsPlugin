@@ -7,8 +7,25 @@
                 event.preventDefault();
                 $("#tagsplugin_processing img").show();
                 var tag = $("#tagsplugin_taginput_input").val();
-                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, foswiki.wikiName );
+                var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
+                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user );
                 $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
+              }
+            );
+
+            // public checkbox
+            $("div#tagsplugin_taginput form input[name=user]")
+            .attr("checked", "checked")
+            .val(foswiki.tagsplugin.public)
+            .removeAttr("disabled")
+            .bind(
+              'click',
+              function(event) {
+                if ( $(this).is(":checked") ) {
+                  $(this).val(foswiki.tagsplugin.public);
+                } else {
+                  $(this).val("");
+                }
               }
             );
 

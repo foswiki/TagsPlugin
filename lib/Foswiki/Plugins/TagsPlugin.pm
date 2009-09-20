@@ -45,15 +45,12 @@ sub initPlugin {
         return 0;
     }
 
-    Foswiki::Func::addToHEAD('TAGSPLUGIN','<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />');
-
-    # $debug = $Foswiki::cfg{Plugins}{TagsPlugin}{Debug} || 0;
-
     Foswiki::Func::registerTagHandler( 'TAGLIST',    \&_TAGLIST );
     Foswiki::Func::registerTagHandler( 'TAGENTRY',   \&_TAGENTRY );
     Foswiki::Func::registerTagHandler( 'TAGCLOUD',   \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
     Foswiki::Func::registerTagHandler( 'TAGSEARCH',  \&_TAGSEARCH );
     Foswiki::Func::registerTagHandler( 'TAGGROUPS',  \&_TAGGROUPS );
+    Foswiki::Func::registerTagHandler( 'TAGPUBLIC',  \&_TAGPUBLIC );
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN', \&_ISTAGADMIN );
 
     Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
@@ -65,8 +62,16 @@ sub initPlugin {
     # Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
     #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
-
     #TODO: add a SEARCH{type="tags"} search type
+
+    # load some js and css in the header
+    # plus add some data through meta tags
+    my $header= <<'HERE';
+<meta name="foswiki.tagsplugin.public" content="%TAGPUBLIC%" />
+<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />
+<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />
+HERE
+    Foswiki::Func::addToHEAD('TAGSPLUGIN', "\n".$header );
 
     return 1;
 }
@@ -308,6 +313,11 @@ sub _ISTAGADMIN {
     } else {
         return "1";
     }    
+}
+
+sub _TAGPUBLIC {
+    my $guest = $Foswiki::cfg{DefaultUserWikiName} || "!DefaultUserWikiName NOT DEFINED!";
+    return $guest;
 }
 
 =pod
