@@ -45,6 +45,9 @@
               }
             );
 
+            // Dialogbox Init
+            $("#tagsplugin_dialog_details").dialog( { autoOpen: false } );
+
             tagsplugin_fe_redirect_details();
 
             // Tags-Button
@@ -104,7 +107,6 @@
                   null,
                   function() {
                     $("#tagsplugin_dialog_details")
-                    .dialog()
                     .dialog('option', 'modal', true)
                     .dialog('option', 'width', 460)
                     .dialog('option', 'title', 'Tag Details on '+tag)
@@ -234,7 +236,6 @@
           function tagsplugin_alert(text) {
             $("#tagsplugin_dialog_details")
             .html(text)
-            .dialog()
             .dialog('option', 'modal', true)
             .dialog('option', 'width', 460)
             .dialog('option', 'title', 'May I kindly ask for your attention?')
