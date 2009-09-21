@@ -71,7 +71,7 @@
               function(event) {
                 event.preventDefault();
                 $(".tagsplugin_web_active").removeClass("tagsplugin_web_active");
-                $(event.target).addClass("tagsplugin_web_active");
+                $(event.target).closest("a.tagsplugin_web[web]").addClass("tagsplugin_web_active");
                 tagsplugin_fe_refreshTagCloud();
               }
             );
@@ -82,7 +82,7 @@
               function(event) {
                 event.preventDefault();
                 $(".tagsplugin_user_active").removeClass("tagsplugin_user_active");
-                $(event.target).addClass("tagsplugin_user_active");
+                $(event.target).closest("a.tagsplugin_user[user]").addClass("tagsplugin_user_active");
                 tagsplugin_fe_refreshTagCloud();
               }
             );
