@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1253030346" format="1.1" reprev="1.5" version="1.5"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1253492958" format="1.1" reprev="1.6" version="1.6"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 <!--
       * Set TAGNAME = %URLPARAM{"tag" default="undef"}%
@@ -34,7 +34,7 @@
   tag="%TAGNAME%" 
   web="%TAGWEB%" 
   topic="%TAGTOPIC%" 
-  format="<a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> $user's <span class='foswikiGrayText'>$tag</span> tag from this topic."
+  format="<a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> $percntIF{$quot'$public'='tagsplugin_public'$quot else=\"$user's\" then=\"public\"}$percnt <span class='foswikiGrayText'>$tag</span> tag from this topic."
   sep=" %BR% "
 }%
 
