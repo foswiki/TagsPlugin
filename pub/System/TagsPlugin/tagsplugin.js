@@ -63,7 +63,7 @@
             );
 
             // webselector bindings
-            $(".tagsplugin_web").bind(
+            $("div#tagsplugin .tagsplugin_web").bind(
               'click',
               function(event) {
                 event.preventDefault();
@@ -74,7 +74,7 @@
             );
 
             // userselector bindings
-            $(".tagsplugin_user").bind(
+            $("div#tagsplugin .tagsplugin_user").bind(
               'click',
               function(event) {
                 event.preventDefault();
@@ -87,8 +87,8 @@
           }); // ready handler
 
           function tagsplugin_fe_redirect_details() {
-            $(".tagsplugin_tag")
-            .add(".tagsplugin_tagcloud_tag")
+            $("div#tagsplugin .tagsplugin_tag")
+            .add("div#tagsplugin .tagsplugin_tagcloud_tag")
             .bind(
               'click',
               function(event) {

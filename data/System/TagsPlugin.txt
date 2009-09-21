@@ -45,6 +45,7 @@ You can disable the <nop>TagsPlugin =TAGCLOUD= macro in =configure=, if you want
 use the =TAGCLOUD= macro from the Foswiki:Extensions.TagCloudPlugin instead. See {TagsPlugin}{EnableTagCloud}.
 
 %INCLUDE{%SYSTEMWEB%.VarTAGSEARCH}%
+%INCLUDE{%SYSTEMWEB%.VarTAGCLOUDCLICK}%
 
 ---+++ SEARCHing
 To search for topics that are tagged with (or not tagged with), use a %SYSTEMWEB%.QuerySearch

@@ -1,0 +1,16 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1252340265" format="1.1" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+#VarTAGCLOUDCLICK
+
+---+++ TAGCLOUDCLICK -- render a clickable tagcloud
+   * Inline tag search, shows a tag search result embedded in a topic
+   * Syntax: =%<nop>TAGCLOUDCLICK{...}%=
+   * %X% Limitation: This macro can only be used once per page.
+   * Supported parameters:
+     | *Parameter:* | *Description:* | *Default:* |
+     | =sourceuser="wikiname"= <br /> =sourceuser="all"= | When rendering the tagcloud, this filter is used for the user-dimension. Leave out the =%MAINWEB%= part here. | ="all"= |
+     | =sourceweb="Name"= <br /> =sourceweb="%USERSWEB%, Know"= <br /> =sourceweb="all"= | Comma-separated list of webs to render the tagcloud. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
+     | =targetweb="Name"= | Webname of the target topic. This is where the tags are posted to. | =current web= |
+     | =targettopic="Name"= | Topicname of the target topic. This is where the tags are posted to. | =current topic= |
+     | =targetuser="wikiname"= | New tags are created with this ownership. | =%TAGPUBLIC%= |
+     | =cloudtopic="Web.Topic"= | This topic is used (included) to actually render the tagcloud. | =%SYSTEMWEB%.<nop>TagsPluginTagCloud= |

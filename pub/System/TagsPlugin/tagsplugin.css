@@ -138,6 +138,12 @@
     line-height: 90%;
     text-decoration: none;
   }
+  div#tagsplugin_cloudclick a.tagsplugin_tagged {
+    background-color:#CCE7F1;
+  }
+  div#tagsplugin_cloudclick_processing img {
+    display: none;
+  }
   div#tagsplugin_clear {
     clear: both;
   }
