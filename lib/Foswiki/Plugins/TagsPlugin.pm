@@ -68,11 +68,13 @@ sub initPlugin {
 
     # load some js and css in the header
     # plus add some data through meta tags
-    my $header= <<'HERE';
-<meta name="foswiki.tagsplugin.public" content="%TAGPUBLIC%" />
-<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />
-<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />
-HERE
+    my $tagweb   = Foswiki::Func::getPreferencesValue("TAGWEB")   || $web;
+    my $tagtopic = Foswiki::Func::getPreferencesValue("TAGTOPIC") || $topic;
+    my $header  = '<meta name="foswiki.tagsplugin.public" content="%TAGPUBLIC%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.web" content="'.$tagweb.'" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.topic" content="'.$tagtopic.'" />'."\n";
+       $header .= '<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />'."\n";
     Foswiki::Func::addToHEAD('TAGSPLUGIN', "\n".$header );
 
     return 1;
