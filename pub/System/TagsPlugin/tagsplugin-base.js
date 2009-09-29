@@ -1,53 +1,6 @@
         (function($){
           $(function(){
 
-            $("#tagsplugin_entryform").bind(
-              'submit',
-              function(event) {
-                event.preventDefault();
-                $("#tagsplugin_processing img").show();
-                var tag = $("#tagsplugin_taginput_input").val();
-                var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
-                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user );
-                $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
-              }
-            );
-
-            // public checkbox
-            $("div#tagsplugin_taginput form input[name=user]")
-            .attr("checked", "checked")
-            .val(foswiki.tagsplugin.public)
-            .removeAttr("disabled")
-            .bind(
-              'click',
-              function(event) {
-                if ( $(this).is(":checked") ) {
-                  $(this).val(foswiki.tagsplugin.public);
-                } else {
-                  $(this).val("");
-                }
-              }
-            );
-
-            $("#tagsplugin_taginput_input").autocomplete(
-              foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginAutoCompleteBackend", {
-                extraParams: { skin:"text", cover:"text" },
-                multiple:    false,
-                highlight:   false,
-                autoFill:    false,
-                selectFirst: false,
-                formatItem:  function(row, index, max, search) {
-                    return row[0];
-                },
-                formatResult: function(row, index, max) {
-                    return row[0];
-                }
-              }
-            );
-
-            // Dialogbox Init
-            $("#tagsplugin_dialog_details").dialog( { autoOpen: false } );
-
             tagsplugin_fe_redirect_details();
 
             // Tags-Button
@@ -87,6 +40,52 @@
               }
             );
 
+            // form submit-bindings
+            $("#tagsplugin_taginput_form").bind(
+              'submit',
+              function(event) {
+                event.preventDefault();
+                $("#tagsplugin_processing img").show();
+                var tag = $("#tagsplugin_taginput_input").val();
+                var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
+                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user );
+                $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
+              }
+            );
+
+            // public checkbox
+            $("div#tagsplugin_taginput form input[name=user]")
+            .attr("checked", "checked")
+            .val(foswiki.tagsplugin.public)
+            .removeAttr("disabled")
+            .bind(
+              'click',
+              function(event) {
+                if ( $(this).is(":checked") ) {
+                  $(this).val(foswiki.tagsplugin.public);
+                } else {
+                  $(this).val("");
+                }
+              }
+            );
+
+            // autocomplete for tagentry
+            $("#tagsplugin_taginput_input").autocomplete(
+              foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginAutoCompleteBackend", {
+                extraParams: { skin:"text", cover:"text" },
+                multiple:    false,
+                highlight:   false,
+                autoFill:    false,
+                selectFirst: false,
+                formatItem:  function(row, index, max, search) {
+                    return row[0];
+                },
+                formatResult: function(row, index, max) {
+                    return row[0];
+                }
+              }
+            );
+
           }); // ready handler
 
           function tagsplugin_fe_redirect_details() {
@@ -96,12 +95,14 @@
               'click',
               function(event) {
                 event.preventDefault();
+                var web   = foswiki.web;
+                var topic = foswiki.topic;
                 var tag   = $(event.target).closest("a[tag]").attr("tag");
-                var web   = $(event.target).closest("a[tag]").attr("web");
-                var topic = $(event.target).closest("a[tag]").attr("topic");
                 var user  = $(event.target).closest("a[tag]").attr("user");
                 $("#tagsplugin_processing img").show();
-                $("#tagsplugin_dialog_details")
+                if ( $("#tagsplugin_dialog_details").size() == 0 ) {
+                $("<div id='tagsplugin_dialog_details' />")
+                .dialog( { autoOpen: false } )
                 .load(
                   foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsSimple?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic)+"&taguser="+escape(user),
                   null,
@@ -110,7 +111,13 @@
                     .dialog('option', 'modal', true)
                     .dialog('option', 'width', 460)
                     .dialog('option', 'title', 'Tag Details on '+tag)
-                    .dialog("open");
+                    .dialog("open")
+                    .bind( 
+                      'dialogclose', 
+                      function(event,ui) {
+                        $("#tagsplugin_dialog_details").remove();
+                      } 
+                    );
                     $(".tagsplugin_untag_link").bind(
                       'click',
                       function(event) {
@@ -125,7 +132,7 @@
                     );
                     $("#tagsplugin_processing img").hide();
                   }
-                );
+                ); }
               }
             );
           }
@@ -234,14 +241,20 @@
           }
 
           function tagsplugin_alert(text) {
-            $("#tagsplugin_dialog_details")
+            $("<div id='tagsplugin_dialog_error' />")
+            .dialog( { autoOpen: false } )
             .html(text)
             .dialog('option', 'modal', true)
             .dialog('option', 'width', 460)
             .dialog('option', 'title', 'May I kindly ask for your attention?')
             .dialog('option', 'buttons', { "Ok": function() { $(this).dialog("close"); } })
-            .dialog("open");
+            .dialog("open")
+            .bind( 
+              'dialogclose', 
+              function(event,ui) {
+                $("#tagsplugin_dialog_error").remove();
+              } 
+            );
           }
 
         })(jQuery);
-

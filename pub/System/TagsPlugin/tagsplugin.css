@@ -70,6 +70,8 @@
   div#tagsplugin_processing {
     display: block;
     float: left;
+    position: fixed;
+    right: 23px;
   }
   div#tagsplugin_processing img {
     display: none;

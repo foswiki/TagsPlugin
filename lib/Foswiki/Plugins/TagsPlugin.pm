@@ -18,7 +18,7 @@ require Foswiki::Plugins;    # For the API version
 require Foswiki::Contrib::DbiContrib;
 
 use vars
-  qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC $doneLoadTemplate );
+  qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC $doneLoadTemplate %doneLoadJS );
 $VERSION           = '$Rev$';
 $RELEASE           = 'Foswiki-1.0.0';
 $SHORTDESCRIPTION  = 'Full strength Tagging system ';
@@ -53,6 +53,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'TAGGROUPS',     \&_TAGGROUPS );
     Foswiki::Func::registerTagHandler( 'TAGPUBLIC',     \&_TAGPUBLIC );
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN',    \&_ISTAGADMIN );
+    Foswiki::Func::registerTagHandler( 'TAGREQUIRE',    \&_TAGREQUIRE );
 
     Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
     Foswiki::Func::registerRESTHandler( 'untag',  \&untagCall );
@@ -280,13 +281,16 @@ GROUP BY $retreiveNameFrom.item_name;
 
 sub _TAGENTRY {
     my ( $session, $params, $theTopic, $theWeb ) = @_;
-
-    # $params->{_DEFAULT} will be 'hamburger'
-    # $params->{sideorder} will be 'onions'
+    my $template;
     return '' if ( Foswiki::Func::isGuest() );
 
     _loadTemplate();
-    my $template = Foswiki::Func::expandTemplate('tagsplugin:tagentry');
+
+    if ( Foswiki::Func::getSkin() =~ m/tagspluginjquery/ ) {
+      $template = Foswiki::Func::expandTemplate('tagsplugin:jquery:taginput');
+    } else {
+      $template = Foswiki::Func::expandTemplate('tagsplugin:tagentry');
+    }
     return $template;
 }
 
@@ -325,6 +329,20 @@ sub _TAGPUBLIC {
     my $guest = $Foswiki::cfg{DefaultUserWikiName} || "!DefaultUserWikiName NOT DEFINED!";
     return $guest;
 }
+
+sub _TAGREQUIRE {
+    my ( $session, $params, $theTopic, $theWeb ) = @_;
+    my $what = lc( $params->{"_DEFAULT"} || "" );
+
+    if ( $what eq "" || $doneLoadJS{$what} ) {
+      return "";
+    } else {
+      my $js = "\n".'<script type="text/javascript" src="'.$Foswiki::cfg{PubUrlPath}.'/System/TagsPlugin/tagsplugin-'.$what.'.js"></script>';
+      Foswiki::Func::addToHEAD("TAGSPLUGIN::" . uc($what), $js );
+      return "";
+    }
+}
+
 
 =pod
 

@@ -1,58 +1,31 @@
 %TMPL:INCLUDE{view}%
+%TMPL:INCLUDE{tagsplugin}%
 
-%TMPL:DEF{"tagsplugin:header"}%<literal>
+%TMPL:DEF{"tagsplugin:jquery:header"}%
+<literal>
   <div id="tagsplugin">
     <div id='tagsplugin_view_basic'>
-      <div id='tagsplugin_taginput'>
-        <form type='post' action='%SCRIPTURL{rest}%/TagsPlugin/tag' id='tagsplugin_entryform'>
-          <input type='button' id='tagsplugin_tagcloud_toggle' value='Tags' />
-          <input type='text'   id="tagsplugin_taginput_input" name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
-          <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
-          <input type='checkbox' name='user' value='%TAGPUBLIC%' disabled='disabled' checked='checked' /> public
-          <input type='hidden' name='type' value='topic' />
-          <input type='hidden' name='redirectto' value='%SCRIPTURL{view}%/%BASEWEB%.%BASETOPIC%' />
-        </form>
-      </div> <!-- tagsplugin_taginput --> 
-
-      <ul id='tagsplugin_taglist_tags'>
-%INCLUDE{
-  "%SYSTEMWEB%.TagsPluginTagList"
-  TAGWEB="%BASEWEB%" 
-  TAGTOPIC="%BASETOPIC%"
-  warn="off"
-}%
-      </ul> <!-- #tagsplugin_taglist_tags -->
-
-      <div id='tagsplugin_processing'>%ICON{processing-bg}%</div>
+      %TMPL:P{"tagsplugin:jquery:taginput"}%
+      %TMPL:P{"tagsplugin:jquery:taglist"}%
+      %TMPL:P{"tagsplugin:jquery:processing"}%
     </div> <!-- tagsplugin_view_basic -->
 
-    <div id='tagsplugin_filters'>
-      <div id='tagsplugin_webselector'>
-        %INCLUDE{"%SYSTEMWEB%.TagsPluginWebSelector" warn="off"}%
-      </div> <!-- tagsplugin_webselector -->
-      <div class='tagsplugin_clear'>&nbsp;</div>
-      <div id='tagsplugin_userselector'>
-        %INCLUDE{"%SYSTEMWEB%.TagsPluginUserSelector" warn="off"}%
-      </div> <!-- tagsplugin_userselector -->
-      <div class='tagsplugin_clear'>&nbsp;</div>
-    </div> <!-- tagsplugin_filters -->
+    <div id='tagsplugin_tagcloud'>
+      <div id='tagsplugin_filters'>
+        %TMPL:P{"tagsplugin:jquery:webselector"}%
+        %TMPL:P{"tagsplugin:jquery:clear"}%
+        %TMPL:P{"tagsplugin:jquery:userselector"}%
+        %TMPL:P{"tagsplugin:jquery:clear"}%
+      </div> <!-- tagsplugin_filters -->
 
-    <div id='tagsplugin_tagcloud_tags'>
-    </div> <!-- tagsplugin_tagcloud_tags -->
-
+      <div id='tagsplugin_tagcloud_tags'></div> <!-- tagsplugin_tagcloud_tags -->
+    </div> <!-- tagsplugin_tagcloud -->
   </div> <!-- tagsplugin -->
-  <div class='tagsplugin_clear'>&nbsp;</div>
-
-  <div id="tagsplugin_dialog_details" title="Tag Details" style="display:none;">
-  </div>
-
+  %TMPL:P{"tagsplugin:clear"}%
 </literal>
-
-%JQREQUIRE{"autocomplete"}%
 %JQREQUIRE{"ui"}%
-
-<script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin.js"> </script>
-
+%JQREQUIRE{"autocomplete"}%
+<script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-base.js"></script>
 %TMPL:END%
 
-%TMPL:DEF{"contentheader"}%%TMPL:P{"tagsplugin:header"}%%TMPL:END%
+%TMPL:DEF{"contentheader"}%%TMPL:P{"tagsplugin:jquery:header"}%%TMPL:END%

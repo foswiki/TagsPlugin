@@ -36,14 +36,14 @@
               var tag  = $(event.target).attr("tag");
               var item = foswiki.tagsplugin.cloudclick.targetweb+"."+foswiki.tagsplugin.cloudclick.targettopic;
               var user = foswiki.tagsplugin.cloudclick.targetuser;
-              tagsplugin_be_untag( tag, item, user );
+              tagsplugin_untag( tag, item, user );
               $(event.target).removeClass("tagsplugin_tagged");
             } else {
               $("#tagsplugin_cloudclick_processing img").show();
               var tag  = $(event.target).attr("tag");
               var item = foswiki.tagsplugin.cloudclick.targetweb+"."+foswiki.tagsplugin.cloudclick.targettopic;
               var user = foswiki.tagsplugin.cloudclick.targetuser;
-              tagsplugin_be_tag( tag, item, user );
+              tagsplugin_tag( tag, item, user );
               $(event.target).addClass("tagsplugin_tagged");
             }
           }
@@ -65,7 +65,7 @@
             );
           }
 
-          function tagsplugin_be_tag(tag, item, user) {
+          function tagsplugin_tag(tag, item, user) {
             $.ajax(
               { url: foswiki.scriptUrl+'/rest/TagsPlugin/tag',
                 type: "POST",
@@ -100,7 +100,7 @@
             );
           }
 
-          function tagsplugin_be_untag(tag, item, user) {
+          function tagsplugin_untag(tag, item, user) {
             $.ajax(
               { url: foswiki.scriptUrl+'/rest/TagsPlugin/untag',
                 type: "POST",

@@ -15,8 +15,9 @@ data/System/TagsPluginWebSelector.txt  Topic
 data/System/VarTAGSEARCH.txt 0644 Documentation
 data/System/VarTAGCLOUDCLICK.txt 0644 Documentation
 pub/System/TagsPlugin/tagsplugin.css 0644 Stylesheets
-pub/System/TagsPlugin/tagsplugin.js 0644 Javascript
+pub/System/TagsPlugin/tagsplugin-base.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-cloudclick.js 0644 Javascript
+pub/System/TagsPlugin/tagsplugin-tagentry.js 0644 Javascript
 lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Tag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Untag.pm 0644 Perl module

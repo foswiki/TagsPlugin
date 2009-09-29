@@ -4,7 +4,6 @@
     <input id="foswikiTagInput" type='text' name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
     <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
     <input type='hidden' name='type' value='topic' />
-    <input type='hidden' name='redirectto' value='%SCRIPTURL{view}%/%BASEWEB%.%BASETOPIC%' />
 </form> %TMPL:END%
 
 %{ TAGLIST }%
@@ -33,8 +32,59 @@
         .tag-cloud a { text-decoration:none; background-color:#fbfeff;border-bottom:1px solid #e5edff;font-weight:normal; }
         .tag-cloud .foswikiTagCount {font-size:0.5em;}
     </style>%TMPL:END%
+
 %TMPL:DEF{tagsplugin:tagcloud:header}%%TMPL:P{tagsplugin:tagcloud:css}%<ol class='tag-cloud'>%TMPL:END%
 %TMPL:DEF{tagsplugin:tagcloud:format}%<li class="$tagrange"><span>$count items are tagged with </span><a href='$tagurl' class='foswikiTag'>$tag <font class="foswikiTagCount">($count)</font></a></li>%TMPL:END%
 %TMPL:DEF{tagsplugin:tagcloud:separator}%
 %TMPL:END%
 %TMPL:DEF{tagsplugin:tagcloud:footer}%</ol>%TMPL:END%
+
+
+
+%{ tagspluginjquery }%
+
+%TMPL:DEF{"tagsplugin:jquery:taginput"}%
+      <div id='tagsplugin_taginput'>
+        <form type='post' action='%SCRIPTURL{rest}%/TagsPlugin/tag' id='tagsplugin_taginput_form'>
+          <input type='button' id='tagsplugin_tagcloud_toggle' value='Tags' />
+          <input type='text'   id="tagsplugin_taginput_input" name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
+          <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
+          <span id='tagsplugin_taginput_public'>
+            <input type='checkbox' name='user' value='%TAGPUBLIC%' disabled='disabled' checked='checked' /> %MAKETEXT{"public"}%
+          </span>
+          <input type='hidden' name='type' value='topic' />
+          <input type='hidden' name='redirectto' value='%SCRIPTURL{view}%/%BASEWEB%.%BASETOPIC%' />
+        </form>
+      </div> <!-- tagsplugin_taginput -->
+%TMPL:END%
+
+%TMPL:DEF{"tagsplugin:jquery:taglist"}%
+      <ul id='tagsplugin_taglist_tags'>
+%INCLUDE{
+  "%SYSTEMWEB%.TagsPluginTagList"
+  TAGWEB="%BASEWEB%"
+  TAGTOPIC="%BASETOPIC%"
+  warn="off"
+}%
+      </ul> <!-- #tagsplugin_taglist_tags -->
+%TMPL:END%
+
+%TMPL:DEF{"tagsplugin:jquery:processing"}%
+      <div id='tagsplugin_processing'>%ICON{processing-bg}%</div>
+%TMPL:END%
+
+%TMPL:DEF{"tagsplugin:jquery:clear"}%
+      <div class='tagsplugin_clear'>&nbsp;</div>
+%TMPL:END%
+
+%TMPL:DEF{"tagsplugin:jquery:webselector"}%
+      <div id='tagsplugin_webselector'>
+        %INCLUDE{"%SYSTEMWEB%.TagsPluginWebSelector" warn="off"}%
+      </div> <!-- tagsplugin_webselector -->
+%TMPL:END%
+
+%TMPL:DEF{"tagsplugin:jquery:userselector"}%
+      <div id='tagsplugin_userselector'>
+        %INCLUDE{"%SYSTEMWEB%.TagsPluginUserSelector" warn="off"}%
+      </div> <!-- tagsplugin_userselector -->
+%TMPL:END%
