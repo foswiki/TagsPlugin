@@ -669,7 +669,7 @@ CREATE TABLE IF NOT EXISTS `UserItemTag`  (
   `item_id` int(10) unsigned NOT NULL,
   `tag_id` int(10) unsigned NOT NULL,
   `public` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`user_id`,`item_id`,`tag_id`,`public`),
+  PRIMARY KEY  (`user_id`,`item_id`,`tag_id`),
   KEY `item_id` (`item_id`),
   KEY `tag_id` (`tag_id`),
   CONSTRAINT `UserItemTag_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`CUID`),

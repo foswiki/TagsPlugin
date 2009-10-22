@@ -83,7 +83,6 @@
                 var web   = foswiki.web;
                 var topic = foswiki.topic;
                 var tag   = $(event.target).closest("a[tag]").attr("tag");
-                alert(tag);
                 var user  = $(event.target).closest("a[tag]").attr("user");
                 $("#tagsplugin_processing img").show();
                 if ( $("#tagsplugin_dialog_details").size() == 0 ) {
