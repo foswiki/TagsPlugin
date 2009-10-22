@@ -163,6 +163,7 @@ SELECT
   t.item_name as tag, 
   i.item_name as topic,
   u.FoswikicUID as user,
+  i2t.public as public,
   ts.num_items as count 
 FROM Items t
 INNER JOIN UserItemTag i2t ON i2t.tag_id=t.item_id 
@@ -183,7 +184,8 @@ $order";
         my $tag       = $row->[0];
         my $item      = $row->[1];
         my $cuid      = $row->[2];
-        my $tag_count = $row->[3];
+        my $public    = $row->[3];
+        my $tag_count = $row->[4];
         my $user      = Foswiki::Func::getWikiName($cuid);                    
 
         # replace all variable occurrences
@@ -217,7 +219,7 @@ $order";
         }
 
         # flag this entry as public
-        if ( $user eq $Foswiki::cfg{DefaultUserWikiName} ) {
+        if ( $public ) {
             $entry =~ s/\$public/tagsplugin_public/g;
         } else {
             $entry =~ s/\$public//g;

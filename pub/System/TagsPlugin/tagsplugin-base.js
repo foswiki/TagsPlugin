@@ -48,24 +48,9 @@
                 $("#tagsplugin_processing img").show();
                 var tag = $("#tagsplugin_taginput_input").val();
                 var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
-                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user );
+                var pub = $("div#tagsplugin_taginput form input[name=public]").is(":checked") ? "1" : "0";
+                tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user, pub );
                 $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
-              }
-            );
-
-            // public checkbox
-            $("div#tagsplugin_taginput form input[name=user]")
-            .attr("checked", "checked")
-            .val(foswiki.tagsplugin.public)
-            .removeAttr("disabled")
-            .bind(
-              'click',
-              function(event) {
-                if ( $(this).is(":checked") ) {
-                  $(this).val(foswiki.tagsplugin.public);
-                } else {
-                  $(this).val("");
-                }
               }
             );
 
@@ -167,13 +152,14 @@
             );
           }
 
-          function tagsplugin_be_tag(tag, item, user) {
+          function tagsplugin_be_tag(tag, item, user, pub) {
             $.ajax(
               { url: foswiki.scriptUrl+'/rest/TagsPlugin/tag',
                 type: "POST",
-                data: { tag  : tag,
-                        item : item,
-                        user : user
+                data: { tag    : tag,
+                        item   : item,
+                        user   : user,
+                        public : pub
                       },
                 complete: function(xhr, statusText) {
                             switch (xhr.status) {

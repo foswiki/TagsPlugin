@@ -12,5 +12,5 @@
      | =sourceweb="Name"= <br /> =sourceweb="%USERSWEB%, Know"= <br /> =sourceweb="all"= | Comma-separated list of webs to render the tagcloud. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
      | =targetweb="Name"= | Webname of the target topic. This is where the tags are posted to. | =current web= |
      | =targettopic="Name"= | Topicname of the target topic. This is where the tags are posted to. | =current topic= |
-     | =targetuser="wikiname"= | New tags are created with this ownership. | =%TAGPUBLIC%= |
+     | =targetuser="wikiname"= | New tags are created with this ownership. | =%<nop>TAGSPLUGIN_TAGUSER%= or current user |
      | =cloudtopic="Web.Topic"= | This topic is used (included) to actually render the tagcloud. | =%SYSTEMWEB%.<nop>TagsPluginTagCloud= |

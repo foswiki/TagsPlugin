@@ -41,6 +41,7 @@ sub rest {
     my $tag_text      = $query->param('tag');
     my $redirectto    = $query->param('redirectto')              || '';
     my $user          = $query->param('user')                    || Foswiki::Func::getWikiName();
+    my $public        = ( $query->param('public') eq "1" ) ? "1" : "0";
     my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";    
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
@@ -115,7 +116,7 @@ sub rest {
     Foswiki::Func::writeDebug("ID: $user_id") if DEBUG;
 
     try {
-      $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id );
+      $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id, $public );
     } catch Error::Simple with {
       my $e = shift;
       my $n = $e->{'-value'};
@@ -145,6 +146,7 @@ Takes the following parameters:
  item_name : name of the topic to be tagged (format: Sandbox.TestTopic)
  tag_text  : name of the tag
  user_id   : tagsplugin user_id (not Foswiki cUID) 
+ public    : 0 or 1 
 
 This routine does not check any prerequisites and/or priviledges.
 
@@ -153,12 +155,13 @@ Return:
 =cut
 
 sub do {
-    my ( $item_type, $item_name, $tag_text, $user_id ) = @_;
+    my ( $item_type, $item_name, $tag_text, $user_id, $public ) = @_;
 
     throw Error::Simple("tag parameter missing", 1) unless ( ( defined($tag_text) )  && ( $tag_text  ne '' ) );
     throw Error::Simple("item parameter missing", 2) unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
 
     my $db = new Foswiki::Contrib::DbiContrib;
+
     my $item_id;
     my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
@@ -208,9 +211,9 @@ sub do {
         qw(tag_id UserItemTag user_id item_id tag_id) );
     $arrayRef = $db->dbSelect( $statement, $user_id, $item_id, $tag_id );
     if ( !defined( $arrayRef->[0][0] ) ) {
-        $statement = sprintf( 'INSERT INTO %s (%s, %s, %s) VALUES (?,?,?)',
-            qw( UserItemTag user_id item_id tag_id) );
-        $rowCount = $db->dbInsert( $statement, $user_id, $item_id, $tag_id );
+        $statement = sprintf( 'INSERT INTO %s (%s, %s, %s, %s) VALUES (?,?,?,?)',
+            qw( UserItemTag user_id item_id tag_id public) );
+        $rowCount = $db->dbInsert( $statement, $user_id, $item_id, $tag_id, $public );
 
         unless ($new_tag) {
             $statement = sprintf( 'UPDATE %s SET %s=%s+1 WHERE %s = ?',

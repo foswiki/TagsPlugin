@@ -45,13 +45,23 @@ sub initPlugin {
         return 0;
     }
 
+    # check db_schema_version
+    my $workArea = Foswiki::Func::getWorkArea( $pluginName );
+    if ( $workArea !~ m/.*\/$/ ) {
+        $workArea .= "/";
+    };
+    if ( Foswiki::Func::readFile( $workArea . "db_schema_version.txt" ) !~ m/^1\.1$/ ) {
+        Foswiki::Func::writeWarning(
+            "DB schema Version mismatch. Please convert your database.");
+        return 0;
+    }
+
     Foswiki::Func::registerTagHandler( 'TAGLIST',       \&_TAGLIST );
     Foswiki::Func::registerTagHandler( 'TAGENTRY',      \&_TAGENTRY );
     Foswiki::Func::registerTagHandler( 'TAGCLOUD',      \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
     Foswiki::Func::registerTagHandler( 'TAGCLOUDCLICK', \&_TAGCLOUDCLICK );
     Foswiki::Func::registerTagHandler( 'TAGSEARCH',     \&_TAGSEARCH );
     Foswiki::Func::registerTagHandler( 'TAGGROUPS',     \&_TAGGROUPS );
-    Foswiki::Func::registerTagHandler( 'TAGPUBLIC',     \&_TAGPUBLIC );
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN',    \&_ISTAGADMIN );
     Foswiki::Func::registerTagHandler( 'TAGREQUIRE',    \&_TAGREQUIRE );
 
@@ -61,6 +71,7 @@ sub initPlugin {
     Foswiki::Func::registerRESTHandler( 'rename', \&renameCall );
     Foswiki::Func::registerRESTHandler( 'merge',  \&mergeCall );
     Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
+    Foswiki::Func::registerRESTHandler( 'convertDatabase',    \&convertDatabase );
     # Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
     #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
@@ -70,8 +81,7 @@ sub initPlugin {
     # plus add some data through meta tags
     my $tagweb   = Foswiki::Func::getPreferencesValue("TAGWEB")   || $web;
     my $tagtopic = Foswiki::Func::getPreferencesValue("TAGTOPIC") || $topic;
-    my $header  = '<meta name="foswiki.tagsplugin.public" content="%TAGPUBLIC%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'."\n";
+    my $header  = '<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.web" content="'.$tagweb.'" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.topic" content="'.$tagtopic.'" />'."\n";
        $header .= '<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />'."\n";
@@ -325,11 +335,6 @@ sub _ISTAGADMIN {
     } else {
         return "1";
     }    
-}
-
-sub _TAGPUBLIC {
-    my $guest = $Foswiki::cfg{DefaultUserWikiName} || "!DefaultUserWikiName NOT DEFINED!";
-    return $guest;
 }
 
 sub _TAGREQUIRE {
@@ -663,7 +668,8 @@ CREATE TABLE IF NOT EXISTS `UserItemTag`  (
   `user_id` int(10) unsigned NOT NULL,
   `item_id` int(10) unsigned NOT NULL,
   `tag_id` int(10) unsigned NOT NULL,
-  PRIMARY KEY  (`user_id`,`item_id`,`tag_id`),
+  `public` int(10) unsigned NOT NULL,
+  PRIMARY KEY  (`user_id`,`item_id`,`tag_id`,`public`),
   KEY `item_id` (`item_id`),
   KEY `tag_id` (`tag_id`),
   CONSTRAINT `UserItemTag_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `Users` (`CUID`),
@@ -703,7 +709,27 @@ END
 
     $db->disconnect();    #force a commit
 
+    # write the version of the db schema to a file in the work area
+    my $workArea = Foswiki::Func::getWorkArea( $pluginName );
+    if ( $workArea !~ m/.*\/$/ ) {
+        $workArea .= "/";
+    };
+    Foswiki::Func::saveFile( $workArea . "db_schema_version.txt", "1.1" );
+
     return 'ok ' . $count;
+}
+
+sub convertDatabase {
+
+    #TODO: if there are more than two schemata to convert between, this needs to be more complex
+    my $db        = new Foswiki::Contrib::DbiContrib;
+    my $statement = <<'END';
+ALTER TABLE `foswiki106`.`UserItemTag` ADD COLUMN `public` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `tag_id`;
+END
+    my $arrayRef = $db->dbInsert($statement);
+    $db->disconnect();    #force a commit
+
+    return "ok";
 }
 
 1;
