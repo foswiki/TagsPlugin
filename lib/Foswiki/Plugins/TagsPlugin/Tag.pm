@@ -58,6 +58,13 @@ sub rest {
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );
     $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
 
+    # sanatize the tag_text
+    $tag_text =~ s/&/&amp;/g;
+    $tag_text =~ s/</&lt;/g;
+    $tag_text =~ s/>/&gt;/g;
+    $tag_text =~ s/'/&#039;/g;
+    $tag_text =~ s/"/&quot;/g;
+
     #
     # checking prerequisites
     #

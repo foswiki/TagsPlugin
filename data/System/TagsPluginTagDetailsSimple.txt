@@ -1,10 +1,10 @@
 %META:TOPICINFO{author="BaseUserMapping_333" date="1253875512" format="1.1" version="1.9"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 <!--
-      * Set TAGNAME = %URLPARAM{"tag" default="undef"}%
-      * Set TAGUSER = %URLPARAM{"taguser" default="undef"}%
-      * Set TAGWEB = %URLPARAM{"tagweb" default="undef"}%
-      * Set TAGTOPIC = %URLPARAM{"tagtopic" default="undef"}%
+      * Set TAGNAME = %URLPARAM{"tag" default="undef" encode="safe"}%
+      * Set TAGUSER = %URLPARAM{"taguser" default="undef" encode="safe"}%
+      * Set TAGWEB = %URLPARAM{"tagweb" default="undef" encode="safe"}%
+      * Set TAGTOPIC = %URLPARAM{"tagtopic" default="undef" encode="safe"}%
 -->
 
 <div style="text-align:left;">
