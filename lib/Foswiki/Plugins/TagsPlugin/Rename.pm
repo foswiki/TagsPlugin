@@ -47,7 +47,13 @@ sub rest {
     $tag_old    = Unicode::MapUTF8::from_utf8( { -string => $tag_old,    -charset => $charset } );
     $tag_new    = Unicode::MapUTF8::from_utf8( { -string => $tag_new,    -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
-    
+
+    # sanatize the new tag
+    $tag_new =~ s/&/&amp;/g;
+    $tag_new =~ s/</&lt;/g;
+    $tag_new =~ s/>/&gt;/g;
+    $tag_new =~ s/'/&#039;/g;
+    $tag_new =~ s/"/&quot;/g;
 
     #
     # checking prerequisites
