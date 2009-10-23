@@ -95,7 +95,7 @@
                     $("#tagsplugin_dialog_details")
                     .dialog('option', 'modal', true)
                     .dialog('option', 'width', 460)
-                    .dialog('option', 'title', 'Tag Details on '+tag)
+                    .dialog('option', 'title', foswiki.tagsplugin.translation.TagDetailsOn+' '+tag)
                     .dialog("open")
                     .bind( 
                       'dialogclose', 
@@ -167,19 +167,19 @@
                                 tagsplugin_fe_refreshTagList();
                                 break;
                               case 400:
-                                tagsplugin_alert("Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I'm sorry about that. (400)");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Tag400 );
                                 break;
                               case 401:
-                                tagsplugin_alert("According to my data, you are not logged in. Please log-in before you retry.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Tag401 );
                                 break;
                               case 403:
-                                tagsplugin_alert("I'm sorry, but you are not allowed to do that.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Tag403 );
                                 break;
                               case 500:
-                                tagsplugin_alert("Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Tag500 );
                                 break;
                               default:
-                                tagsplugin_alert("Unknown error in tagsplugin_be_tag.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.TagUnknown );
                                 break;
                             }
                             $("#tagsplugin_processing img").hide();
@@ -202,22 +202,22 @@
                                 tagsplugin_fe_refreshTagList();
                                 break;
                               case 400:
-                                tagsplugin_alert("Assuming you are logged in you probably just revealed a software bug. I'm sorry about that. (400)");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Untag400 );
                                 break;
                               case 401:
-                                tagsplugin_alert("According to my data, you are not logged in. Please log-in before you retry.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Untag401 );
                                 break;
                               case 403:
-                                tagsplugin_alert("I'm sorry, but you are not allowed to do that.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Untag403 );
                                 break;
                               case 404:
-                                tagsplugin_alert("I'm sorry, but either the tag or the topic does not exist.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Untag404 );
                                 break;
                               case 500:
-                                tagsplugin_alert("Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.Untag500 );
                                 break;
                               default:
-                                tagsplugin_alert("Unknown error in tagsplugin_be_untag.");
+                                tagsplugin_alert( foswiki.tagsplugin.translation.UntagUnknown );
                                 break;
                             }
                             $("#tagsplugin_processing img").hide();
@@ -232,7 +232,7 @@
             .html(text)
             .dialog('option', 'modal', true)
             .dialog('option', 'width', 460)
-            .dialog('option', 'title', 'May I kindly ask for your attention?')
+            .dialog('option', 'title', foswiki.tagsplugin.translation.Attention )
             .dialog('option', 'buttons', { "Ok": function() { $(this).dialog("close"); } })
             .dialog("open")
             .bind( 

@@ -16,8 +16,8 @@ If you want to customize the "web buttons", this is the right place.
 
 ---++ Implementation
 <verbatim>
-%STARTINCLUDE%        <span class='foswikiGrayText'>Webs:</span>
-        <a href='#' class='tagsplugin_web %IF{"$ TAGSPLUGIN_WEBSELECTOR_DEFAULT='all'" then="tagsplugin_web_active"}%' web='all'>%ICON{filter}% all</a>
+%STARTINCLUDE%        <span class='foswikiGrayText'>%MAKETEXT{"Webs"}%:</span>
+        <a href='#' class='tagsplugin_web %IF{"$ TAGSPLUGIN_WEBSELECTOR_DEFAULT='all'" then="tagsplugin_web_active"}%' web='all'>%ICON{filter}% %MAKETEXT{"all"}%</a>
 %FLEXWEBLIST{
   webs="public, -Trash"
   format="        <a href='#' class='tagsplugin_web $percntIF{\"$ TAGSPLUGIN_WEBSELECTOR_DEFAULT='$name'\" then=\"tagsplugin_web_active\"}$percnt' web='$name'>$percntICON{filter}$percnt $name</a>"

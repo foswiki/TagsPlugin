@@ -84,6 +84,20 @@ sub initPlugin {
     my $header  = '<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.web" content="'.$tagweb.'" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.topic" content="'.$tagtopic.'" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Ok" content="%MAKETEXT{"Ok"}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.TagDetailsOn" content="%MAKETEXT{"Tag Details on"}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Tag400" content="%MAKETEXT{"Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I am sorry about that. (400)"}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Tag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Tag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Tag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.TagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_tag."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Untag400" content="%MAKETEXT{"Assuming you are logged in you probably just revealed a software bug. I am sorry about that. (400)"}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Untag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Untag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Untag404" content="%MAKETEXT{"I am sorry, but either the tag or the topic does not exist."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Untag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.UntagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_untag."}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.Attention" content="%MAKETEXT{"May I kindly ask for your attention?"}%" />'."\n";
        $header .= '<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />'."\n";
     Foswiki::Func::addToHEAD('TAGSPLUGIN', "\n".$header );
 

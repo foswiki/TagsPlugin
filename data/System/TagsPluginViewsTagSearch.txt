@@ -2,25 +2,25 @@
 %META:TOPICPARENT{name="TagsPlugin"}%
 <noautolink>
 
----+++ list of everyone's tags on the current topic
+---+++ %MAKETEXT{"list of everyone's tags on the current topic"}%
 %TAGSEARCH{ web="%BASEWEB%" topic="%BASETOPIC%" }%
 
----+++ list of %NOP%%WIKINAME%'s tags on the current topic
+---+++ %MAKETEXT{"list of %NOP%%WIKINAME%'s tags on the current topic"}%
 %TAGSEARCH{ web="%BASEWEB%" topic="%BASETOPIC%" user="%WIKINAME%" }%
 
----+++ tag cloud of everyone's tags
+---+++ %MAKETEXT{"tag cloud of everyone's tags"}%
 %TAGCLOUD{ terms="$percntTAGSEARCH{ query=\"tag\" format=\"$tag:$count\" sep=\", \" }$percnt" }%
 
----+++ tag cloud of everyone's tags on topic ?mytopic=%URLPARAM{"mytopic" default="undef"}%
+---+++ %MAKETEXT{"tag cloud of everyone's tags on topic"}% ?mytopic=%URLPARAM{"mytopic" default="undef"}%
 %TAGCLOUD{ terms="$percntTAGSEARCH{ query=\"tag\" topic=\"$percntURLPARAM{mytopic}$percnt\" format=\"$tag:$count\" sep=\", \" }$percnt" }%
 
----+++ List of topics tagged with ?tag=%URLPARAM{tag}% (inverse tag lookup)
+---+++ %MAKETEXT{"Inverse tag lookup: List of topics tagged with"}% ?tag=%URLPARAM{tag}%
 %TAGSEARCH{ query="topic" tag="%URLPARAM{tag}%" }%
 
----+++ Complete list by topics
+---+++ %MAKETEXT{"Complete list by topics"}%
 %TAGSEARCH{
   query="topic"
-  header="|*Tag*|*Topic*|*User*|$n"
+  header="|*%MAKETEXT{"Tag"}%*|*%MAKETEXT{"Topic"}%*|*%MAKETEXT{"User"}%*|$n"
   format="| $tag | [[$item][$item]] | $user |"
   sep="$n"
 }%
