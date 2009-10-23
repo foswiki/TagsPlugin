@@ -1,0 +1,129 @@
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:90 TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:95
+msgid "According to my data, you are not logged in. Please log-in before you retry."
+msgstr "Meinen Daten zufolge sind Sie nicht angemeldet. Bitte melden Sie sich vor dem nächsten Versuch an."
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:29
+msgid "Action"
+msgstr "Aktion"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:94
+msgid "Assuming you are logged in you probably just revealed a software bug. I am sorry about that. (400)"
+msgstr "Wenn Sie angemeldet sind, haben Sie vermutlich soeben einen Softwarefehler entdeckt. Es tut mir leid. (400)"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:89
+msgid "Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I am sorry about that. (400)"
+msgstr "Wenn Sie angemeldet sind und ein Tag angegeben haben, haben Sie vermutlich soeben einen Softwarefehler entdeckt. Es tut mir leid. (400)"
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:20
+msgid "Complete list by topics"
+msgstr "Vollständige Liste der Topics"
+
+#: TagsPlugin/data/System/TagsPluginTagDetailsAdmin.txt:3
+msgid "Delete this tag completely"
+msgstr "Dieses Tag komplett löschen"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:97
+msgid "I am sorry, but either the tag or the topic does not exist."
+msgstr "Es tut mir leid, aber entweder das Topic oder der Tag existieren nicht."
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:91 TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:96
+msgid "I am sorry, but you are not allowed to do that."
+msgstr "Es tut mir leid, aber Sie sind nicht berechtigt, das zu tun."
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:17
+msgid "Inverse tag lookup: List of topics tagged with"
+msgstr "Tag-Rückwärtssuche: Liste aller Topics mit dem Tag"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:25
+msgid "List all occurrences of this tag"
+msgstr "Liste aller Vorkommen dieses Tags"
+
+#: TagsPlugin/data/System/TagsPluginTagDetailsSimple.txt:36
+msgid "Maintain this tag"
+msgstr "Diesen Tag verwalten"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:100
+msgid "May I kindly ask for your attention?"
+msgstr "Dürfte ich kurz um Ihre Aufmerksamkeit bitten?"
+
+#: TagsPlugin/data/System/TagsPluginTagDetailsAdmin.txt:5
+msgid "Merge another tag into this one"
+msgstr "Einen anderen Tag mit diesem zusammenlegen"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:87
+msgid "Ok"
+msgstr "Ok"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:92 TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:98
+msgid "Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."
+msgstr "Etwas außerhalb Ihres Einflußbereiches ging schief. Wahrscheinlich ein Datenbankproblem. Darf ich Sie bitten, den Administrator zu informieren? Danke."
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:23
+msgid "Tag"
+msgstr "Tag"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:5 TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:88
+msgid "Tag Details on"
+msgstr "Tag Details von"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:29 TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:23
+msgid "Topic"
+msgstr "Topic"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:7 TagsPlugin/data/System/TagsPluginTagDetailsSimple.txt:12
+msgid "Topics, tagged with this tag"
+msgstr "Topics, die mit diesem Tag gekennzeichnet sind"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:93
+msgid "Unknown error in tagsplugin_be_tag."
+msgstr "Unbekannter Fehler in tagsplugin_be_tag"
+
+#: TagsPlugin/lib/Foswiki/Plugins/TagsPlugin.pm:99
+msgid "Unknown error in tagsplugin_be_untag."
+msgstr "Unbekannter Fehler in tagsplugin_be_untag"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:29 TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:23
+msgid "User"
+msgstr "Benutzer"
+
+#: TagsPlugin/data/System/TagsPluginUserSelector.txt:19
+msgid "Users"
+msgstr "Benutzer"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:16 TagsPlugin/data/System/TagsPluginTagDetailsSimple.txt:22
+msgid "Users, who like this tag"
+msgstr "Benutzer, die diesen Tag verwenden"
+
+#: TagsPlugin/data/System/TagsPluginTagDetails.txt:29
+msgid "Web"
+msgstr "Web"
+
+#: TagsPlugin/data/System/TagsPluginWebSelector.txt:19
+msgid "Webs"
+msgstr "Webs"
+
+#: TagsPlugin/data/System/TagsPluginUserSelector.txt:20 TagsPlugin/data/System/TagsPluginWebSelector.txt:20
+msgid "all"
+msgstr "alle"
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:8
+msgid "list of %NOP%%WIKINAME%'s tags on the current topic"
+msgstr "Liste von %NOP%%WIKINAME%'s Tags auf diesem Topic"
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:5
+msgid "list of everyone's tags on the current topic"
+msgstr "Liste von jedermanns Tags auf diesem Topic"
+
+#: TagsPlugin/templates/tagsplugin.tmpl:53
+msgid "public"
+msgstr "öffentlich"
+
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:11
+msgid "tag cloud of everyone's tags"
+msgstr "Tag-Wolke von jedermanns Tags"
+
+#: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:14
+msgid "tag cloud of everyone's tags on topic"
+msgstr "Tag-Wolke von jedermanns Tags auf diesem Topic"
