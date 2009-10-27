@@ -72,6 +72,7 @@ sub initPlugin {
     Foswiki::Func::registerRESTHandler( 'merge',  \&mergeCall );
     Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
     Foswiki::Func::registerRESTHandler( 'convertDatabase',    \&convertDatabase );
+    Foswiki::Func::registerRESTHandler( 'importTagMe',        \&importTagMe );
     # Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
     #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
@@ -119,16 +120,13 @@ Makes sure any newly created topics get the 'Web' tag
 =cut
 
 sub afterSaveHandler {
-
-    # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web, $error, $meta ) = @_;
 
     Foswiki::Func::writeDebug(
         "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )")
       if $debug;
 
-    updateTopicTags( 'topic', $_[2], $_[1],
-        getUserId($Foswiki::Plugins::SESSION) );
+    updateTopicTags( 'topic', $_[2], $_[1], getUserId() );
 
     my $db = new Foswiki::Contrib::DbiContrib;
     $db->disconnect();    #force a commit
@@ -197,7 +195,7 @@ sub _TAGLIST {
     if ( !defined($showUser) || ( lc($showUser) ne 'user' ) ) {
     }
     else {
-        my $user_id = getUserId($session);
+        my $user_id = getUserId();
         return '' unless ( defined($user_id) );
         push @whereClauses, " i2t.user_id = '$user_id' ";
     }
@@ -543,13 +541,12 @@ sub mergeCall {
 
 =begin TML
 
----++ getUserId( $session, $user_id )
+---++ getUserId( $user_id )
 Resolves a given wikiname to the id in the database. Creates a new entry if necessary.
 
 If the user_id is not given, the currently logged in user is taken.
 
 Parameters:
- session : a Foswiki session
  user_id : a wikiname (NOT a cuid) of a user or group.
 
 Return:
@@ -558,10 +555,9 @@ Return:
 =cut
 
 sub getUserId {
-    my $session = $_[0];
-    my $user_id = $_[1]; 
+    my $user_id = $_[0]; 
 
-    my $FoswikiCuid = $user_id || $session->{user};
+    my $FoswikiCuid = $user_id || Foswiki::Func::getCanonicalUserID();
 
     my $db = new Foswiki::Contrib::DbiContrib;
     my $cuid;
@@ -709,7 +705,7 @@ END
     # - each topic is tagged with the web its in (tag type?)
     # - import TagMe tags
     my $count   = 0;
-    my $user_id = getUserId($session);
+    my $user_id = getUserId();
     use Foswiki::Plugins::TagsPlugin::Tag;
     my @weblist = Foswiki::Func::getListOfWebs();
     foreach my $web (@weblist) {
@@ -738,12 +734,17 @@ sub convertDatabase {
     #TODO: if there are more than two schemata to convert between, this needs to be more complex
     my $db        = new Foswiki::Contrib::DbiContrib;
     my $statement = <<'END';
-ALTER TABLE `foswiki106`.`UserItemTag` ADD COLUMN `public` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `tag_id`;
+ALTER TABLE `UserItemTag` ADD COLUMN `public` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `tag_id`;
 END
     my $arrayRef = $db->dbInsert($statement);
     $db->disconnect();    #force a commit
 
     return "ok";
+}
+
+sub importTagMe {
+    use Foswiki::Plugins::TagsPlugin::ImportTagMe;
+    return Foswiki::Plugins::TagsPlugin::ImportTagMe::rest( @_ );
 }
 
 1;

@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 1; # toggle me
+use constant DEBUG => 0; # toggle me
 
 =begin TML
 
@@ -43,6 +43,8 @@ sub do {
     my $theTag    = $params->{tag}       || 'all';
     my $theTopic  = $params->{topic}     || '';
     my $theQuery  = $params->{query}     || 'tag'; 
+    my $theOrder  = $params->{order}     || ''; 
+    my $thePublic = $params->{public}    || 'all'; 
     my $theFormat = $params->{format};
     
     # determine default format based on query type
@@ -125,6 +127,15 @@ sub do {
         push @whereClauses, join( ' OR ', @clauses );
     }
 
+    # filter for public
+    if ( lc($thePublic) ne "all" ) {
+      if ( lc($thePublic) eq "public" ) {
+        push @whereClauses, "i2t.public=1";
+      } elsif ( lc($thePublic) eq "private" ) {
+        push @whereClauses, "i2t.public=0";
+      }
+    }
+
     # build the WHERE clause
     #
     push @whereClauses, " i.item_type = 'topic' ";
@@ -148,11 +159,11 @@ sub do {
     # build ORDER BY
     #
     my $order = "";
-    if ( lc($theQuery) eq "tag" ) {
+    if ( lc($theOrder) eq "tag" ) {
         $order = "ORDER BY t.item_name";
-    } elsif ( lc($theQuery) eq "topic" ) {
+    } elsif ( lc($theOrder) eq "topic" ) {
         $order = "ORDER BY i.item_name";
-    } elsif ( lc($theQuery) eq "user" ) {
+    } elsif ( lc($theOrder) eq "user" ) {
         $order = "ORDER BY u.FoswikicUID";
     }
 

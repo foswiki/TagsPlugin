@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1252352642" format="1.1" version="1.5"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1256522160" format="1.1" version="1.2"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 <noautolink>
 %TAGSEARCH{
@@ -6,5 +6,14 @@
   tag="%%URLPARAM{"q"}%%"
   format="$tag"
   sep="$n"
+  public="public"
+}%
+%TAGSEARCH{
+  query="tag"
+  user="%WIKINAME%"
+  tag="%%URLPARAM{"q"}%%"
+  format="$tag"
+  sep="$n"
+  public="private"
 }%
 </noautolink>

@@ -105,7 +105,7 @@ sub rest {
     
     # handle errors and finally return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId($session, Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::getCanonicalUserID( $user ) );
 
     try {
       $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
