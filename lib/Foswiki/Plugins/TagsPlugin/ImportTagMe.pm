@@ -33,7 +33,7 @@ sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
 
-    my $public  = $query->param('public') || "NULL";
+    my $public  = $query->param('visibility') || "NULL";
 
     # check if current user is allowed to do so
     #
@@ -44,11 +44,12 @@ sub rest {
     }
 
     # interpret the public url param as a confirmation
-    if ( $public eq "0" || $public eq "1" ) { 
+    if ( $public eq "public" || $public eq "private" ) { 
         $public = Foswiki::Sandbox::untaintUnchecked($public);
+        $public = ( $public eq "public" ) ? "1" : "0";
         return Foswiki::Plugins::TagsPlugin::ImportTagMe::do( $public );
     } else {
-        return "Please use ?public=0 or 1"; 
+        return "Please use ?visibility=public or visibility=private"; 
     }   
 }
 
@@ -70,6 +71,7 @@ Return:
 
 sub do {
     my ( $public ) = @_;
+    my $retval = "";
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:Start") if DEBUG;
 
@@ -101,6 +103,7 @@ sub do {
           foreach my $user ( @users ) {
             my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::getCanonicalUserID( $user ) );
             Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import: $webTopic, $tag, $user_id, $public") if DEBUG;
+            $retval .= "$webTopic, $tag, $user_id, $public <br />"; 
             Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic, $tag, $user_id, $public );
           }
         }
@@ -109,7 +112,7 @@ sub do {
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:End") if DEBUG;
 
-    return "done";
+    return $retval . "done";
 }
 
 1;
