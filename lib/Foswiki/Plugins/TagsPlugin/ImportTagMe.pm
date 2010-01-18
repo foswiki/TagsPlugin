@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 1; # toggle me
+use constant DEBUG => 0; # toggle me
 
 =begin TML
 
@@ -55,18 +55,8 @@ sub rest {
 
 =begin TML
 
----++ do( $tag_old, $tag_new )
-This does untagging.
+---++ do( )
 
-Takes the following parameters:
- tag_old : name of tag to be renamed
- tag_new : new name for the old tag
-
-This routine does not check any prerequisites and/or priviledges. It returns 0, if
-the old tagname was not found or the new tagname already exists.
-
-Return:
- number of affected tags.
 =cut
 
 sub do {
@@ -74,6 +64,8 @@ sub do {
     my $retval = "";
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:Start") if DEBUG;
+
+    use Foswiki::Plugins::TagsPlugin::Func;
 
     $public = $public ? "1" : "0";
     my $lineRegex = "^0*([0-9]+), ([^,]+), (.*)";
@@ -98,7 +90,7 @@ sub do {
       foreach my $line ( @tagInfo ) {
         if ( $line =~ /$lineRegex/ ) {
           my $num   = $1;
-          my $tag   = $2;
+          my $tag   = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $2 );
           my @users = split( /,\s*/, $3 );
           foreach my $user ( @users ) {
             my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::getCanonicalUserID( $user ) );

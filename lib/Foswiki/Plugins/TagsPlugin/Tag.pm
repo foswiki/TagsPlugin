@@ -59,11 +59,8 @@ sub rest {
     $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
 
     # sanatize the tag_text
-    $tag_text =~ s/&/&amp;/g;
-    $tag_text =~ s/</&lt;/g;
-    $tag_text =~ s/>/&gt;/g;
-    $tag_text =~ s/'/&#039;/g;
-    $tag_text =~ s/"/&quot;/g;
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
 
     #
     # checking prerequisites
@@ -130,6 +127,9 @@ sub rest {
       if ( $n == 1 || $n == 2 ) {
         $session->{response}->status(400);
         return "<h1>400 " . $e->{'-text'} . "</h1>";
+      } elsif ( $n == 3 ) {
+        $session->{response}->status(500);
+        return "<h1>400 " . $e->{'-text'} . "</h1>";
       } else {
         $e->throw();
       }
@@ -145,7 +145,7 @@ sub rest {
 
 =begin TML
 
----++ do( $item_type, $item_name, $tag_text, $user_id )
+---++ do( $item_type, $item_name, $tag_text, $user_id, public )
 This does tagging.
 
 Takes the following parameters:
@@ -156,6 +156,8 @@ Takes the following parameters:
  public    : 0 or 1 
 
 This routine does not check any prerequisites and/or priviledges.
+
+Note: Only use normalized tagnames!
 
 Return:
  nothing
@@ -169,6 +171,8 @@ sub do {
 
     my $db = new Foswiki::Contrib::DbiContrib;
 
+    # Check if topic is already in Items table, create otherwise
+    #
     my $item_id;
     my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
@@ -186,6 +190,8 @@ sub do {
         $item_id = $arrayRef->[0][0];
     }
 
+    # Check if tag is already in Items table, create otherwise
+    #
     my $tag_id;
     my $new_tag = 0;
     $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
@@ -212,11 +218,28 @@ sub do {
         $new_tag = 1;
     }
 
+    # if public=1: check, if there is already a public tag
+    #
+    if ( $public eq "1" ) {
+      $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND public=1',
+          qw( public UserItemTag item_id tag_id ) );
+      Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id" ) if DEBUG;
+      $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id );
+      if ( defined( $arrayRef->[0][0] ) ) {
+        if ( $arrayRef->[0][0] == "1" ) {
+          throw Error::Simple("There is already a public tag.", 3);
+        }
+      }
+    }
+
+    # Check if this user/tag/public tupel is already in UserItemTag, create otherwise
+    #
     my $rowCount = 0;
     $statement =
-      sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ?',
-        qw(tag_id UserItemTag user_id item_id tag_id) );
-    $arrayRef = $db->dbSelect( $statement, $user_id, $item_id, $tag_id );
+      sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+        qw(tag_id UserItemTag user_id item_id tag_id public) );
+    Foswiki::Func::writeDebug("TagsPlugin::Tag::do : $statement, $user_id, $item_id, $tag_id, $public") if DEBUG;
+    $arrayRef = $db->dbSelect( $statement, $user_id, $item_id, $tag_id, $public );
     if ( !defined( $arrayRef->[0][0] ) ) {
         $statement = sprintf( 'INSERT INTO %s (%s, %s, %s, %s) VALUES (?,?,?,?)',
             qw( UserItemTag user_id item_id tag_id public) );

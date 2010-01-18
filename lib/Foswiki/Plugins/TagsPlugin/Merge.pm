@@ -47,7 +47,11 @@ sub rest {
     $tag1       = Unicode::MapUTF8::from_utf8( { -string => $tag1,       -charset => $charset } );
     $tag2       = Unicode::MapUTF8::from_utf8( { -string => $tag2,       -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
-    
+
+    # sanatize the tag_text
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $tag1 = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag1 );
+    $tag2 = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag2 );
 
     #
     # checking prerequisites
@@ -98,7 +102,9 @@ sub rest {
     
     # redirect on request
     if ( $redirectto ) {
-        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+        my ($rweb, $rtopic) = Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
+        my $url = Foswiki::Func::getScriptUrl( $rweb, $rtopic, "view" );
+        Foswiki::Func::redirectCgiQuery( undef, $url );
     }    
     
     return $retval;
@@ -117,6 +123,8 @@ Takes the following parameters:
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 tag1 or tag2 was not found.
 
+Note: Only use normalized tagnames!
+
 Return:
  0 on failure, any other positive number on success.
 =cut
@@ -130,6 +138,7 @@ sub do {
     my $tag_id1;
     my $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
+    Foswiki::Func::writeDebug("$statement, $tag1, tag") if DEBUG;
     my $arrayRef = $db->dbSelect( $statement, $tag1, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id1 = $arrayRef->[0][0];
@@ -143,6 +152,7 @@ sub do {
     my $tag_id2;
     $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
         qw( item_id Items item_name item_type) );
+    Foswiki::Func::writeDebug("$statement, $tag2, tag") if DEBUG;
     $arrayRef = $db->dbSelect( $statement, $tag2, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id2 = $arrayRef->[0][0];
@@ -172,7 +182,7 @@ sub do {
     my $modified = $db->dbDelete( $statement, $tag_id2 );        
     Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
     if ( $modified eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to clean up after the merge.", 4);
+      # throw Error::Simple("Database error: failed to clean up after the merge.", 4);
     };
     
     # update stats in TagStat (rebuild it actually)

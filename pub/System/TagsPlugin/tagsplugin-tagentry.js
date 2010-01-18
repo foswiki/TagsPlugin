@@ -7,13 +7,15 @@
                 event.preventDefault();
                 $("#tagsplugin_processing img").show();
                 var tag = $("#tagsplugin_taginput_input").val();
-                var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
+                // var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
+                var user = foswiki.tagsplugin.defaultuser;
                 tagsplugin_tagentry_tag(tag, foswiki.web+'.'+foswiki.topic, user );
                 $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
               }
             );
 
             // public checkbox
+            /*
             $("div#tagsplugin_taginput form input[name=user]")
             .attr("checked", "checked")
             .val(foswiki.tagsplugin.public)
@@ -28,6 +30,7 @@
                 }
               }
             );
+            */
 
             $("#tagsplugin_taginput_input").autocomplete(
               foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginAutoCompleteBackend", {

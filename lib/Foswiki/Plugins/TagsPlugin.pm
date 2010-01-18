@@ -65,11 +65,12 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN',    \&_ISTAGADMIN );
     Foswiki::Func::registerTagHandler( 'TAGREQUIRE',    \&_TAGREQUIRE );
 
-    Foswiki::Func::registerRESTHandler( 'tag',    \&tagCall );
-    Foswiki::Func::registerRESTHandler( 'untag',  \&untagCall );
-    Foswiki::Func::registerRESTHandler( 'delete', \&deleteCall );
-    Foswiki::Func::registerRESTHandler( 'rename', \&renameCall );
-    Foswiki::Func::registerRESTHandler( 'merge',  \&mergeCall );
+    Foswiki::Func::registerRESTHandler( 'tag',     \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'untag',   \&untagCall );
+    Foswiki::Func::registerRESTHandler( 'public',  \&publicCall );
+    Foswiki::Func::registerRESTHandler( 'delete',  \&deleteCall );
+    Foswiki::Func::registerRESTHandler( 'rename',  \&renameCall );
+    Foswiki::Func::registerRESTHandler( 'merge',   \&mergeCall );
     Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
     Foswiki::Func::registerRESTHandler( 'convertDatabase',    \&convertDatabase );
     Foswiki::Func::registerRESTHandler( 'importTagMe',        \&importTagMe );
@@ -444,6 +445,42 @@ TODO:
 sub untagCall {
     use Foswiki::Plugins::TagsPlugin::Untag;
     return Foswiki::Plugins::TagsPlugin::Untag::rest( @_ );    
+}
+
+=pod
+
+---++ publicCall($session) -> $text
+
+This is the REST wrapper for public.
+
+Takes the following url parameters:
+ item       : name of the topic (format: Sandbox.TestTopic)
+ tag        : name of the tag
+ user       : (Optional) Wikiname of the user or group (format: JoeDoe), defaults to current user
+ public     : (Optional) Sets or unsets the public flag (values: "0" or "1")
+
+If "user" is a groupname, the currently logged in user has to be member of that group. 
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing or empty
+ 401 : access denied for unauthorized user
+ 403 : the user is not allowed to to change the public flag 
+
+Return:
+In case of an error (!=200 ) just the status code incl. short description is returned.
+Otherwise a 200 is returned.
+
+TODO:
+ force http POST method
+
+Sets public flag for a given topic/tag/user tupel. Quits silently if nothing to do.
+      
+=cut
+
+sub publicCall {
+    use Foswiki::Plugins::TagsPlugin::Public;
+    return Foswiki::Plugins::TagsPlugin::Public::rest( @_ );    
 }
 
 

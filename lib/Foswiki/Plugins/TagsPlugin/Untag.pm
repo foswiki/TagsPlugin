@@ -52,6 +52,10 @@ sub rest {
     $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );        
 
+    # sanatize the tag_text
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
+
     #
     # checking prerequisites
     #
@@ -143,6 +147,8 @@ Takes the following parameters:
 
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 the given item_name, tag_text or user_id was not found.
+
+Note: Only use normalized tagnames!
 
 Return:
  number of affected rows/tags.

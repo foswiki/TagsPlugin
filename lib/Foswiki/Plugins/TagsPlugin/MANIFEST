@@ -10,6 +10,8 @@ data/System/TagsPluginTagCloud.txt 0644 Topic
 data/System/TagsPluginTagDetails.txt  Topic
 data/System/TagsPluginTagDetailsSimple.txt  Topic
 data/System/TagsPluginTagDetailsAdmin.txt  Topic
+data/System/TagsPluginTagRename.txt  Topic
+data/System/TagsPluginTagMerge.txt  Topic
 data/System/TagsPluginUserSelector.txt  Topic
 data/System/TagsPluginWebSelector.txt  Topic
 data/System/VarTAGSEARCH.txt 0644 Documentation

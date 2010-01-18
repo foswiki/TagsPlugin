@@ -43,7 +43,10 @@ sub rest {
     require Unicode::MapUTF8;
     $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
-    
+
+    # sanatize the tag_text
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
 
     #
     # checking prerequisites
@@ -103,6 +106,8 @@ Takes the following parameters:
 
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 the given tag_text was not found.
+
+Note: Only use normalized tagnames!
 
 Return:
  number of affected tags in the format "n+m" with n as the number of tags and m as the number of (user) tag instances.

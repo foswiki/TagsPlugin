@@ -49,9 +49,7 @@
           <input type='button' id='tagsplugin_tagcloud_toggle' value='Tags' />
           <input type='text'   id="tagsplugin_taginput_input" name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
           <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
-          <span id='tagsplugin_taginput_public'>
-            <input type='checkbox' name='public' checked='checked' value="1" /> %MAKETEXT{"public"}%
-          </span>
+          <input type='hidden' name='public' value="1" />
           <input type='hidden' name='user' value='%WIKINAME%' />
           <input type='hidden' name='type' value='topic' />
           <input type='hidden' name='redirectto' value='%SCRIPTURL{view}%/%BASEWEB%.%BASETOPIC%' />

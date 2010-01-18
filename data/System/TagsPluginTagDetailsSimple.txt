@@ -1,15 +1,21 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1253875512" format="1.1" version="1.9"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1263789345" format="1.1" reprev="1.54" version="1.54"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 <!--
       * Set TAGNAME = %URLPARAM{"tag" default="undef" encode="safe"}%
+      * Set TAGNAMEURL = %URLPARAM{"tag" default="undef" encode="url"}%
       * Set TAGUSER = %URLPARAM{"taguser" default="undef" encode="safe"}%
       * Set TAGWEB = %URLPARAM{"tagweb" default="undef" encode="safe"}%
       * Set TAGTOPIC = %URLPARAM{"tagtopic" default="undef" encode="safe"}%
+      * Set TAGITEM = %TAGWEB%.%TAGTOPIC%
+      * Set TRASH = %ICON{"trash"}%
+      * Set PENCIL = %ICON{"pencil"}%
+      * Set LOCK = %ICON{"lock"}%
+      * Set SITETREE = %ICON{"sitetree"}%
 -->
 
 <div style="text-align:left;">
 <noautolink>
----+++ %MAKETEXT{"Topics, tagged with this tag"}%
+
 %TAGCLOUD{ 
   terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntTAGNAME$percnt\" format=\"$item:1:$web:$topic:$user\" }$percnt" 
   split="[,]"
@@ -19,24 +25,50 @@
   warn="off"
 }%
 
----+++ %MAKETEXT{"Users, who like this tag"}%
-%TAGCLOUD{ 
-  terms="$percntTAGSEARCH{ query=\"user\" tag=\"$percntTAGNAME$percnt\" format=\"$user:1:$web:$topic\" }$percnt" 
-  header="<div style=\"text-align:center; padding:15px;line-height:180%\">"
-  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$percntUSERSWEB$percnt/$term' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$term</a></span>"
-  footer="</div>"
-  warn="off"
-}%
-
+%TAGSEARCH{
+  query="user" 
+  tag="%TAGNAME%" 
+  web="%TAGWEB%" 
+  topic="%TAGTOPIC%"
+  public="public" 
+  format="$percntTRASH$percnt <a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=%TAGNAMEURL%&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> public <span class='foswikiGrayText'>$tag</span>"
+  sep=" %BR% "
+  footer="%BR%"
+}% 
 %TAGSEARCH{
   query="user" 
   tag="%TAGNAME%" 
   web="%TAGWEB%" 
   topic="%TAGTOPIC%" 
-  header="---+++ %MAKETEXT{"Maintain this tag"}%$n"
-  format="<a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=$tag&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> $percntIF{$quot'$public'='tagsplugin_public'$quot else=\"$user's\" then=\"public\"}$percnt <span class='foswikiGrayText'>$tag</span> tag from this topic."
+  public="private"
+  user="%WIKINAME%"
+  format="$percntTRASH$percnt <a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=%TAGNAMEURL%&item=$item&user=$user' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user'>Remove</a> $user's <span class='foswikiGrayText'>$tag</span>"
   sep=" %BR% "
-}%
+  footer="%BR%"
+}% 
+%TAGSEARCH{
+  query="user" 
+  tag="%TAGNAME%" 
+  web="%TAGWEB%" 
+  topic="%TAGTOPIC%" 
+  public="public" 
+  format="$percntLOCK$percnt <a href='%SCRIPTURL{rest}%/TagsPlugin/public?tag=%TAGNAMEURL%&item=$item&user=$user&redirectto=$item&public=0' class='tagsplugin_public_link' tag='$tag' item='$item' user='$user'>Flag this tag as non-public</a>"
+  sep=" %BR% "
+  footer="%BR%"
+}% 
+%TAGSEARCH{
+  query="user" 
+  tag="%TAGNAME%" 
+  web="%TAGWEB%" 
+  topic="%TAGTOPIC%"
+  public="private"  
+  user="%WIKINAME%"
+  format="$percntLOCK$percnt <a href='%SCRIPTURL{rest}%/TagsPlugin/public?tag=%TAGNAMEURL%&item=$item&user=$user&redirectto=$item&public=1' class='tagsplugin_public_link' tag='$tag' item='$item' user='$user'>Flag this tag as public</a>"
+  sep=" %BR% "
+  footer="%BR%"
+}% 
+%IF{ "'%ISTAGADMIN%'='1'" then="$percntSITETREE$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagMerge?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Merge</a> this tag with another tag" }% %BR%
+%IF{ "'%ISTAGADMIN%'='1'" then="$percntPENCIL$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagRename?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Rename</a> this tag" }%
 
 </noautolink>
 </div>

@@ -48,7 +48,8 @@
                 $("#tagsplugin_processing img").show();
                 var tag = $("#tagsplugin_taginput_input").val();
                 var user = $("div#tagsplugin_taginput form input[name=user]").attr("value");
-                var pub = $("div#tagsplugin_taginput form input[name=public]").is(":checked") ? "1" : "0";
+                // var pub = $("div#tagsplugin_taginput form input[name=public]").is(":checked") ? "1" : "0";
+                var pub = $("div#tagsplugin_taginput form input[name=public]").val();
                 tagsplugin_be_tag(tag, foswiki.web+'.'+foswiki.topic, user, pub );
                 $("#tagsplugin_taginput_input").trigger("blur").val("").focus();
               }

@@ -48,12 +48,10 @@ sub rest {
     $tag_new    = Unicode::MapUTF8::from_utf8( { -string => $tag_new,    -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
 
-    # sanatize the new tag
-    $tag_new =~ s/&/&amp;/g;
-    $tag_new =~ s/</&lt;/g;
-    $tag_new =~ s/>/&gt;/g;
-    $tag_new =~ s/'/&#039;/g;
-    $tag_new =~ s/"/&quot;/g;
+    # sanatize the tag_text
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $tag_old = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_old );
+    $tag_new = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_new );
 
     #
     # checking prerequisites
@@ -106,7 +104,9 @@ sub rest {
     
     # redirect on request
     if ( $redirectto ) {
-        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
+        my ($rweb, $rtopic) = Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
+        my $url = Foswiki::Func::getScriptUrl( $rweb, $rtopic, "view" );
+        Foswiki::Func::redirectCgiQuery( undef, $url );
     }
         
     return $retval; 
@@ -123,6 +123,8 @@ Takes the following parameters:
 
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 the old tagname was not found or the new tagname already exists.
+
+Note: Only use normalized tagnames!
 
 Return:
  number of affected tags.

@@ -1,0 +1,20 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1263790531" format="1.1" reprev="1.2" version="1.2"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+<!-- 
+   * Set TAGNAME = %URLPARAM{"tag" default="undef" encode="safe"}%
+   * Set TARGET = %URLPARAM{"redirectto" default="%MAINWEB%.%HOMETOPIC%" encode="safe"}%
+-->
+<form name="foswikiTagsPluginMerge" action="%SCRIPTURL{rest}%/TagsPlugin/merge" method="get">
+  <input type="hidden" name="redirectto" value="%TARGET%" />
+  <input type="hidden" name="tag2" value="%TAGNAME%" />
+  Merge %ICON{"tag"}% <span class='foswikiGrayText'>%TAGNAME%</span> into the resulting tag <select name="tag1">
+%TAGSEARCH{ 
+  query="tag" 
+  format="  <option value='$percntENCODE{\"$tag\" type=\"safe\"}$percnt'>$tag</option>"
+  sep="$n" 
+}%
+  </select>
+  <input type="submit" value="Merge" class="foswikiSubmit" />
+</form>
+
+%META:PREFERENCE{name="VIEW_TEMPLATE" title="VIEW_TEMPLATE" type="Local" value="System.TagsPluginNoHeaderViewTemplate"}%

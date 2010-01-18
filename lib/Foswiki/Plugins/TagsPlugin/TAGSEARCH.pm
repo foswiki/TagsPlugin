@@ -46,6 +46,9 @@ sub do {
     my $theOrder  = $params->{order}     || ''; 
     my $thePublic = $params->{public}    || 'all'; 
     my $theFormat = $params->{format};
+
+    use Foswiki::Plugins::TagsPlugin::Func;
+    $theTag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $theTag );
     
     # determine default format based on query type
     unless( $theFormat ) {
@@ -145,10 +148,10 @@ sub do {
 
     # build the GROUP BY clause
     #
-    my %groupbyhash = ( "tag", 1, "topic", 1, "user", 1 );
+    my %groupbyhash = ( "tag", 1, "topic", 1, "user", 1, "public", 1 );
     my @groupbyClauses = ();
     if ( $theFormat !~ m/\$(item|web|topic)/ ) { $groupbyhash{"topic"} = 0; };
-    if ( $theFormat !~ m/\$(cuid|user)/      ) { $groupbyhash{"user"}  = 0; };
+    if ( $theFormat !~ m/\$(cuid|user)/      ) { $groupbyhash{"user"}  = 0; $groupbyhash{"public"}  = 0; };
     if ( $theFormat !~ m/\$tag/              ) { $groupbyhash{"tag"}   = 0; };
     while( my ($key, $value) = each( %groupbyhash ) ) {
         if ( $value ) { push @groupbyClauses, " $key " };
