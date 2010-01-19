@@ -51,7 +51,7 @@ use the =TAGCLOUD= macro from the Foswiki:Extensions.TagCloudPlugin instead. See
 To search for topics that are tagged with (or not tagged with), use a %SYSTEMWEB%.QuerySearch
 with the =taggedwith(tagname)= operator.
 
-TagsPluginViews defines the common Tag widgets that can be re-used via Sectional includes.
+TagsPluginViews defines the common Tag widgets that can be reused via Sectional includes.
 
 ---+++ Preferences (used by the jquery flavor)
 Available variables which can be used to change the (default) behaviour of the jquery skin:
@@ -74,8 +74,8 @@ Available variables which can be used to change the (default) behaviour of the j
 
 
 ---++ For Developers
-You can access all functions of this plugin via rest handlers. Please consult the inline
-documentation of TagsPlugin.pm for HTTP status codes, available handlers and URL 
+You can access all functions of this plugin via REST handlers. Please consult the inline
+documentation of =TagsPlugin.pm= for HTTP status codes, available handlers, and URL 
 parameters.
 
 ---++ Plugin Info

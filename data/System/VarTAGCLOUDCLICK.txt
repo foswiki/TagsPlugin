@@ -8,9 +8,9 @@
    * %X% Limitation: This macro can only be used once per page.
    * Supported parameters:
      | *Parameter:* | *Description:* | *Default:* |
-     | =sourceuser="wikiname"= <br /> =sourceuser="all"= | When rendering the tagcloud, this filter is used for the user-dimension. Leave out the =%MAINWEB%= part here. | ="all"= |
+     | =sourceuser="wikiname"= <br /> =sourceuser="all"= | When rendering the tagcloud, this filter is used for the user dimension. Leave out the =%MAINWEB%= part here. | ="all"= |
      | =sourceweb="Name"= <br /> =sourceweb="%USERSWEB%, Know"= <br /> =sourceweb="all"= | Comma-separated list of webs to render the tagcloud. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
      | =targetweb="Name"= | Webname of the target topic. This is where the tags are posted to. | =current web= |
-     | =targettopic="Name"= | Topicname of the target topic. This is where the tags are posted to. | =current topic= |
+     | =targettopic="Name"= | Name of the target topic. This is where the tags are posted to. | =current topic= |
      | =targetuser="wikiname"= | New tags are created with this ownership. | =%<nop>TAGSPLUGIN_TAGUSER%= or current user |
      | =cloudtopic="Web.Topic"= | This topic is used (included) to actually render the tagcloud. | =%SYSTEMWEB%.<nop>TagsPluginTagCloud= |
