@@ -35,16 +35,17 @@ Return:
 sub do {
     my ( $session, $params, $topic, $web ) = @_;
 
-    my $theHeader = $params->{header}    || '';
-    my $theSep    = $params->{separator} || $params->{sep} || ', ';
-    my $theFooter = $params->{footer}    || '';
-    my $theUser   = $params->{user}      || 'all';
-    my $theWeb    = $params->{web}       || 'all';
-    my $theTag    = $params->{tag}       || 'all';
-    my $theTopic  = $params->{topic}     || '';
-    my $theQuery  = $params->{query}     || 'tag'; 
-    my $theOrder  = $params->{order}     || ''; 
-    my $thePublic = $params->{public}    || 'all'; 
+    my $theHeader = $params->{header}     || '';
+    my $theSep    = $params->{separator}  || $params->{sep} || ', ';
+    my $theFooter = $params->{footer}     || '';
+    my $theUser   = $params->{user}       || 'all';
+    my $theWeb    = $params->{web}        || 'all';
+    my $theTag    = $params->{tag}        || 'all';
+    my $theTopic  = $params->{topic}      || '';
+    my $theQuery  = $params->{query}      || 'tag'; 
+    my $theOrder  = $params->{order}      || ''; 
+    my $thePublic = $params->{visibility} || 'all'; 
+    my $theAlt    = $params->{alt}        || ''; 
     my $theFormat = $params->{format};
 
     use Foswiki::Plugins::TagsPlugin::Func;
@@ -80,7 +81,7 @@ sub do {
             my $cuid;
             my $statement =
               sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-            my $arrayRef = $db->dbSelect( $statement, Foswiki::Func::getCanonicalUserID( $u ) );
+            my $arrayRef = $db->dbSelect( $statement, Foswiki::Func::isGroup($u) ? $u : Foswiki::Func::getCanonicalUserID( $u ) );
             if ( defined( $arrayRef->[0][0] ) ) {
                 $cuid = $arrayRef->[0][0];
             }
@@ -136,6 +137,32 @@ sub do {
         push @whereClauses, "i2t.public=1";
       } elsif ( lc($thePublic) eq "private" ) {
         push @whereClauses, "i2t.public=0";
+      } elsif ( lc($thePublic) eq "user" ) {
+
+        my @membershipClauses = ();
+        my $cuid = Foswiki::Plugins::TagsPlugin::Func::getUserID();
+        push @membershipClauses, "i2t.user_id='$cuid'";
+
+        # calculate group memberships
+        my $it = Foswiki::Func::eachGroup();
+        while ($it->hasNext()) {
+          my $group = $it->next();
+          if ( !Foswiki::Func::isGroupMember( $group ) ) { next; };
+          my $group_id = Foswiki::Plugins::TagsPlugin::Func::getUserID( $group );
+          Foswiki::Func::writeDebug("TAGSEARCH::groups: $group_id") if DEBUG;
+          if ($group_id) {
+            push @membershipClauses, "i2t.user_id='$group_id'";
+          }
+        }
+        my $memberships = join( ' OR ', @membershipClauses );
+
+        # construct the constraint
+        if ( defined($cuid) ) {
+          push @whereClauses, "( (i2t.public=1) OR (i2t.public=0 AND ($memberships)) )";
+        } else {
+          push @whereClauses, "i2t.public=1";
+        }        
+
       }
     }
 
@@ -191,8 +218,10 @@ $order";
     Foswiki::Func::writeDebug("TAGSEARCH: $statement") if DEBUG;
 
     # get the data from the db and rotate through it 
+    my $row_counter = 0;
     my $arrayRef = $db->dbSelect($statement);
     foreach my $row ( @{$arrayRef} ) {
+        $row_counter++;
         my $entry = $theFormat;
 
         my $tag       = $row->[0];
@@ -217,6 +246,8 @@ $order";
         
         $entry =~ s/\$tag/$tag/g;
         $entry =~ s/\$count/$tag_count/g;
+        $entry =~ s/\$num/$row_counter/g;
+        $entry =~ s/\$public/$public/g;
         
         # flag this entry with "isAdmin" (useful for css classes)
         if ( $isTagAdmin ) {
@@ -231,13 +262,6 @@ $order";
         } else {
             $entry =~ s/\$untaggable//g;
         }
-
-        # flag this entry as public
-        if ( $public ) {
-            $entry =~ s/\$public/tagsplugin_public/g;
-        } else {
-            $entry =~ s/\$public//g;
-        }
             
         # insert seperator only if needed
         if ( $output ne '' ) {
@@ -248,7 +272,12 @@ $order";
         }
     }
 
-    $output = $theHeader . $output . $theFooter if ($output);
+    Foswiki::Func::writeDebug( "row counter: $row_counter" ) if DEBUG;
+    if ( $row_counter > 0 ) {
+      $output = $theHeader . $output . $theFooter;  #if ($output);
+    } else {
+      $output = $theAlt;
+    }
 
     # expand standard escapes
     $output =~ s/\$n/\n/g;

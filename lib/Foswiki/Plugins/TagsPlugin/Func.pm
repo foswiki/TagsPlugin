@@ -42,4 +42,32 @@ sub normalizeTagname {
     return $tag_text;
 }
 
+=begin TML
+
+---++ getUserID( $user )
+resolves the cuid for $user from the database
+
+Returns:
+  cuid value
+=cut
+
+sub getUserID {
+    my $user = $_[0];
+    my $user_id = Foswiki::Func::isGroup( $user ) ? $user : Foswiki::Func::getCanonicalUserID( $user );
+
+    my $db = new Foswiki::Contrib::DbiContrib;
+
+    my $cuid;
+    my $statement =
+      sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
+    Foswiki::Func::writeDebug("TagsPlugin::Func::getUserID: $statement - $user_id") if DEBUG;
+    my $arrayRef = $db->dbSelect( $statement, $user_id );
+    if ( defined( $arrayRef->[0][0] ) ) {
+        $cuid = $arrayRef->[0][0];
+        Foswiki::Func::writeDebug("TagsPlugin::Func::getUserID: $cuid") if DEBUG;
+    }
+
+    return $cuid;
+}
+
 1;

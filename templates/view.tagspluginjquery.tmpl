@@ -3,29 +3,33 @@
 
 %TMPL:DEF{"tagsplugin:jquery:header"}%
 <literal>
+  <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-base.js"></script>
+  <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagentry.js"></script>
+  <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagcloud.js"></script>
   <div id="tagsplugin">
     <div id='tagsplugin_view_basic'>
-      %TMPL:P{"tagsplugin:jquery:taginput"}%
-      %TMPL:P{"tagsplugin:jquery:taglist"}%
-      %TMPL:P{"tagsplugin:jquery:processing"}%
+      <div id='tagsplugin_view_basic_content'>
+        %TMPL:P{"tagsplugin:jquery:processing"}%
+        %TMPL:P{"tagsplugin:jquery:taginput"}%
+        %TMPL:P{"tagsplugin:jquery:taglist"}%
+      </div>
     </div> <!-- tagsplugin_view_basic -->
 
     <div id='tagsplugin_tagcloud'>
-      <div id='tagsplugin_filters'>
-        %TMPL:P{"tagsplugin:jquery:webselector"}%
-        %TMPL:P{"tagsplugin:jquery:clear"}%
-        %TMPL:P{"tagsplugin:jquery:userselector"}%
-        %TMPL:P{"tagsplugin:jquery:clear"}%
-      </div> <!-- tagsplugin_filters -->
-
-      <div id='tagsplugin_tagcloud_tags'></div> <!-- tagsplugin_tagcloud_tags -->
+      <div id='tagsplugin_tagcloud_content'>
+	      <div id='tagsplugin_filters'>
+	        %TMPL:P{"tagsplugin:jquery:webselector"}%
+	        %TMPL:P{"tagsplugin:jquery:userselector"}%
+	      </div> <!-- tagsplugin_filters -->
+	
+	      <div id='tagsplugin_tagcloud_tags' class="tagplugin_update_observer"></div> <!-- tagsplugin_tagcloud_tags -->
+	   </div>   
     </div> <!-- tagsplugin_tagcloud -->
   </div> <!-- tagsplugin -->
   %TMPL:P{"tagsplugin:clear"}%
 </literal>
 %JQREQUIRE{"ui"}%
 %JQREQUIRE{"autocomplete"}%
-<script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-base.js"></script>
 %TMPL:END%
 
 %TMPL:DEF{"contentheader"}%%TMPL:P{"tagsplugin:jquery:header"}%%TMPL:END%

@@ -6,14 +6,6 @@
   tag="%%URLPARAM{"q"}%%"
   format="$tag"
   sep="$n"
-  public="public"
-}%
-%TAGSEARCH{
-  query="tag"
-  user="%WIKINAME%"
-  tag="%%URLPARAM{"q"}%%"
-  format="$tag"
-  sep="$n"
-  public="private"
-}%
-</noautolink>
+  visibility="user"
+  footer="$n"
+}%</noautolink>

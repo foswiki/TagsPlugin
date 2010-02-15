@@ -8,8 +8,7 @@ data/System/TagsPluginTagList.txt 0644 Topic
 data/System/TagsPluginTagListJSON.txt 0644 Topic
 data/System/TagsPluginTagCloud.txt 0644 Topic
 data/System/TagsPluginTagDetails.txt  Topic
-data/System/TagsPluginTagDetailsSimple.txt  Topic
-data/System/TagsPluginTagDetailsAdmin.txt  Topic
+data/System/TagsPluginTagDetailsDialog.txt  Topic
 data/System/TagsPluginTagRename.txt  Topic
 data/System/TagsPluginTagMerge.txt  Topic
 data/System/TagsPluginUserSelector.txt  Topic
@@ -20,12 +19,19 @@ pub/System/TagsPlugin/tagsplugin.css 0644 Stylesheets
 pub/System/TagsPlugin/tagsplugin-base.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-cloudclick.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-tagentry.js 0644 Javascript
+pub/System/TagsPlugin/tagsplugin-taglist.js 0644 Javascript
+pub/System/TagsPlugin/tagsplugin-tagdetails.js 0644 Javascript
+pub/System/TagsPlugin/TagsButton.png 0644 Image
 lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/Func.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Tag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Untag.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/ChangeOwner.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/Public.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Delete.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Rename.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Merge.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/ImportTagMe.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/TAGSEARCH.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/TAGGROUPS.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/TAGCLOUDCLICK.pm 0644 Perl module

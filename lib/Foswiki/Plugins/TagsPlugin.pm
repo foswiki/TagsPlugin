@@ -65,19 +65,20 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN',    \&_ISTAGADMIN );
     Foswiki::Func::registerTagHandler( 'TAGREQUIRE',    \&_TAGREQUIRE );
 
-    Foswiki::Func::registerRESTHandler( 'tag',     \&tagCall );
-    Foswiki::Func::registerRESTHandler( 'untag',   \&untagCall );
-    Foswiki::Func::registerRESTHandler( 'public',  \&publicCall );
-    Foswiki::Func::registerRESTHandler( 'delete',  \&deleteCall );
-    Foswiki::Func::registerRESTHandler( 'rename',  \&renameCall );
-    Foswiki::Func::registerRESTHandler( 'merge',   \&mergeCall );
+    Foswiki::Func::registerRESTHandler( 'tag',                \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'untag',              \&untagCall );
+    Foswiki::Func::registerRESTHandler( 'public',             \&publicCall );
+    Foswiki::Func::registerRESTHandler( 'changeOwner',        \&changeOwnerCall );
+    Foswiki::Func::registerRESTHandler( 'delete',             \&deleteCall );
+    Foswiki::Func::registerRESTHandler( 'rename',             \&renameCall );
+    Foswiki::Func::registerRESTHandler( 'merge',              \&mergeCall );
     Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
     Foswiki::Func::registerRESTHandler( 'convertDatabase',    \&convertDatabase );
     Foswiki::Func::registerRESTHandler( 'importTagMe',        \&importTagMe );
-    # Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
+    #Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
-    #TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
-    #TODO: add a SEARCH{type="tags"} search type
+    # TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
+    # TODO: add a SEARCH{type="tags"} search type
 
     # load some js and css in the header
     # plus add some data through meta tags
@@ -87,6 +88,7 @@ sub initPlugin {
        $header .= '<meta name="foswiki.tagsplugin.web" content="'.$tagweb.'" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.topic" content="'.$tagtopic.'" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.translation.Ok" content="%MAKETEXT{"Ok"}%" />'."\n";
+       $header .= '<meta name="foswiki.tagsplugin.translation.NothingChanged" content="%MAKETEXT{"Nothing changed."}%" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.translation.TagDetailsOn" content="%MAKETEXT{"Tag Details on"}%" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.translation.Tag400" content="%MAKETEXT{"Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I am sorry about that. (400)"}%" />'."\n";
        $header .= '<meta name="foswiki.tagsplugin.translation.Tag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'."\n";
@@ -418,12 +420,12 @@ sub tagCall {
 This is the REST wrapper for untag.
 
 Takes the following url parameters:
- item : name of the topic to be untagged (format: Sandbox.TestTopic)
- tag  : name of the tag
- user : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+ item   : name of the topic to be untagged (format: Sandbox.TestTopic)
+ tag    : name of the tag
+ user   : (optional) Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+ public : 0 or 1
 
 If "user" is a groupname, the currently logged in user has to be member of that group. 
-Guest user is only permitted, if he wants to delete his own tags.
 
 It checks the prerequisites and sets the following status codes:
  200 : Ok
@@ -481,6 +483,44 @@ Sets public flag for a given topic/tag/user tupel. Quits silently if nothing to 
 sub publicCall {
     use Foswiki::Plugins::TagsPlugin::Public;
     return Foswiki::Plugins::TagsPlugin::Public::rest( @_ );    
+}
+
+
+=pod
+
+---++ changeOwnerCall($session) -> $text
+
+This is the REST wrapper for changing the owner of a tag.
+
+Takes the following url parameters:
+ item       : name of the topic (format: Sandbox.TestTopic)
+ tag        : name of the tag
+ public     : public status (values: "0" or "1")
+ user       : (Optional) Wikiname of the user or group (format: JoeDoe), defaults to current user
+ newuser    : (Optional) Wikiname of the user or group (format: JoeDoe), defaults to current user
+
+If "user" is a groupname, the currently logged in user has to be member of that group. 
+
+It checks the prerequisites and sets the following status codes:
+ 200 : Ok
+ 400 : url parameter(s) are missing or empty
+ 401 : access denied for unauthorized user
+ 403 : the user is not allowed to to change the tag 
+
+Return:
+In case of an error (!=200 ) just the status code incl. short description is returned.
+Otherwise a 200 is returned.
+
+TODO:
+ force http POST method
+
+Sets a new owner for a given topic/tag/user/public tupel. Quits silently if nothing to do.
+      
+=cut
+
+sub changeOwnerCall {
+    use Foswiki::Plugins::TagsPlugin::ChangeOwner;
+    return Foswiki::Plugins::TagsPlugin::ChangeOwner::rest( @_ );
 }
 
 

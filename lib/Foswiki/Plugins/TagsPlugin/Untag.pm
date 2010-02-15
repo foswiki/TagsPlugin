@@ -36,13 +36,15 @@ sub rest {
 
     my $item_name     = $query->param('item')        || '';
     my $tag_text      = $query->param('tag')         || '';
+    my $user          = $query->param('user')        || Foswiki::Func::getWikiName();
+    my $public        = $query->param('public')      || '0';
     my $redirectto    = $query->param('redirectto')  || '';    
-    my $user          = $query->param('user') || Foswiki::Func::getWikiName();
     my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
     $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
+    $public     = Foswiki::Sandbox::untaintUnchecked($public);
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
     # input data is assumed to be utf8 (usually in AJAX environments) 
@@ -50,6 +52,7 @@ sub rest {
     $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
     $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
     $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
+    $public     = Unicode::MapUTF8::from_utf8( { -string => $public,     -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );        
 
     # sanatize the tag_text
@@ -78,11 +81,9 @@ sub rest {
         return "<h1>401 Access denied for unauthorized user</h1>";
     }
 
-    # can $currentUser speak for $user?
-
-    # everybody can speak for WikiGuest by definition. 
-    # this is the way to say "this tag is public"
-    if ( $user ne $Foswiki::cfg{DefaultUserWikiName} ) {
+    # can $currentUser speak for $user? (only for non-public tags)
+    #
+    if ( $public eq "0" && Foswiki::Func::getWikiName() ne $user ) {
         if ( Foswiki::Func::isGroup($user) ) {
             if (
                 !Foswiki::Func::isGroupMember(
@@ -94,8 +95,7 @@ sub rest {
                 return "<h1>403 Forbidden</h1>";
             }
         }
-        elsif (    Foswiki::Func::getWikiName() ne $user 
-               && !Foswiki::Func::isAnAdmin() 
+        elsif (   !Foswiki::Func::isAnAdmin() 
                && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
             $session->{response}->status(403);
             return "<h1>403 Forbidden</h1>";
@@ -109,10 +109,10 @@ sub rest {
     
     # handle errors and finally return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
 
     try {
-      $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id );
+      $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id, $public );
     } catch Error::Simple with {
       my $e = shift;
       my $n = $e->{'-value'};
@@ -144,6 +144,7 @@ Takes the following parameters:
  item_name : name of the topic to be untagged (format: Sandbox.TestTopic)
  tag_text  : name of the tag
  user      : Wikiname of the user or group, whose tag shall be deleted (format: JoeDoe) 
+ public    : 0 or 1
 
 This routine does not check any prerequisites and/or priviledges. It returns 0, if
 the given item_name, tag_text or user_id was not found.
@@ -155,7 +156,7 @@ Return:
 =cut
 
 sub do {
-    my ( $item_name, $tag_text, $cuid ) = @_;
+    my ( $item_name, $tag_text, $cuid, $public ) = @_;
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine item_id for given item_name and exit if its not there
@@ -186,20 +187,23 @@ sub do {
     # now we are ready to actually untag
     #
     $statement =
-      sprintf( 'DELETE from %s WHERE %s = ? AND %s = ? AND %s = ?',
-        qw( UserItemTag item_id tag_id user_id ) );
-    my $affected_rows = $db->dbDelete( $statement, $item_id, $tag_id, $cuid );
+      sprintf( 'DELETE from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+        qw( UserItemTag item_id tag_id user_id public) );
+    Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $item_id, $tag_id, $cuid, $public" ) if DEBUG;
+    my $affected_rows = $db->dbDelete( $statement, $item_id, $tag_id, $cuid, $public );
     if ( $affected_rows eq "0E0" ) { 
       throw Error::Simple("Database warning: nothing there to delete.", 3);
     };
     
     # update statistics
     #
-    if ( $affected_rows > 0 ) {
+    if ( 0 == 1 ) { # dont update Stats now. leave this job to the garbage collector.
+    # if ( $affected_rows > 0 ) {
         # ...in UserTagStat
         $statement =
           sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ? AND %s = ?',
             qw( UserTagStat num_items num_items tag_id user_id) );
+        Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $tag_id, $cuid" ) if DEBUG;
         my $modified = $db->dbInsert( $statement, $tag_id, $cuid );
         if ( $modified eq "0E0" ) { 
           throw Error::Simple("Database error: cannot update user statistics.", 4);
@@ -209,6 +213,7 @@ sub do {
         $statement =
           sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ?',
             qw( TagStat num_items num_items tag_id) );
+        Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $tag_id" ) if DEBUG;
         $modified = $db->dbInsert( $statement, $tag_id );
         if ( $modified eq "0E0" ) {     
           throw Error::Simple("Database error: cannot update tag statistics.", 5);

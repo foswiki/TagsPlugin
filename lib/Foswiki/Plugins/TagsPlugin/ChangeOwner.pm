@@ -14,7 +14,7 @@
 #
 # Author(s): Oliver Krueger
 
-package Foswiki::Plugins::TagsPlugin::Public;
+package Foswiki::Plugins::TagsPlugin::ChangeOwner;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ use constant DEBUG => 0; # toggle me
 =begin TML
 
 ---++ rest( $session )
-see Foswiki::Plugins::TagsPlugin::publicCall()
+see Foswiki::Plugins::TagsPlugin::changeOwnerCall()
 
 =cut
 
@@ -37,13 +37,14 @@ sub rest {
     my $item       = $query->param('item')       || '';
     my $tag        = $query->param('tag')        || '';
     my $user       = $query->param('user')       || Foswiki::Func::getWikiName();
+    my $newuser    = $query->param('newuser')    || $user;
     my $publicflag = (defined $query->param('public')) ? $query->param('public') : '1';
     my $redirectto = $query->param('redirectto') || '';    
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
     $item       = Foswiki::Sandbox::untaintUnchecked($item);
     $tag        = Foswiki::Sandbox::untaintUnchecked($tag);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
+    $newuser    = Foswiki::Sandbox::untaintUnchecked($newuser);
     $publicflag = Foswiki::Sandbox::untaintUnchecked($publicflag);
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
     
@@ -52,12 +53,15 @@ sub rest {
     $item       = Unicode::MapUTF8::from_utf8( { -string => $item,       -charset => $charset } );
     $tag        = Unicode::MapUTF8::from_utf8( { -string => $tag,        -charset => $charset } );
     $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
+    $newuser    = Unicode::MapUTF8::from_utf8( { -string => $newuser,    -charset => $charset } );
     $publicflag = Unicode::MapUTF8::from_utf8( { -string => $publicflag, -charset => $charset } );
     $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
 
     # sanatize the tag
     use Foswiki::Plugins::TagsPlugin::Func;
     $tag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag );
+
+    Foswiki::Func::writeDebug("Foswiki::TagsPlugin::ChangeOwner::rest( $item $tag $user $newuser $publicflag $redirectto )") if DEBUG;
 
     #
     # checking prerequisites
@@ -73,44 +77,33 @@ sub rest {
         $session->{response}->status(400);
         return "<h1>400 'item' parameter missing</h1>";
     } 
+    if ( !$user ) {
+        $session->{response}->status(400);
+        return "<h1>400 'user' parameter missing</h1>";
+    }
     if ( $publicflag !~ m/^(0|1)$/ ) {
         $session->{response}->status(400);
         return "<h1>400 'public' is not 0 or 1</h1>";
     }
 
-    # can current User speak for $user? (only for non-public tagsi)
-    # you can privatize public tags but not vice versa
-    #
-    if ( $publicflag eq "1" && Foswiki::Func::getWikiName() ne $user ) {
-        if ( Foswiki::Func::isGroup($user) ) {
-            if (
-                !Foswiki::Func::isGroupMember(
-                    $user, Foswiki::Func::getWikiName()
-                )
-              )
-            {
-                $session->{response}->status(403);
-                return "<h1>403 Forbidden</h1>";
-            }
-        }
-        elsif (   !Foswiki::Func::isAnAdmin()
-               && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
-            $session->{response}->status(403);
-            return "<h1>403 Forbidden</h1>";
-        }
+    if ( $user ne Foswiki::Func::getWikiName() && not Foswiki::Func::isGroupMember( $user, Foswiki::Func::getWikiName() ) ) {
+        $session->{response}->status(403);
+        return "<h1>403 Forbidden</h1>";
     }
+
 
     #
     # actioning
     #
     $session->{response}->status(200);
     
-    # handle errors and return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id    = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $newuser_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($newuser) ? $newuser : Foswiki::Func::getCanonicalUserID( $newuser ) );
 
+    # handle errors and return the number of affected tags
     try {
-       $retval = Foswiki::Plugins::TagsPlugin::Public::do( $item, $tag, $user_id, $publicflag );
+       $retval = Foswiki::Plugins::TagsPlugin::ChangeOwner::do( $item, $tag, $user_id, $newuser_id, $publicflag );
     } catch Error::Simple with {
       my $e = shift;
       my $n = $e->{'-value'};
@@ -137,14 +130,15 @@ sub rest {
 
 =begin TML
 
----++ do( %item, $tag_text, $user_id, $public )
+---++ do( %item, $tag_text, $user_id, $newuser_id, $public )
 This sets or unsets the public flag of a given topic/tag/user tupel.
 
 Takes the following parameters:
- item      : web.topic name
- tag_text  : name of the tag
- user_id   : wikiname, defaults to current user
- public    : 0 or 1
+ item       : web.topic name
+ tag_text   : name of the tag
+ user_id    : wikiname, defaults to current user # SMELL update!
+ newuser_id : database cuid for the new user
+ public     : 0 or 1
 
 This routine does not check any prerequisites and/or priviledges.
 
@@ -155,8 +149,8 @@ Return:
 =cut
 
 sub do {
-    my ( $item, $tag_text, $user_id, $public ) = @_;
-    Foswiki::Func::writeDebug("TagsPlugin::Public::do( $item, $tag_text, $user_id, $public )") if DEBUG;
+    my ( $item, $tag_text, $user_id, $newuser_id, $public ) = @_;
+    Foswiki::Func::writeDebug("TagsPlugin::ChangeOwner::do( $item, $tag_text, $user_id, $newuser_id, $public )") if DEBUG;
     my $db = new Foswiki::Contrib::DbiContrib;
     my $retval = "";
 
@@ -188,18 +182,15 @@ sub do {
       throw Error::Simple("Database error: item not found.", 2); 
     }
 
-    # if public=1: check, if there is already a public tag
+    # check, if there is already that tag for the new user
     #
-    if ( $public eq "1" ) {
-      $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND public=1',
-          qw( public UserItemTag item_id tag_id ) );
-      Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id" ) if DEBUG;
-      $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id );
-      if ( defined( $arrayRef->[0][0] ) ) { 
-        if ( $arrayRef->[0][0] == "1" ) {
-          throw Error::Simple("There is already a public tag.", 3); 
-        }
-      }
+    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+        qw( user_id UserItemTag item_id tag_id user_id public ) );
+    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id, $newuser_id, $public" ) if DEBUG;
+    $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id, $newuser_id, $public );
+    if ( defined( $arrayRef->[0][0] && $arrayRef->[0][0] == $newuser_id) ) { 
+  Foswiki::Func::writeDebug($newuser_id ) if DEBUG;
+      throw Error::Simple("This tag already exists.", 3); 
     }
 
     # now we are ready to actually update
@@ -207,10 +198,10 @@ sub do {
     # try to update the tupel. dont care, if it exists. 
     #
     my $affected_rows = 0;
-    $statement = sprintf( 'UPDATE %s SET public = ? WHERE %s = ? AND %s = ? AND %s = ? AND public = ?',
-      qw( UserItemTag item_id tag_id user_id ) );
-    $affected_rows = $db->dbInsert( $statement, $public, $item_id, $tag_id, $user_id, $public=="0" ? 1 : 0 );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id" ) if DEBUG;
+    $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+      qw( UserItemTag user_id item_id tag_id user_id public ) );
+    Foswiki::Func::writeDebug("TagsPlugin::ChangeOwner: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id newuser:$newuser_id" ) if DEBUG;
+    $affected_rows = $db->dbInsert( $statement, $newuser_id, $item_id, $tag_id, $user_id, $public );
     if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
     $retval = "$affected_rows";
 

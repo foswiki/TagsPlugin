@@ -127,3 +127,16 @@ msgstr "Tag-Wolke von jedermanns Tags"
 #: TagsPlugin/data/System/TagsPluginViewsTagSearch.txt:14
 msgid "tag cloud of everyone's tags on topic"
 msgstr "Tag-Wolke von jedermanns Tags auf diesem Topic"
+
+#:
+msgid "remove"
+msgstr "löschen"
+
+#:
+msgid "Owner"
+msgstr "Eigentümer"
+
+#:
+msgid "Where else can I find this tag:"
+msgstr "Wo wird dieses Tag noch verwendet:"
+

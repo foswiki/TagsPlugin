@@ -1,57 +1,73 @@
 /*
  TagsPlugin CSS file
 
- Author(s): Oliver Krüger, http://wiki-one.net/
+ Author(s): 
+   Oliver Krüger, http://wiki-one.net/
+   Sven Reher
+
  License: GPLv2+
 
  Note: If you customize this file, please do BACKUPS. This file will be overwritten on every plugin update.
 */
-
-  div#tagsplugin {
-    display: block;
-    filter: alpha(opacity=50);
-    opacity: 0.5;
-    -moz-opacity: 0.5;
-    -khtml-opacity: 0.5;
-  }
-  div:hover#tagsplugin {
-    filter: alpha(opacity=100);
-    opacity: 1.0;
-    -moz-opacity: 1.0;
-    -khtml-opacity: 1.0;
+  
+  #tagsplugin {
+    width: 100%;
   }
   div#tagsplugin_view_basic {
     display: block;
     float: left;
-    width: 100%;
     background-color: #EEEEEE;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  div#tagsplugin_view_basic_content {
+    float: left;
     padding: 5px;
+    display: block;
+    width: 100%;
   }
   div#tagsplugin_taginput {
-    display: block;
     float: left;
+    width: 180px;
+    height: 25px;
   }
   input#tagsplugin_tagcloud_toggle {
+    background-color:#EEEEEE;
+    padding: 2px;
   }
   input#tagsplugin_taginput {
   }
+  input#tagsplugin_taginput_input {
+    border: 1px solid #BBBBBB;
+    padding: 3px;
+    width: 110px;
+    margin: 1px;
+  }
+  input#tagsplugin_taginput_input:focus {
+    background:#DFDFDF;
+  }
   ul#tagsplugin_taglist_tags {
-    display: block;
-    float: left;
-    margin-left: 5px;
     padding: 0px;
+    margin: 0px;
+    padding-right: 20px;
   }
   li.tagsplugin_tag {
     float: left;
     display: inline;
-    background-color:#FFFFFF;
     border: 1px solid #BBBBBB;
-    color: #333333;
-    cursor: default;
+    background-color: #FFFFFF;
+    color: #4571D0;
+    cursor: pointer;
     white-space: nowrap;
     position: relative;
     margin: 2px;
-    padding: 1px 5px 0px 5px;
+    background-image: url("../DocumentGraphics/tag-blue.gif");
+    background-repeat: no-repeat;
+    background-position: 2px 3px;
+    padding: 1px 5px 0px 22px;
+  }
+  li.tagsplugin_public {
+    background-image: url("../DocumentGraphics/tag-red.gif");
   }
   a.tagsplugin_tag_link {
     text-decoration: none;
@@ -61,31 +77,60 @@
   }
   .tagsplugin_untaggable {
   }
-  li.tagsplugin_public {
-    background-color: #B9DAFF;
-  }
   a.tagsplugin_untag_link {
     color: #FF0000;
   }
   div#tagsplugin_processing {
     display: block;
-    float: left;
-    position: fixed;
-    right: 23px;
+    float: right;
+    padding-right: 15px;
+    padding-top: 5px;
   }
   div#tagsplugin_processing img {
     display: none;
   }
   div#tagsplugin_filters {
     float: left;
-    display: none;
-    background-color: #DDDDDD;
     width: 100%;
+  }
+  .tagCloud {
+    background-color: #eee;
+    padding:8px;
+  }
+  div#tagsplugin_tagcloud_tags {
+    float: left;
+    width: 100%;
+    background-color: #DDDDDD;
+    text-align: center; 
+    line-height: 180%;
+    margin-top: 10px;
+  }
+  .tagsplugin_tagcloud_tag {
+    padding: 3px 5px;
+    background-color: #DDDDDD;
+  }
+  a.tagsplugin_tagcloud_tag {
+    line-height: 90%;
+    text-decoration: none;
+  }  
+  #tagsplugin_tagcloud {
+    float: left;
+    background-color: #DDDDDD;
+    margin-bottom: 10px;
+    display:none;
+    width: 100%;
+  }
+  #tagsplugin_tagcloud_content {
+    float: left;
     padding: 5px;
   }
+  
+  /* Web Selector */
   div#tagsplugin_webselector {
     display: block;
     float: left;
+    width: 100%;
+    margin: 3px 0px;
   }
   a.tagsplugin_web {
     text-decoration: none;
@@ -96,18 +141,31 @@
     white-space:nowrap;
     position:relative;
     margin:2px;
-    padding:1px 5px 0px 5px;
+    padding:2px 5px 2px 5px;
   }
-  a:active.tagsplugin_web, a:link.tagsplugin_web, a:visited.tagsplugin_web, a:hover.tagsplugin_web {
+  :link:focus.tagsplugin_web, 
+  :visited:focus.tagsplugin_web, 
+  :link.tagsplugin_web, 
+  :visited.tagsplugin_web, 
+  :link:active.tagsplugin_web, 
+  :visited:active.tagsplugin_web {
     text-decoration: none;
-    color:#4571D0;
+    background-color: white;
+    color: #4571D0;
   }
-  a.tagsplugin_web_active {
+  :link:focus.tagsplugin_web_active, 
+  :visited:focus.tagsplugin_web_active, 
+  :link.tagsplugin_web_active, 
+  :visited.tagsplugin_web_active, 
+  :link:active.tagsplugin_web_active, 
+  :visited:active.tagsplugin_web_active { 
+    text-decoration: none;
     background-color:#CCE7F1;
   }
   div#tagsplugin_userselector {
     display: block;
     float: left;
+    margin: 3px 0px;
   }
   a.tagsplugin_user {
     text-decoration: none;
@@ -118,27 +176,26 @@
     white-space:nowrap;
     position:relative;
     margin:2px;
-    padding:1px 5px 0px 5px;
+    padding:2px 5px 2px 5px;
   }
-  a:active.tagsplugin_user, a:link.tagsplugin_user, a:visited.tagsplugin_user, a:hover.tagsplugin_user {
+  :link:focus.tagsplugin_user, 
+  :visited:focus.tagsplugin_user, 
+  :link.tagsplugin_user, 
+  :visited.tagsplugin_user, 
+  :link:active.tagsplugin_user, 
+  :visited:active.tagsplugin_user {
     text-decoration: none;
-    color:#4571D0;
+    background-color: white;
+    color: #4571D0;
   }
-  a.tagsplugin_user_active {
+  :link:focus.tagsplugin_user_active, 
+  :visited:focus.tagsplugin_user_active, 
+  :link.tagsplugin_user_active, 
+  :visited.tagsplugin_user_active, 
+  :link:active.tagsplugin_user_active, 
+  :visited:active.tagsplugin_user_active { 
+    text-decoration: none;
     background-color:#CCE7F1;
-  }
-  div#tagsplugin_tagcloud_tags {
-    float: left;
-    display: none;
-    width: 100%;
-    background-color: #DDDDDD;
-    text-align: center; 
-    padding: 5px;
-    line-height: 180%;
-  }
-  a.tagsplugin_tagcloud_tag {
-    line-height: 90%;
-    text-decoration: none;
   }
   div#tagsplugin_cloudclick a.tagsplugin_tagged {
     background-color:#CCE7F1;
@@ -148,4 +205,24 @@
   }
   div#tagsplugin_clear {
     clear: both;
+  }
+  #tagsplugin_tagdetails_processing {
+    position:absolute;
+    right:10px;
+    top:65px;
+  }
+  .tagsplugin_dialog_editUserButton_tagscloud,
+  .tagsplugin_hide {
+    display: none;
+  }
+  /* show edit Button in the dialog box to change the owner*/
+  .tagsplugin_dialog_editUserButton {
+    display: inline;
+  }
+  .tagsplugin_dialog_editUserButton img {
+    padding-left: 5px;
+    padding-bottom: 3px;
+  }
+  .tagsplugin_tagdetails_user select {
+    border: 1px solid #BBBBBB;
   }

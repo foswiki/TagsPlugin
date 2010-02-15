@@ -46,7 +46,7 @@
 %TMPL:DEF{"tagsplugin:jquery:taginput"}%
       <div id='tagsplugin_taginput'>
         <form type='post' action='%SCRIPTURL{rest}%/TagsPlugin/tag' id='tagsplugin_taginput_form'>
-          <input type='button' id='tagsplugin_tagcloud_toggle' value='Tags' />
+          <input type='button' src="%PUBURL%/%SYSTEMWEB%/TagsPlugin/TagsButton.png" id='tagsplugin_tagcloud_toggle' value='Tags' />
           <input type='text'   id="tagsplugin_taginput_input" name='tag' value='enter new tag' onclick="if(this.value=='enter new tag'){this.value='';}"/>
           <input type='hidden' name='item' value='%BASEWEB%.%BASETOPIC%' />
           <input type='hidden' name='public' value="1" />
@@ -58,7 +58,7 @@
 %TMPL:END%
 
 %TMPL:DEF{"tagsplugin:jquery:taglist"}%
-      <ul id='tagsplugin_taglist_tags'>
+      <ul id='tagsplugin_taglist_tags' class='tagsplugin_update_observer'>
 %INCLUDE{
   "%SYSTEMWEB%.TagsPluginTagList"
   TAGWEB="%BASEWEB%"

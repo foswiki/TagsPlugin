@@ -41,7 +41,6 @@ sub do {
     my $theFormat = $params->{format}    || '$group';
     
     my $output = '';
-    my @groups = ();
 
     # get the groups and rotate through it 
     my $it = Foswiki::Func::eachGroup();

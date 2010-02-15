@@ -4,16 +4,8 @@
   query="tag" 
   web="%URLPARAM{"tagweb" default="%TAGWEB%"}%"
   topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
-  user="%WIKINAME%"
-  public="private"
-  format="      <li class='tagsplugin_tag'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' web='$web' topic='$topic'>$percntICON{tag}$percnt $tag</a></li>"
-  sep="$n" 
-}%
-%TAGSEARCH{ 
-  query="tag" 
-  web="%URLPARAM{"tagweb" default="%TAGWEB%"}%"
-  topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
-  public="public"
-  format="      <li class='tagsplugin_tag $public'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' web='$web' topic='$topic'>$percntICON{tag}$percnt $tag</a></li>"
+  visibility="user"
+  xformat="      <li class='tagsplugin_tag $percntIF{ \"'$public'='1'\" then=\"tagsplugin_public\" }$percnt'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' web='$web' topic='$topic'>$tag</a></li>"
+  format="      <li class='tagsplugin_tag $percntIF{ \"'$public'='1'\" then=\"tagsplugin_public\" }$percnt' tag='$tag' web='$web' topic='$topic'>$tag</li>"
   sep="$n" 
 }%

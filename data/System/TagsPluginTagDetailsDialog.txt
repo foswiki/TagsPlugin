@@ -1,0 +1,48 @@
+%META:TOPICINFO{author="BaseUserMapping_333" date="1263789345" format="1.1" reprev="1.54" version="1.54"}%
+%META:TOPICPARENT{name="TagsPlugin"}%
+<!--
+      * Set TAGNAME = %URLPARAM{"tag" default="undef" encode="safe"}%
+      * Set TAGNAMEURL = %URLPARAM{"tag" default="undef" encode="url"}%
+      * Set TAGWEB = %URLPARAM{"tagweb" default="undef" encode="safe"}%
+      * Set TAGTOPIC = %URLPARAM{"tagtopic" default="undef" encode="safe"}%
+      * Set TAGITEM = %TAGWEB%.%TAGTOPIC%
+      * Set TRASH = %ICON{"trash"}%
+      * Set PENCIL = %ICON{"pencil"}%
+      * Set SITETREE = %ICON{"sitetree"}%
+-->
+
+<div style="text-align:left;">
+<noautolink>
+<div class="tagsplugin_tagdetails_table">
+%TAGSEARCH{
+  query="user" 
+  tag="%TAGNAME%" 
+  web="%TAGWEB%" 
+  topic="%TAGTOPIC%"
+  visibility="user" 
+  sep="$n"
+  header="| *%MAKETEXT{"Owner"}%* | *%MAKETEXT{"public"}%* | *%MAKETEXT{"remove"}%* |$n"
+  format="| <span class='tagsplugin_tagdetails_user'>$user <img src='%PUBURL%/%SYSTEMWEB%/DocumentGraphics/uweb-bo12.gif' class='tagsplugin_dialog_editUserButton' user='$user' tag='$tag' /></span> |  <input type='checkbox' class='tagsplugin_public_checkbox' item='$item' user='$user' tag='$tag' $percntIF{ \"'$public'='1'\" then=\"checked='checked'\" }$percnt />  |  <a href='%SCRIPTURL{rest}%/TagsPlugin/untag?tag=%TAGNAMEURL%&item=$item&user=$user&public=$public' class='tagsplugin_untag_link' tag='$tag' item='$item' user='$user' public='$public'>$percntTRASH$percnt</a>  |"
+}%
+</div>
+
+<img src="%PUBURL%/%SYSTEMWEB%/DocumentGraphics/processing.gif" id="tagsplugin_tagdetails_processing" style="display:none;" />
+
+%IF{ "'%ISTAGADMIN%'='1'" then="$percntSITETREE$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagMerge?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Merge</a> this tag with another tag" }% %BR%
+%IF{ "'%ISTAGADMIN%'='1'" then="$percntPENCIL$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagRename?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Rename</a> this tag" }%
+
+%TAGCLOUD{
+  terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntTAGNAME$percnt\" format=\"$item:1:$web:$topic:$user\" visibility=\"user\" }$percnt"
+  split="[,]"
+  header="%MAKETEXT{"Where else can I find this tag:"}%%BR% <div style=\"text-align:center; padding:15px;line-height:180%\">"
+  format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$3/$4' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$4</a></span>"
+  footer="</div>"
+  warn="off"
+}%
+
+<span id='tagsplugin_groups' class='tagsplugin_hide'>%TAGGROUPS{format="$group" sep=","}%</span>
+
+</noautolink>
+</div>
+
+<script type="text/javascript" src="%PUBURL%/%SYSTEMWEB%/TagsPlugin/tagsplugin-tagdetails.js"></script>

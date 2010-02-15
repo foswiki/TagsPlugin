@@ -12,8 +12,9 @@
      | =user="wikiname"= <br /> =user="all"= | Filter the =user= dimension with this setting. Leave out the =%MAINWEB%= part here. | ="all"= |
      | =web="Name"= <br /> =web="%USERSWEB%, Know"= <br /> =web="all"= | Comma-separated list of webs to search. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
      | =topic="Name"= <br /> =topic="<nop>TestTopic1, <nop>TestTopic2"= <br /> =topic="all"= | Comma-separated list of topics (without a webname) to search. The special word =all= means all topics. Use =%= as a wildcard. | ="all"= |
-     | =public="all"= <br /> =public="public"= <br /> =topic="private"= | Filter by the public flag: either show all, only public or only private tags. | ="all"= |
+     | =visibility="all"= <br /> =visibility="public"= <br /> =visibility="private"= <br /> =visibility="user"= | Filter by the public flag: either show all, only public or only private tags. =user= is a combination of "all public tags" and "my private tags". <br /> *Note:* You *must not* set a =user= parameter with =visibility=user=. | ="all"= |
      | =header="..."= <br /> =format="..."= <br /> =footer="..."= | Custom format results: see table below for allowed variables. | depending on the =query= parameter, a simple list |
+     | =alt="..."= | If nothing is found, =alt= is returned instead of =header=, =format= and =footer=. | =empty= |
      | =separator=", "= <br /> =sep=", "= | Separator _between_ search hits | =", "= |
      | =order="tag"= <br /> =order="topic"= <br /> =order="user"= | This affects the sorting. | =none= |
    * If two hits only differ in (tag|topic|user) and the =format= does not contain a (tag|topic|user) variable, the (two) hits clash into a single hit.
@@ -26,8 +27,9 @@
      | =$user= | the user in !WikiName format |
      | =$tag= | the tag name|
      | =$count= | tag count (the scope is always the whole database and *not* the current query) |
+     | =$num= | result number (consecutively numbered) |
      | =$isAdmin= | =tagsplugin_isAdmin=, if the current logged in user is allowed to rename/merge/delete (is in the !TagAdminGroup), otherwise this is removed |
-     | =$public= | =tagsplugin_public=, if the current tag is public, otherwise this is removed |
+     | =$public= | =1=, if the current tag is public, otherwise =0= |
      | =$untaggable= | =tagsplugin_untaggable=, if the current logged in user is allowed to untag the current tag, otherwise this is removed |
      | =$n= or =$n()= | New line. Use =$n()= if followed by alphanumeric character, e.g. write =Foo$n()Bar= instead of =Foo$nBar= |
      | =$quot= | Double quote (="=) |
