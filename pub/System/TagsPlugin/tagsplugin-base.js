@@ -180,8 +180,8 @@
 
               event.preventDefault();
 
-              var web   = foswiki.web;
-              var topic = foswiki.topic;
+              var web   = $(event.target).closest("[web]").attr("web"); 
+              var topic = $(event.target).closest("[topic]").attr("topic");
               var tag   = $(event.target).closest("[tag]").attr("tag");
 
               $("#tagsplugin_processing img").show();

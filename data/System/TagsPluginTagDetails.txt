@@ -31,11 +31,6 @@
   sep="$n"
 }%
 
-<!-- 
-   * Local ROOT = %ISTAGADMIN%
--->
-%IF{"$ ROOT" then="%INCLUDE{%SYSTEMWEB%.TagsPluginTagDetailsAdmin}%"}%
-
 </noautolink>
 </div>
 
