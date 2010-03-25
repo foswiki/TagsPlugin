@@ -27,7 +27,8 @@ and quota support.
 =cut
 
 package Foswiki::Store::TagsStore;
-use base 'Foswiki::Store::RcsWrap';
+use Foswiki::Store::RcsWrap;
+our @ISA = qw( Foswiki::Store::RcsWrap );
 
 use strict;
 use Assert;
