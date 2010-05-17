@@ -1,4 +1,4 @@
-# This script Copyright 
+# This script Copyright
 # (c) 2008-2009, SvenDowideit@fosiki.com
 # (c) 2009 Oliver Krueger, (wiki-one.net)
 # and distributed under the GPL (see below)
@@ -22,7 +22,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -37,12 +37,13 @@ sub rest {
     my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $item_name     = $query->param('item');
-    my $item_type     = $query->param('type')                    || 'topic';
+    my $item_type     = $query->param('type') || 'topic';
     my $tag_text      = $query->param('tag');
-    my $redirectto    = $query->param('redirectto')              || '';
-    my $user          = $query->param('user')                    || Foswiki::Func::getWikiName();
+    my $redirectto    = $query->param('redirectto') || '';
+    my $user          = $query->param('user') || Foswiki::Func::getWikiName();
     my $public        = ( $query->param('public') eq "1" ) ? "1" : "0";
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";    
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
+      || "AdminGroup";
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
     $item_type  = Foswiki::Sandbox::untaintUnchecked($item_type);
@@ -50,17 +51,22 @@ sub rest {
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
 
-    # input data is assumed to be utf8 (usually in AJAX environments) 
+    # input data is assumed to be utf8 (usually in AJAX environments)
     require Unicode::MapUTF8;
-    $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
-    $item_type  = Unicode::MapUTF8::from_utf8( { -string => $item_type,  -charset => $charset } );
-    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );
-    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
+    $item_name = Unicode::MapUTF8::from_utf8(
+        { -string => $item_name, -charset => $charset } );
+    $item_type = Unicode::MapUTF8::from_utf8(
+        { -string => $item_type, -charset => $charset } );
+    $tag_text = Unicode::MapUTF8::from_utf8(
+        { -string => $tag_text, -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8(
+        { -string => $redirectto, -charset => $charset } );
+    $user =
+      Unicode::MapUTF8::from_utf8( { -string => $user, -charset => $charset } );
 
     # sanatize the tag_text
     use Foswiki::Plugins::TagsPlugin::Func;
-    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($tag_text);
 
     #
     # checking prerequisites
@@ -86,7 +92,7 @@ sub rest {
 
     # can $currentUser speak for $user_id?
 
-    # everybody can speak for WikiGuest by definition. 
+    # everybody can speak for WikiGuest by definition.
     # this is the way to say "this tag is public"
     if ( $user ne $Foswiki::cfg{DefaultUserWikiName} ) {
         if ( Foswiki::Func::isGroup($user) ) {
@@ -100,9 +106,14 @@ sub rest {
                 return "<h1>403 Forbidden</h1>";
             }
         }
-        elsif (    Foswiki::Func::getWikiName() ne $user 
-               && !Foswiki::Func::isAnAdmin() 
-               && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
+        elsif (
+               Foswiki::Func::getWikiName() ne $user
+            && !Foswiki::Func::isAnAdmin()
+            && !Foswiki::Func::isGroupMember(
+                $tagAdminGroup, Foswiki::Func::getWikiName()
+            )
+          )
+        {
 
             $session->{response}->status(403);
             return "<h1>403 Forbidden</h1>";
@@ -113,30 +124,38 @@ sub rest {
     # actioning
     #
     $session->{response}->status(200);
-    
+
     # returning nothing of interest
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id =
+      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+        Foswiki::Func::isGroup($user)
+        ? $user
+        : Foswiki::Func::getCanonicalUserID($user) );
     Foswiki::Func::writeDebug("ID: $user_id") if DEBUG;
 
     try {
-      $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name, $tag_text, $user_id, $public );
-    } catch Error::Simple with {
-      my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1 || $n == 2 ) {
-        $session->{response}->status(400);
-        return "<h1>400 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3 ) {
-        $session->{response}->status(500);
-        return "<h1>400 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+        $retval = Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, $item_name,
+            $tag_text, $user_id, $public );
+    }
+    catch Error::Simple with {
+        my $e = shift;
+        my $n = $e->{'-value'};
+        if ( $n == 1 || $n == 2 ) {
+            $session->{response}->status(400);
+            return "<h1>400 " . $e->{'-text'} . "</h1>";
+        }
+        elsif ( $n == 3 ) {
+            $session->{response}->status(500);
+            return "<h1>400 " . $e->{'-text'} . "</h1>";
+        }
+        else {
+            $e->throw();
+        }
     };
-    
+
     # redirect on request
-    if ( $redirectto ) {
+    if ($redirectto) {
         Foswiki::Func::redirectCgiQuery( undef, $redirectto );
     }
 
@@ -166,8 +185,10 @@ Return:
 sub do {
     my ( $item_type, $item_name, $tag_text, $user_id, $public ) = @_;
 
-    throw Error::Simple("tag parameter missing", 1) unless ( ( defined($tag_text) )  && ( $tag_text  ne '' ) );
-    throw Error::Simple("item parameter missing", 2) unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
+    throw Error::Simple( "tag parameter missing", 1 )
+      unless ( ( defined($tag_text) ) && ( $tag_text ne '' ) );
+    throw Error::Simple( "item parameter missing", 2 )
+      unless ( ( defined($item_name) ) && ( $item_name ne '' ) );
 
     my $db = new Foswiki::Contrib::DbiContrib;
 
@@ -221,29 +242,37 @@ sub do {
     # if public=1: check, if there is already a public tag
     #
     if ( $public eq "1" ) {
-      $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND public=1',
-          qw( public UserItemTag item_id tag_id ) );
-      Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id" ) if DEBUG;
-      $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id );
-      if ( defined( $arrayRef->[0][0] ) ) {
-        if ( $arrayRef->[0][0] == "1" ) {
-          throw Error::Simple("There is already a public tag.", 3);
+        $statement =
+          sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND public=1',
+            qw( public UserItemTag item_id tag_id ) );
+        Foswiki::Func::writeDebug(
+            "TagsPlugin::Public: $statement, $item_id, $tag_id")
+          if DEBUG;
+        $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id );
+        if ( defined( $arrayRef->[0][0] ) ) {
+            if ( $arrayRef->[0][0] == "1" ) {
+                throw Error::Simple( "There is already a public tag.", 3 );
+            }
         }
-      }
     }
 
-    # Check if this user/tag/public tupel is already in UserItemTag, create otherwise
-    #
+# Check if this user/tag/public tupel is already in UserItemTag, create otherwise
+#
     my $rowCount = 0;
-    $statement =
-      sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+    $statement = sprintf(
+        'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
         qw(tag_id UserItemTag user_id item_id tag_id public) );
-    Foswiki::Func::writeDebug("TagsPlugin::Tag::do : $statement, $user_id, $item_id, $tag_id, $public") if DEBUG;
-    $arrayRef = $db->dbSelect( $statement, $user_id, $item_id, $tag_id, $public );
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Tag::do : $statement, $user_id, $item_id, $tag_id, $public"
+    ) if DEBUG;
+    $arrayRef =
+      $db->dbSelect( $statement, $user_id, $item_id, $tag_id, $public );
     if ( !defined( $arrayRef->[0][0] ) ) {
-        $statement = sprintf( 'INSERT INTO %s (%s, %s, %s, %s) VALUES (?,?,?,?)',
+        $statement =
+          sprintf( 'INSERT INTO %s (%s, %s, %s, %s) VALUES (?,?,?,?)',
             qw( UserItemTag user_id item_id tag_id public) );
-        $rowCount = $db->dbInsert( $statement, $user_id, $item_id, $tag_id, $public );
+        $rowCount =
+          $db->dbInsert( $statement, $user_id, $item_id, $tag_id, $public );
 
         unless ($new_tag) {
             $statement = sprintf( 'UPDATE %s SET %s=%s+1 WHERE %s = ?',
@@ -265,7 +294,7 @@ sub do {
             }
         }
     }
-    
+
     # flushing the changes
     $db->commit();
 

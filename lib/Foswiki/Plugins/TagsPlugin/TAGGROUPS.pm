@@ -1,4 +1,4 @@
-# This script Copyright 
+# This script Copyright
 # (c) 2009 Oliver Krueger, (wiki-one.net)
 # and distributed under the GPL (see below)
 #
@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -39,22 +39,23 @@ sub do {
     my $theSep    = $params->{separator} || $params->{sep} || ',';
     my $theFooter = $params->{footer}    || '';
     my $theFormat = $params->{format}    || '$group';
-    
+
     my $output = '';
 
-    # get the groups and rotate through it 
+    # get the groups and rotate through it
     my $it = Foswiki::Func::eachGroup();
-    while ($it->hasNext()) {
+    while ( $it->hasNext() ) {
         my $group = $it->next();
-        if ( !Foswiki::Func::isGroupMember( $group ) ) { next; };
+        if ( !Foswiki::Func::isGroupMember($group) ) { next; }
         my $entry = $theFormat;
 
         $entry =~ s/\$group/$group/g;
-        
+
         # insert seperator only if needed
         if ( $output ne '' ) {
             $output .= $theSep . $entry;
-        } else {
+        }
+        else {
             $output = $entry;
         }
     }

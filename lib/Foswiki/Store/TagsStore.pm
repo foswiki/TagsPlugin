@@ -38,13 +38,14 @@ require Foswiki::Sandbox;
 
 # implements TagsStore
 sub new {
-    my( $class, $session, $web, $topic, $attachment ) = @_;
+    my ( $class, $session, $web, $topic, $attachment ) = @_;
 
-    my $key = join(', ', $web, ($topic||''), ($attachment||''));
-    return $session->{handles}{$key} if defined($session->{handles}{$key});
+    my $key = join( ', ', $web, ( $topic || '' ), ( $attachment || '' ) );
+    return $session->{handles}{$key} if defined( $session->{handles}{$key} );
 
     my $this = $class->SUPER::new( $session, $web, $topic, $attachment );
     $session->{handles}{$key} = $this;
+
 #print STDERR "new(".$this->{web}.")(".($topic||'').")" unless defined($this->{attachment});
     return $this;
 }
@@ -74,29 +75,31 @@ Gets a list of names of subwebs in the current web, by consulting the UserWebMap
 
 sub getWebNames {
     my $this = shift;
-    return $this->SUPER::getWebNames(@_) unless (defined($Foswiki::cfg{TagsStore}{FilterByTags})
-                                                && ($Foswiki::cfg{TagsStore}{FilterByTags} == 1));
+    return $this->SUPER::getWebNames(@_)
+      unless ( defined( $Foswiki::cfg{TagsStore}{FilterByTags} )
+        && ( $Foswiki::cfg{TagsStore}{FilterByTags} == 1 ) );
 
-    return () unless ($this->{web} eq '');
+    return () unless ( $this->{web} eq '' );
 
     #TODO: abstract this out so i don't litter s/^c// crap everywhere
     my $cuid = $this->{session}->{user};
-    if ($this->{session}->{users}->isAdmin($cuid)) {
+    if ( $this->{session}->{users}->isAdmin($cuid) ) {
         $cuid = '333';
     }
     $cuid =~ s/^c//;
 
     use Foswiki::Contrib::DbiContrib;
     $this->{DB} = new Foswiki::Contrib::DbiContrib;
+
 #TODO: this means that you can be a web owner but not be invited to see the web... could be useful?
-    my $statement = sprintf("SELECT %s from %s WHERE %s = ?\n",  qw(RealWebName UserWebMap CUID));
-    my $arrayRef = $this->{DB}->dbSelect($statement, $cuid);
+    my $statement = sprintf( "SELECT %s from %s WHERE %s = ?\n",
+        qw(RealWebName UserWebMap CUID) );
+    my $arrayRef = $this->{DB}->dbSelect( $statement, $cuid );
 
-    my @list = ('Home', $Foswiki::cfg{SystemWebName});
-    foreach my $row (@{$arrayRef}) {
-        push(@list, $row->[0]);
+    my @list = ( 'Home', $Foswiki::cfg{SystemWebName} );
+    foreach my $row ( @{$arrayRef} ) {
+        push( @list, $row->[0] );
     }
-
 
     return @list;
 }
@@ -117,15 +120,16 @@ Return a topic list, e.g. =( 'WebChanges',  'WebHome', 'WebIndex', 'WebNotify' )
 sub getTopicNames {
     my $this = shift;
 
-    return $this->SUPER::getTopicNames(@_) unless (defined($Foswiki::cfg{TagsStore}{FilterByTags})
-                                                && ($Foswiki::cfg{TagsStore}{FilterByTags} == 1));
+    return $this->SUPER::getTopicNames(@_)
+      unless ( defined( $Foswiki::cfg{TagsStore}{FilterByTags} )
+        && ( $Foswiki::cfg{TagsStore}{FilterByTags} == 1 ) );
 
-    my @tags = ($this->{web});
-    my $tagSet = '('.join(',', map{"'$_'"} @tags).')';
-    my $web = $this->{web};
-    my $webLike = $web.'.%';
+    my @tags    = ( $this->{web} );
+    my $tagSet  = '(' . join( ',', map { "'$_'" } @tags ) . ')';
+    my $web     = $this->{web};
+    my $webLike = $web . '.%';
 
-    my $db = new Foswiki::Contrib::DbiContrib;
+    my $db        = new Foswiki::Contrib::DbiContrib;
     my $statement = "SELECT i.item_name
 FROM UserItemTag i2t
 INNER JOIN Items t ON i2t.tag_id = t.item_id
@@ -138,12 +142,12 @@ GROUP BY i2t.item_id;";
 
     my $arrayRef = $db->dbSelect($statement);
     my @topics;
-    foreach my $row (@{$arrayRef}) {
+    foreach my $row ( @{$arrayRef} ) {
         my $ItemName = $row->[0];
 
         $ItemName =~ s/^$web\.(.*)$/$1/e;
 
-        push( @topics, $ItemName);
+        push( @topics, $ItemName );
     }
 
     #print STDERR "db get TopicsNames(".$this->{web}."): ".scalar(@topics)."\n";
@@ -160,39 +164,58 @@ Establishes if there is stored data associated with this handler.
 
 sub storedDataExists {
     my $this = shift;
-    if (-e $this->{file}) {
+    if ( -e $this->{file} ) {
         return 1;
     }
+
     #check if {web} is a tag - and if so, is there are topic tagged with it?
-    my $db = new Foswiki::Contrib::DbiContrib;
+    my $db          = new Foswiki::Contrib::DbiContrib;
     my $originalWeb = $this->{web};
 
     my $item_id;
-    my $statement = sprintf('SELECT %s from %s WHERE %s = ?',  qw( item_id Items item_name));
-    my $arrayRef = $db->dbSelect($statement, $this->{web});
-    if (defined($arrayRef->[0][0])) {
+    my $statement =
+      sprintf( 'SELECT %s from %s WHERE %s = ?', qw( item_id Items item_name) );
+    my $arrayRef = $db->dbSelect( $statement, $this->{web} );
+    if ( defined( $arrayRef->[0][0] ) ) {
         my $tag_id = $arrayRef->[0][0];
-        $statement = sprintf('SELECT %s from %s t INNER JOIN %s i ON %s = %s WHERE %s = ? AND %s LIKE ?',
-                            qw(item_name UserItemTag Items t.item_id i.item_id tag_id item_name));
-        $arrayRef = $db->dbSelect($statement, $tag_id, '%.'.$this->{topic});
-        if (defined($arrayRef->[0][0])) {
+        $statement = sprintf(
+'SELECT %s from %s t INNER JOIN %s i ON %s = %s WHERE %s = ? AND %s LIKE ?',
+            qw(item_name UserItemTag Items t.item_id i.item_id tag_id item_name)
+        );
+        $arrayRef = $db->dbSelect( $statement, $tag_id, '%.' . $this->{topic} );
+        if ( defined( $arrayRef->[0][0] ) ) {
             my $webTopic = $arrayRef->[0][0];
-            ($this->{web}, $this->{topic}) = $this->{session}->normalizeWebTopicName($this->{web}, $webTopic);
+            ( $this->{web}, $this->{topic} ) =
+              $this->{session}
+              ->normalizeWebTopicName( $this->{web}, $webTopic );
             $this->resetFileName();
             $this->{web} = $originalWeb;
-        } else {
+        }
+        else {
+
             #if we didn't find the topic tagwise, then use the default ones.
-            my %specialTopic = ('WebHome'=>1, 'WebPreferences'=>1, 'WebIndex'=>1, 'WebTopicList'=>1, 'WebChanges'=>1, 'WebSearch'=>1, 'WebRss'=>1, 'WebRssBase'=>1, 'WebLeftBar'=>1);
-            if ($specialTopic{$this->{topic}}) {
+            my %specialTopic = (
+                'WebHome'        => 1,
+                'WebPreferences' => 1,
+                'WebIndex'       => 1,
+                'WebTopicList'   => 1,
+                'WebChanges'     => 1,
+                'WebSearch'      => 1,
+                'WebRss'         => 1,
+                'WebRssBase'     => 1,
+                'WebLeftBar'     => 1
+            );
+            if ( $specialTopic{ $this->{topic} } ) {
                 $this->{web} = '_tag';
                 $this->resetFileName();
                 $this->{web} = $originalWeb;
             }
         }
     }
-    #print STDERR "storedDataExists(".$this->{web}.")(".$this->{topic}.")(".$this->{file}.")=>".((-e $this->{file})||0)."\n";
 
-    return (-e $this->{file});
+#print STDERR "storedDataExists(".$this->{web}.")(".$this->{topic}.")(".$this->{file}.")=>".((-e $this->{file})||0)."\n";
+
+    return ( -e $this->{file} );
 }
 
 =pod
@@ -221,17 +244,17 @@ match per topic, and will not return matching lines).
 =cut
 
 sub searchInWebContent {
-    my( $this, $searchString, $topics, $options ) = @_;
-    ASSERT(defined $options) if DEBUG;
+    my ( $this, $searchString, $topics, $options ) = @_;
+    ASSERT( defined $options ) if DEBUG;
 
-    if ($options->{type} eq 'tag') {
+    if ( $options->{type} eq 'tag' ) {
 
-        my @tags = split(/\s*,\s*/, $searchString);
-        my $tagSet = '('.join(',', map{"'$_'"} @tags).')';
-        my $web = $this->{web};
-        my $webLike = $web.'.%';
+        my @tags = split( /\s*,\s*/, $searchString );
+        my $tagSet  = '(' . join( ',', map { "'$_'" } @tags ) . ')';
+        my $web     = $this->{web};
+        my $webLike = $web . '.%';
 
-        my $db = new Foswiki::Contrib::DbiContrib;
+        my $db        = new Foswiki::Contrib::DbiContrib;
         my $statement = "SELECT i.item_name
 FROM UserItemTag i2t
 INNER JOIN Items t ON i2t.tag_id = t.item_id
@@ -244,24 +267,29 @@ GROUP BY i2t.item_id;";
 
         my $arrayRef = $db->dbSelect($statement);
         my %seen;
-        foreach my $row (@{$arrayRef}) {
+        foreach my $row ( @{$arrayRef} ) {
             my $ItemName = $row->[0];
 
             $ItemName =~ s/^$web\.(.*)$/$1/e;
 
-            push( @{$seen{$ItemName}}, 'asd' );
+            push( @{ $seen{$ItemName} }, 'asd' );
         }
         return \%seen;
-    } else {
-        my $sDir = $Foswiki::cfg{DataDir}.'/'.$this->{web}.'/';
+    }
+    else {
+        my $sDir = $Foswiki::cfg{DataDir} . '/' . $this->{web} . '/';
 
-        unless ($this->{searchFn}) {
+        unless ( $this->{searchFn} ) {
             eval "require $Foswiki::cfg{RCS}{SearchAlgorithm}";
-            die "Bad {RCS}{SearchAlgorithm}; suggest you run configure and select a different algorithm\n$@" if $@;
-            $this->{searchFn} = $Foswiki::cfg{RCS}{SearchAlgorithm}.'::search';
-        }        no strict 'refs';
-        return &{$this->{searchFn}}($searchString, $topics, $options,
-                   $sDir, $Foswiki::sandbox);
+            die
+"Bad {RCS}{SearchAlgorithm}; suggest you run configure and select a different algorithm\n$@"
+              if $@;
+            $this->{searchFn} =
+              $Foswiki::cfg{RCS}{SearchAlgorithm} . '::search';
+        }
+        no strict 'refs';
+        return &{ $this->{searchFn} }( $searchString, $topics, $options, $sDir,
+            $Foswiki::sandbox );
         use strict 'refs';
     }
 }
@@ -271,19 +299,33 @@ GROUP BY i2t.item_id;";
 sub resetFileName {
     my $this = shift;
 
-    if( $this->{topic} ) {
+    if ( $this->{topic} ) {
         my $rcsSubDir = ( $Foswiki::cfg{RCS}{useSubDir} ? '/RCS' : '' );
-        if( $this->{attachment} ) {
-            $this->{file} = $Foswiki::cfg{PubDir}.'/'.$this->{web}.'/'.
-              $this->{topic}.'/'.$this->{attachment};
-            $this->{rcsFile} = $Foswiki::cfg{PubDir}.'/'.
-              $this->{web}.'/'.$this->{topic}.$rcsSubDir.'/'.$this->{attachment}.',v';
+        if ( $this->{attachment} ) {
+            $this->{file} =
+                $Foswiki::cfg{PubDir} . '/'
+              . $this->{web} . '/'
+              . $this->{topic} . '/'
+              . $this->{attachment};
+            $this->{rcsFile} =
+                $Foswiki::cfg{PubDir} . '/'
+              . $this->{web} . '/'
+              . $this->{topic}
+              . $rcsSubDir . '/'
+              . $this->{attachment} . ',v';
 
-        } else {
-            $this->{file} = $Foswiki::cfg{DataDir}.'/'.$this->{web}.'/'.
-              $this->{topic}.'.txt';
-            $this->{rcsFile} = $Foswiki::cfg{DataDir}.'/'.
-              $this->{web}.$rcsSubDir.'/'.$this->{topic}.'.txt,v';
+        }
+        else {
+            $this->{file} =
+                $Foswiki::cfg{DataDir} . '/'
+              . $this->{web} . '/'
+              . $this->{topic} . '.txt';
+            $this->{rcsFile} =
+                $Foswiki::cfg{DataDir} . '/'
+              . $this->{web}
+              . $rcsSubDir . '/'
+              . $this->{topic}
+              . '.txt,v';
         }
     }
 }

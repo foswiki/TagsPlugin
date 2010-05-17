@@ -1,4 +1,4 @@
-# This script Copyright 
+# This script Copyright
 # (c) 2009 Oliver Krueger, (wiki-one.net)
 # and distributed under the GPL (see below)
 #
@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -42,30 +42,34 @@ sub do {
     my $theWeb    = $params->{web}        || 'all';
     my $theTag    = $params->{tag}        || 'all';
     my $theTopic  = $params->{topic}      || '';
-    my $theQuery  = $params->{query}      || 'tag'; 
-    my $theOrder  = $params->{order}      || ''; 
-    my $thePublic = $params->{visibility} || 'all'; 
-    my $theAlt    = $params->{alt}        || ''; 
-    my $theLimit  = $params->{limit}      || 0; 
-    my $theOffset = $params->{offset}     || 0; 
+    my $theQuery  = $params->{query}      || 'tag';
+    my $theOrder  = $params->{order}      || '';
+    my $thePublic = $params->{visibility} || 'all';
+    my $theAlt    = $params->{alt}        || '';
+    my $theLimit  = $params->{limit}      || 0;
+    my $theOffset = $params->{offset}     || 0;
     my $theFormat = $params->{format};
 
     use Foswiki::Plugins::TagsPlugin::Func;
-    $theTag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $theTag );
-    
+    $theTag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($theTag);
+
     # determine default format based on query type
-    unless( $theFormat ) {
+    unless ($theFormat) {
         if ( $theQuery eq "user" ) {
             $theFormat = '$user';
-        } elsif ( $theQuery eq "topic" ) {
+        }
+        elsif ( $theQuery eq "topic" ) {
             $theFormat = '[[$item][$topic]]';
-        } else {
+        }
+        else {
             $theFormat = '$tag';
-        };
-    };
-    
-    my $isTagAdmin = Foswiki::Func::isGroupMember($Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup") ? 1 : 0;
-        
+        }
+    }
+
+    my $isTagAdmin =
+      Foswiki::Func::isGroupMember( $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
+          || "AdminGroup" ) ? 1 : 0;
+
     my $output    = '';
     my $statement = '';
     my @whereClauses;
@@ -74,23 +78,26 @@ sub do {
 
     # resolve the cUID from the database and exit with "" if it does not exist
     #
-    if (  lc($theUser) ne 'all' ) {
+    if ( lc($theUser) ne 'all' ) {
         my @users = split( /,/, $theUser );
         my @clauses;
         foreach my $u (@users) {
             $u =~ s/^\s*//g;
-            $u =~ s/\s*$//g; 
+            $u =~ s/\s*$//g;
             my $cuid;
-            my $statement =
-              sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-            my $arrayRef = $db->dbSelect( $statement, Foswiki::Func::isGroup($u) ? $u : Foswiki::Func::getCanonicalUserID( $u ) );
+            my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? ',
+                qw( CUID Users FoswikicUID) );
+            my $arrayRef = $db->dbSelect( $statement,
+                Foswiki::Func::isGroup($u)
+                ? $u
+                : Foswiki::Func::getCanonicalUserID($u) );
             if ( defined( $arrayRef->[0][0] ) ) {
                 $cuid = $arrayRef->[0][0];
             }
             next unless ( defined($cuid) );
             push @clauses, " i2t.user_id = '$cuid' ";
         }
-        if ( @clauses == 0 ) { return ''; };
+        if ( @clauses == 0 ) { return ''; }
         push @whereClauses, "(" . join( ' OR ', @clauses ) . ")";
     }
 
@@ -101,20 +108,20 @@ sub do {
         my @clauses;
         foreach my $w (@webs) {
             $w =~ s/^\s*//g;
-            $w =~ s/\s*$//g;            
+            $w =~ s/\s*$//g;
             push @clauses, " i.item_name like '$w%' ";
         }
         push @whereClauses, "(" . join( ' OR ', @clauses ) . ")";
-    }    
+    }
 
     # filter for topics
     #
-    if ( $theTopic ) {
+    if ($theTopic) {
         my @topics = split( /,/, $theTopic );
         my @clauses;
         foreach my $t (@topics) {
             $t =~ s/^\s*//g;
-            $t =~ s/\s*$//g;            
+            $t =~ s/\s*$//g;
             push @clauses, " i.item_name like '%.$t' ";
         }
         push @whereClauses, join( ' OR ', @clauses );
@@ -135,37 +142,43 @@ sub do {
 
     # filter for public
     if ( lc($thePublic) ne "all" ) {
-      if ( lc($thePublic) eq "public" ) {
-        push @whereClauses, "i2t.public=1";
-      } elsif ( lc($thePublic) eq "private" ) {
-        push @whereClauses, "i2t.public=0";
-      } elsif ( lc($thePublic) eq "user" ) {
-
-        my @membershipClauses = ();
-        my $cuid = Foswiki::Plugins::TagsPlugin::Db::getUserID();
-        push @membershipClauses, "i2t.user_id='$cuid'";
-
-        # calculate group memberships
-        my $it = Foswiki::Func::eachGroup();
-        while ($it->hasNext()) {
-          my $group = $it->next();
-          if ( !Foswiki::Func::isGroupMember( $group ) ) { next; };
-          my $group_id = Foswiki::Plugins::TagsPlugin::Db::getUserID( $group );
-          Foswiki::Func::writeDebug("TAGSEARCH::groups: $group_id") if DEBUG;
-          if ($group_id) {
-            push @membershipClauses, "i2t.user_id='$group_id'";
-          }
+        if ( lc($thePublic) eq "public" ) {
+            push @whereClauses, "i2t.public=1";
         }
-        my $memberships = join( ' OR ', @membershipClauses );
+        elsif ( lc($thePublic) eq "private" ) {
+            push @whereClauses, "i2t.public=0";
+        }
+        elsif ( lc($thePublic) eq "user" ) {
 
-        # construct the constraint
-        if ( defined($cuid) ) {
-          push @whereClauses, "( (i2t.public=1) OR (i2t.public=0 AND ($memberships)) )";
-        } else {
-          push @whereClauses, "i2t.public=1";
-        }        
+            my @membershipClauses = ();
+            my $cuid = Foswiki::Plugins::TagsPlugin::Db::getUserID();
+            push @membershipClauses, "i2t.user_id='$cuid'";
 
-      }
+            # calculate group memberships
+            my $it = Foswiki::Func::eachGroup();
+            while ( $it->hasNext() ) {
+                my $group = $it->next();
+                if ( !Foswiki::Func::isGroupMember($group) ) { next; }
+                my $group_id =
+                  Foswiki::Plugins::TagsPlugin::Db::getUserID($group);
+                Foswiki::Func::writeDebug("TAGSEARCH::groups: $group_id")
+                  if DEBUG;
+                if ($group_id) {
+                    push @membershipClauses, "i2t.user_id='$group_id'";
+                }
+            }
+            my $memberships = join( ' OR ', @membershipClauses );
+
+            # construct the constraint
+            if ( defined($cuid) ) {
+                push @whereClauses,
+                  "( (i2t.public=1) OR (i2t.public=0 AND ($memberships)) )";
+            }
+            else {
+                push @whereClauses, "i2t.public=1";
+            }
+
+        }
     }
 
     # build the WHERE clause
@@ -174,16 +187,18 @@ sub do {
     my $where = join( ' AND ', @whereClauses );
     $where = 'WHERE ' . $where if ( $#whereClauses >= 0 );
 
-
     # build the GROUP BY clause
     #
     my %groupbyhash = ( "tag", 1, "topic", 1, "user", 1, "public", 1 );
     my @groupbyClauses = ();
-    if ( $theFormat !~ m/\$(item|web|topic)/ ) { $groupbyhash{"topic"} = 0; };
-    if ( $theFormat !~ m/\$(cuid|user)/      ) { $groupbyhash{"user"}  = 0; $groupbyhash{"public"}  = 0; };
-    if ( $theFormat !~ m/\$tag/              ) { $groupbyhash{"tag"}   = 0; };
-    while( my ($key, $value) = each( %groupbyhash ) ) {
-        if ( $value ) { push @groupbyClauses, " $key " };
+    if ( $theFormat !~ m/\$(item|web|topic)/ ) { $groupbyhash{"topic"} = 0; }
+    if ( $theFormat !~ m/\$(cuid|user)/ ) {
+        $groupbyhash{"user"}   = 0;
+        $groupbyhash{"public"} = 0;
+    }
+    if ( $theFormat !~ m/\$tag/ ) { $groupbyhash{"tag"} = 0; }
+    while ( my ( $key, $value ) = each(%groupbyhash) ) {
+        if ($value) { push @groupbyClauses, " $key " }
     }
     my $groupby = join( ',', @groupbyClauses );
     $groupby = "GROUP BY " . $groupby if ( $#groupbyClauses >= 0 );
@@ -193,9 +208,11 @@ sub do {
     my $order = "";
     if ( lc($theOrder) eq "tag" ) {
         $order = "ORDER BY t.item_name";
-    } elsif ( lc($theOrder) eq "topic" ) {
+    }
+    elsif ( lc($theOrder) eq "topic" ) {
         $order = "ORDER BY i.item_name";
-    } elsif ( lc($theOrder) eq "user" ) {
+    }
+    elsif ( lc($theOrder) eq "user" ) {
         $order = "ORDER BY u.FoswikicUID";
     }
 
@@ -230,9 +247,9 @@ $limit";
 
     Foswiki::Func::writeDebug("TAGSEARCH: $statement") if DEBUG;
 
-    # get the data from the db and rotate through it 
+    # get the data from the db and rotate through it
     my $row_counter = 0;
-    my $arrayRef = $db->dbSelect($statement);
+    my $arrayRef    = $db->dbSelect($statement);
     foreach my $row ( @{$arrayRef} ) {
         $row_counter++;
         my $entry = $theFormat;
@@ -242,40 +259,46 @@ $limit";
         my $cuid      = $row->[2];
         my $public    = $row->[3];
         my $tag_count = $row->[4];
-        my $user      = Foswiki::Func::getWikiName($cuid);                    
+        my $user      = Foswiki::Func::getWikiName($cuid);
 
         # replace all variable occurrences
         if ( $entry =~ m/\$(item|topic|web)/ ) {
-            my ($item_web, $item_topic) = Foswiki::Func::normalizeWebTopicName("", $item);
+            my ( $item_web, $item_topic ) =
+              Foswiki::Func::normalizeWebTopicName( "", $item );
             $entry =~ s/\$item/$item/g;
             $entry =~ s/\$topic/$item_topic/g;
-            $entry =~ s/\$web/$item_web/g;            
+            $entry =~ s/\$web/$item_web/g;
         }
-            
+
         if ( $entry =~ m/\$(cuid|user)/ ) {
             $entry =~ s/\$cuid/$cuid/g;
-            $entry =~ s/\$user/$user/ge;                    
+            $entry =~ s/\$user/$user/ge;
         }
-        
+
         $entry =~ s/\$tag/$tag/g;
         $entry =~ s/\$count/$tag_count/g;
         $entry =~ s/\$num/$row_counter/g;
         $entry =~ s/\$public/$public/g;
-        
+
         # flag this entry with "isAdmin" (useful for css classes)
-        if ( $isTagAdmin ) {
-            $entry =~ s/\$isAdmin/tagsplugin_isAdmin/gi;   
-        } else {
+        if ($isTagAdmin) {
+            $entry =~ s/\$isAdmin/tagsplugin_isAdmin/gi;
+        }
+        else {
             $entry =~ s/\$isAdmin//gi;
         }
-        
+
         # flag this entry as untaggable
-        if ( $isTagAdmin || $cuid eq $session->{user} || Foswiki::Func::isGroupMember($cuid) ) {
-            $entry =~ s/\$untaggable/tagsplugin_untaggable/g;   
-        } else {
+        if (   $isTagAdmin
+            || $cuid eq $session->{user}
+            || Foswiki::Func::isGroupMember($cuid) )
+        {
+            $entry =~ s/\$untaggable/tagsplugin_untaggable/g;
+        }
+        else {
             $entry =~ s/\$untaggable//g;
         }
-            
+
         # insert seperator only if needed
         if ( $output ne '' ) {
             $output .= $theSep . $entry;
@@ -285,11 +308,12 @@ $limit";
         }
     }
 
-    Foswiki::Func::writeDebug( "row counter: $row_counter" ) if DEBUG;
+    Foswiki::Func::writeDebug("row counter: $row_counter") if DEBUG;
     if ( $row_counter > 0 ) {
-      $output = $theHeader . $output . $theFooter;  #if ($output);
-    } else {
-      $output = $theAlt;
+        $output = $theHeader . $output . $theFooter;    #if ($output);
+    }
+    else {
+        $output = $theAlt;
     }
 
     # expand standard escapes

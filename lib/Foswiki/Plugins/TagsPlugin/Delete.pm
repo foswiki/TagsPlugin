@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -32,21 +32,23 @@ see Foswiki::Plugins::TagsPlugin::deleteCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};    
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $tag_text   = $query->param('tag')         || '';
-    my $redirectto = $query->param('redirectto')  || '';    
+    my $tag_text   = $query->param('tag')        || '';
+    my $redirectto = $query->param('redirectto') || '';
     $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
-    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
-    
-    # input data is assumed to be utf8 (usually in AJAX environments) 
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
+
+    # input data is assumed to be utf8 (usually in AJAX environments)
     require Unicode::MapUTF8;
-    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
+    $tag_text = Unicode::MapUTF8::from_utf8(
+        { -string => $tag_text, -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8(
+        { -string => $redirectto, -charset => $charset } );
 
     # sanatize the tag_text
     use Foswiki::Plugins::TagsPlugin::Func;
-    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($tag_text);
 
     #
     # checking prerequisites
@@ -61,8 +63,14 @@ sub rest {
 
     # check if current user is allowed to do so
     #
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
-    if ( !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName()) ) {
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
+      || "AdminGroup";
+    if (
+        !Foswiki::Func::isGroupMember(
+            $tagAdminGroup, Foswiki::Func::getWikiName()
+        )
+      )
+    {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
     }
@@ -71,27 +79,29 @@ sub rest {
     # actioning
     #
     $session->{response}->status(200);
-    
+
     # handle errors and return the number of affected tags
     my $retval;
 
     try {
-       $retval = Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
-    } catch Error::Simple with {
-      my $e = shift;
-      my $code = $e->{'-value'};
-      my $text = $e->{'-text'};
-      $session->{response}->status($code);
-      return "<h1>$code $text</h1>";
+        $retval = Foswiki::Plugins::TagsPlugin::Delete::do($tag_text);
+    }
+    catch Error::Simple with {
+        my $e    = shift;
+        my $code = $e->{'-value'};
+        my $text = $e->{'-text'};
+        $session->{response}->status($code);
+        return "<h1>$code $text</h1>";
     };
 
     # redirect on request
-    if ( $redirectto ) {
-        my ($rweb, $rtopic) = Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
+    if ($redirectto) {
+        my ( $rweb, $rtopic ) =
+          Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
         my $url = Foswiki::Func::getScriptUrl( $rweb, $rtopic, "view" );
         Foswiki::Func::redirectCgiQuery( undef, $url );
     }
-    
+
     return $retval;
 }
 
@@ -113,18 +123,18 @@ Return:
 =cut
 
 sub do {
-    my ( $tag_text ) = @_;
+    my ($tag_text) = @_;
 
     # determine tag_id for given tag_text and exit if its not there
-    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID($tag_text);
     if ( $tag_id eq "0E0" ) {
-      throw Error::Simple("Database error: tag not found.", 404);
+        throw Error::Simple( "Database error: tag not found.", 404 );
     }
 
     # delete tag
-    my $retval = Foswiki::Plugins::TagsPlugin::Db::deleteTag( $tag_id );
+    my $retval = Foswiki::Plugins::TagsPlugin::Db::deleteTag($tag_id);
     if ( $retval eq "0E0" ) {
-      throw Error::Simple("Database error: failed to delete tag.", 500);
+        throw Error::Simple( "Database error: failed to delete tag.", 500 );
     }
 
     return $retval;

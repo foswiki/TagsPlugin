@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 1; # toggle me
+use constant DEBUG => 1;    # toggle me
 
 =begin TML
 
@@ -32,36 +32,45 @@ see Foswiki::Plugins::TagsPlugin::changeOwnerCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};    
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $item       = $query->param('item')       || '';
-    my $tag        = $query->param('tag')        || '';
-    my $user       = $query->param('user')       || Foswiki::Func::getWikiName();
-    my $newuser    = $query->param('newuser')    || $user;
-    my $publicflag = (defined $query->param('public')) ? $query->param('public') : '1';
-    my $redirectto = $query->param('redirectto') || '';    
+    my $item    = $query->param('item')    || '';
+    my $tag     = $query->param('tag')     || '';
+    my $user    = $query->param('user')    || Foswiki::Func::getWikiName();
+    my $newuser = $query->param('newuser') || $user;
+    my $publicflag =
+      ( defined $query->param('public') ) ? $query->param('public') : '1';
+    my $redirectto = $query->param('redirectto') || '';
 
     $item       = Foswiki::Sandbox::untaintUnchecked($item);
     $tag        = Foswiki::Sandbox::untaintUnchecked($tag);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
     $newuser    = Foswiki::Sandbox::untaintUnchecked($newuser);
     $publicflag = Foswiki::Sandbox::untaintUnchecked($publicflag);
-    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
-    
-    # input data is assumed to be utf8 (usually in AJAX environments) 
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
+
+    # input data is assumed to be utf8 (usually in AJAX environments)
     require Unicode::MapUTF8;
-    $item       = Unicode::MapUTF8::from_utf8( { -string => $item,       -charset => $charset } );
-    $tag        = Unicode::MapUTF8::from_utf8( { -string => $tag,        -charset => $charset } );
-    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
-    $newuser    = Unicode::MapUTF8::from_utf8( { -string => $newuser,    -charset => $charset } );
-    $publicflag = Unicode::MapUTF8::from_utf8( { -string => $publicflag, -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );    
+    $item =
+      Unicode::MapUTF8::from_utf8( { -string => $item, -charset => $charset } );
+    $tag =
+      Unicode::MapUTF8::from_utf8( { -string => $tag, -charset => $charset } );
+    $user =
+      Unicode::MapUTF8::from_utf8( { -string => $user, -charset => $charset } );
+    $newuser = Unicode::MapUTF8::from_utf8(
+        { -string => $newuser, -charset => $charset } );
+    $publicflag = Unicode::MapUTF8::from_utf8(
+        { -string => $publicflag, -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8(
+        { -string => $redirectto, -charset => $charset } );
 
     # sanatize the tag
     use Foswiki::Plugins::TagsPlugin::Func;
-    $tag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag );
+    $tag = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($tag);
 
-    Foswiki::Func::writeDebug("Foswiki::TagsPlugin::ChangeOwner::rest( $item $tag $user $newuser $publicflag $redirectto )") if DEBUG;
+    Foswiki::Func::writeDebug(
+"Foswiki::TagsPlugin::ChangeOwner::rest( $item $tag $user $newuser $publicflag $redirectto )"
+    ) if DEBUG;
 
     #
     # checking prerequisites
@@ -73,10 +82,10 @@ sub rest {
         $session->{response}->status(400);
         return "<h1>400 'tag' parameter missing</h1>";
     }
-    if ( !$item ) { 
+    if ( !$item ) {
         $session->{response}->status(400);
         return "<h1>400 'item' parameter missing</h1>";
-    } 
+    }
     if ( !$user ) {
         $session->{response}->status(400);
         return "<h1>400 'user' parameter missing</h1>";
@@ -86,38 +95,52 @@ sub rest {
         return "<h1>400 'public' is not 0 or 1</h1>";
     }
 
-    if ( $user ne Foswiki::Func::getWikiName() && not Foswiki::Func::isGroupMember( $user, Foswiki::Func::getWikiName() ) ) {
+    if ( $user ne Foswiki::Func::getWikiName()
+        && not Foswiki::Func::isGroupMember( $user,
+            Foswiki::Func::getWikiName() ) )
+    {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
     }
-
 
     #
     # actioning
     #
     $session->{response}->status(200);
-    
+
     my $retval;
-    my $user_id    = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
-    my $newuser_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($newuser) ? $newuser : Foswiki::Func::getCanonicalUserID( $newuser ) );
+    my $user_id =
+      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+        Foswiki::Func::isGroup($user)
+        ? $user
+        : Foswiki::Func::getCanonicalUserID($user) );
+    my $newuser_id =
+      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+        Foswiki::Func::isGroup($newuser)
+        ? $newuser
+        : Foswiki::Func::getCanonicalUserID($newuser) );
 
     # handle errors and return the number of affected tags
     try {
-       $retval = Foswiki::Plugins::TagsPlugin::ChangeOwner::do( $item, $tag, $user_id, $newuser_id, $publicflag );
-    } catch Error::Simple with {
-      my $e = shift;
-      my $code = $e->{'-value'};
-      my $text = $e->{'-text'};
-      $session->{response}->status($code);
-      return "<h1>$code $text</h1>";
+        $retval =
+          Foswiki::Plugins::TagsPlugin::ChangeOwner::do( $item, $tag, $user_id,
+            $newuser_id, $publicflag );
+    }
+    catch Error::Simple with {
+        my $e    = shift;
+        my $code = $e->{'-value'};
+        my $text = $e->{'-text'};
+        $session->{response}->status($code);
+        return "<h1>$code $text</h1>";
     };
-    
+
     # redirect on request
-    if ( $redirectto ) {
-        my ($rweb, $rtopic) = Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
+    if ($redirectto) {
+        my ( $rweb, $rtopic ) =
+          Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
         my $url = Foswiki::Func::getScriptUrl( $rweb, $rtopic, "view" );
         Foswiki::Func::redirectCgiQuery( undef, $url );
-    }    
+    }
 
     return $retval;
 }
@@ -144,49 +167,71 @@ Return:
 
 sub do {
     my ( $item, $tag_text, $user_id, $newuser_id, $public ) = @_;
-    Foswiki::Func::writeDebug("TagsPlugin::ChangeOwner::do( $item, $tag_text, $user_id, $newuser_id, $public )") if DEBUG;
-    my $db = new Foswiki::Contrib::DbiContrib;
+    Foswiki::Func::writeDebug(
+"TagsPlugin::ChangeOwner::do( $item, $tag_text, $user_id, $newuser_id, $public )"
+    ) if DEBUG;
+    my $db     = new Foswiki::Contrib::DbiContrib;
     my $retval = "";
 
     # determine tag_id for given tag_text and exit if its not there
-    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID($tag_text);
     if ( $tag_id eq "0E0" ) {
-      throw Error::Simple("Database error: tag not found.", 404);
+        throw Error::Simple( "Database error: tag not found.", 404 );
     }
 
     # determine item_id for given item and exit if its not there
-    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID( $item );
+    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID($item);
     if ( $item_id eq "0E0" ) {
-      throw Error::Simple("Database error: topic not found.", 404);
+        throw Error::Simple( "Database error: topic not found.", 404 );
     }
 
     # check, if there is already that tag for the new user
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+    my $statement = sprintf(
+        'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
         qw( user_id UserItemTag item_id tag_id user_id public ) );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id, $newuser_id, $public" ) if DEBUG;
-    my $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id, $newuser_id, $public );
-    if ( defined( $arrayRef->[0][0] && $arrayRef->[0][0] == $newuser_id) ) { 
-      throw Error::Simple("This tag already exists.", 400); 
+    Foswiki::Func::writeDebug(
+"TagsPlugin::Public: $statement, $item_id, $tag_id, $newuser_id, $public"
+    ) if DEBUG;
+    my $arrayRef =
+      $db->dbSelect( $statement, $item_id, $tag_id, $newuser_id, $public );
+    if ( defined( $arrayRef->[0][0] && $arrayRef->[0][0] == $newuser_id ) ) {
+        throw Error::Simple( "This tag already exists.", 400 );
     }
 
     # now we are ready to actually update
-    # try to update the tupel. dont care, if it exists. 
+    # try to update the tupel. dont care, if it exists.
     my $affected_rows = 0;
-    $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
-      qw( UserItemTag user_id item_id tag_id user_id public ) );
-    Foswiki::Func::writeDebug("TagsPlugin::ChangeOwner: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id newuser:$newuser_id" ) if DEBUG;
-    $affected_rows = $db->dbInsert( $statement, $newuser_id, $item_id, $tag_id, $user_id, $public );
-    if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
+    $statement = sprintf(
+        'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+        qw( UserItemTag user_id item_id tag_id user_id public ) );
+    Foswiki::Func::writeDebug(
+"TagsPlugin::ChangeOwner: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id newuser:$newuser_id"
+    ) if DEBUG;
+    $affected_rows =
+      $db->dbInsert( $statement, $newuser_id, $item_id, $tag_id, $user_id,
+        $public );
+    if ( $affected_rows eq "0E0" ) { $affected_rows = 0; }
     $retval = " $affected_rows";
 
     # update stats in UserTagStat for user_id
-    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $user_id ) eq "0E0" ) {
-      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    if (
+        Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat(
+            $tag_id, $user_id
+        ) eq "0E0"
+      )
+    {
+        throw Error::Simple( "Database error: failed to update UserTagStat.",
+            500 );
     }
 
     # update stats in UserTagStat for newuser_id
-    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $newuser_id ) eq "0E0" ) {
-      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    if (
+        Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id,
+            $newuser_id ) eq "0E0"
+      )
+    {
+        throw Error::Simple( "Database error: failed to update UserTagStat.",
+            500 );
     }
 
     # flushing data to dbms

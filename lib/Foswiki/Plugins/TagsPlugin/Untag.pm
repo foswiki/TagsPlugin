@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -32,32 +32,38 @@ see Foswiki::Plugins::TagsPlugin::untagCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};    
+    my $charset = $Foswiki::cfg{Site}{CharSet};
 
-    my $item_name     = $query->param('item')        || '';
-    my $tag_text      = $query->param('tag')         || '';
-    my $user          = $query->param('user')        || Foswiki::Func::getWikiName();
-    my $public        = $query->param('public')      || '0';
-    my $redirectto    = $query->param('redirectto')  || '';    
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
+    my $item_name = $query->param('item')   || '';
+    my $tag_text  = $query->param('tag')    || '';
+    my $user      = $query->param('user')   || Foswiki::Func::getWikiName();
+    my $public    = $query->param('public') || '0';
+    my $redirectto = $query->param('redirectto') || '';
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
+      || "AdminGroup";
 
     $item_name  = Foswiki::Sandbox::untaintUnchecked($item_name);
     $tag_text   = Foswiki::Sandbox::untaintUnchecked($tag_text);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
     $public     = Foswiki::Sandbox::untaintUnchecked($public);
-    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);    
-    
-    # input data is assumed to be utf8 (usually in AJAX environments) 
+    $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
+
+    # input data is assumed to be utf8 (usually in AJAX environments)
     require Unicode::MapUTF8;
-    $item_name  = Unicode::MapUTF8::from_utf8( { -string => $item_name,  -charset => $charset } );
-    $tag_text   = Unicode::MapUTF8::from_utf8( { -string => $tag_text,   -charset => $charset } );
-    $user       = Unicode::MapUTF8::from_utf8( { -string => $user,       -charset => $charset } );
-    $public     = Unicode::MapUTF8::from_utf8( { -string => $public,     -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8( { -string => $redirectto, -charset => $charset } );        
+    $item_name = Unicode::MapUTF8::from_utf8(
+        { -string => $item_name, -charset => $charset } );
+    $tag_text = Unicode::MapUTF8::from_utf8(
+        { -string => $tag_text, -charset => $charset } );
+    $user =
+      Unicode::MapUTF8::from_utf8( { -string => $user, -charset => $charset } );
+    $public = Unicode::MapUTF8::from_utf8(
+        { -string => $public, -charset => $charset } );
+    $redirectto = Unicode::MapUTF8::from_utf8(
+        { -string => $redirectto, -charset => $charset } );
 
     # sanatize the tag_text
     use Foswiki::Plugins::TagsPlugin::Func;
-    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $tag_text );
+    $tag_text = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($tag_text);
 
     #
     # checking prerequisites
@@ -95,8 +101,13 @@ sub rest {
                 return "<h1>403 Forbidden</h1>";
             }
         }
-        elsif (   !Foswiki::Func::isAnAdmin() 
-               && !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName() ) ) {
+        elsif (
+            !Foswiki::Func::isAnAdmin()
+            && !Foswiki::Func::isGroupMember(
+                $tagAdminGroup, Foswiki::Func::getWikiName()
+            )
+          )
+        {
             $session->{response}->status(403);
             return "<h1>403 Forbidden</h1>";
         }
@@ -106,26 +117,33 @@ sub rest {
     # actioning
     #
     $session->{response}->status(200);
-    
+
     # handle errors and finally return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id =
+      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+        Foswiki::Func::isGroup($user)
+        ? $user
+        : Foswiki::Func::getCanonicalUserID($user) );
 
     try {
-      $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id, $public );
-    } catch Error::Simple with {
-      my $e = shift;
-      my $code = $e->{'-value'};
-      my $text = $e->{'-text'};
-      $session->{response}->status($code);
-      return "<h1>$code $text</h1>";
+        $retval =
+          Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text,
+            $user_id, $public );
+    }
+    catch Error::Simple with {
+        my $e    = shift;
+        my $code = $e->{'-value'};
+        my $text = $e->{'-text'};
+        $session->{response}->status($code);
+        return "<h1>$code $text</h1>";
     };
 
     # redirect on request
-    if ( $redirectto ) {
+    if ($redirectto) {
         Foswiki::Func::redirectCgiQuery( undef, $redirectto );
-    }    
-    
+    }
+
     return $retval;
 }
 
@@ -154,41 +172,48 @@ sub do {
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine item_id for given item_name and exit if its not there
-    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID( $item_name );
+    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID($item_name);
     if ( $item_id eq "0E0" ) {
-      throw Error::Simple("Database error: topic not found.", 404); 
+        throw Error::Simple( "Database error: topic not found.", 404 );
     }
 
     # determine tag_id for given tag_text and exit if its not there
-    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID($tag_text);
     if ( $tag_id eq "0E0" ) {
-      throw Error::Simple("Database error: tag not found.", 404); 
+        throw Error::Simple( "Database error: tag not found.", 404 );
     }
 
     # now we are ready to actually untag
     my $statement =
       sprintf( 'DELETE from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
         qw( UserItemTag item_id tag_id user_id public) );
-    Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $item_id, $tag_id, $cuid, $public" ) if DEBUG;
-    my $affected_rows = $db->dbDelete( $statement, $item_id, $tag_id, $cuid, $public );
-    if ( $affected_rows eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to untag.", 500);
-    };
-    
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Untag: $statement, $item_id, $tag_id, $cuid, $public")
+      if DEBUG;
+    my $affected_rows =
+      $db->dbDelete( $statement, $item_id, $tag_id, $cuid, $public );
+    if ( $affected_rows eq "0E0" ) {
+        throw Error::Simple( "Database error: failed to untag.", 500 );
+    }
+
     # update stats in TagStat
-    if ( Foswiki::Plugins::TagsPlugin::Db::updateTagStat( $tag_id ) eq "0E0" ) {
-      throw Error::Simple("Database error: failed to update TagStat.", 500);
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateTagStat($tag_id) eq "0E0" ) {
+        throw Error::Simple( "Database error: failed to update TagStat.", 500 );
     }
 
     # update stats in UserTagStat for all users, who have a relation to this tag
-    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $cuid ) eq "0E0" ) {
-      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    if (
+        Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $cuid ) eq
+        "0E0" )
+    {
+        throw Error::Simple( "Database error: failed to update UserTagStat.",
+            500 );
     }
 
     # flushing data to dbms
     $db->commit();
 
-    # add extra space, so that zero affected rows does not clash with returning "0" from rest invocation
+# add extra space, so that zero affected rows does not clash with returning "0" from rest invocation
     return " $affected_rows";
 }
 

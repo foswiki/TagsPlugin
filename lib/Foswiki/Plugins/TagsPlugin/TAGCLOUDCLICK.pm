@@ -1,4 +1,4 @@
-# This script Copyright 
+# This script Copyright
 # (c) 2009 Oliver Krueger, (wiki-one.net)
 # and distributed under the GPL (see below)
 #
@@ -21,7 +21,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -37,24 +37,37 @@ Return:
 sub do {
     my ( $session, $params, $topic, $web ) = @_;
 
-    my $theSourceUser  = $params->{sourceuser}  || "all";
-    my $theTargetUser  = $params->{targetuser}  || Foswiki::Func::getPreferencesValue("TAGSPLUGIN_TAGUSER") || Foswiki::Func::getWikiName();
+    my $theSourceUser = $params->{sourceuser} || "all";
+    my $theTargetUser =
+         $params->{targetuser}
+      || Foswiki::Func::getPreferencesValue("TAGSPLUGIN_TAGUSER")
+      || Foswiki::Func::getWikiName();
     my $theSourceWeb   = $params->{sourceweb}   || $web;
     my $theTargetWeb   = $params->{targetweb}   || $web;
     my $theTargetTopic = $params->{targettopic} || $topic;
-    my $theCloudTopic  = $params->{cloudtopic}  || "%SYSTEMWEB%.TagsPluginTagCloud";
+    my $theCloudTopic  = $params->{cloudtopic}
+      || "%SYSTEMWEB%.TagsPluginTagCloud";
 
-    my $header = "<meta name='foswiki.tagsplugin.cloudclick.targetuser' content='$theTargetUser' />\n"; 
-    $header .= "<meta name='foswiki.tagsplugin.cloudclick.targetweb' content='$theTargetWeb' />\n"; 
-    $header .= "<meta name='foswiki.tagsplugin.cloudclick.targettopic' content='$theTargetTopic' />\n"; 
-    $header .= "<meta name='foswiki.tagsplugin.cloudclick.sourceuser' content='$theSourceUser' />\n"; 
-    $header .= "<meta name='foswiki.tagsplugin.cloudclick.sourceweb' content='$theSourceWeb' />\n"; 
-    $header .= "<meta name='foswiki.tagsplugin.cloudclick.cloudtopic' content='$theCloudTopic' />\n"; 
-    $header .= "<script type='text/javascript' src='%PUBURL%/System/TagsPlugin/tagsplugin-cloudclick.js'></script>\n";
-    Foswiki::Func::addToHEAD('TAGSPLUGIN::CLOUDCLICK', "\n".$header );
-    
-    my $output = "<div id='tagsplugin_cloudclick'>%INCLUDE{\"$theCloudTopic\" TAGUSER=\"$theSourceUser\" TAGWEB=\"$theSourceWeb\"}%</div>\n";
-    $output .= "<div id='tagsplugin_cloudclick_processing'>%ICON{processing-bg}%</div>\n";
+    my $header =
+"<meta name='foswiki.tagsplugin.cloudclick.targetuser' content='$theTargetUser' />\n";
+    $header .=
+"<meta name='foswiki.tagsplugin.cloudclick.targetweb' content='$theTargetWeb' />\n";
+    $header .=
+"<meta name='foswiki.tagsplugin.cloudclick.targettopic' content='$theTargetTopic' />\n";
+    $header .=
+"<meta name='foswiki.tagsplugin.cloudclick.sourceuser' content='$theSourceUser' />\n";
+    $header .=
+"<meta name='foswiki.tagsplugin.cloudclick.sourceweb' content='$theSourceWeb' />\n";
+    $header .=
+"<meta name='foswiki.tagsplugin.cloudclick.cloudtopic' content='$theCloudTopic' />\n";
+    $header .=
+"<script type='text/javascript' src='%PUBURL%/System/TagsPlugin/tagsplugin-cloudclick.js'></script>\n";
+    Foswiki::Func::addToHEAD( 'TAGSPLUGIN::CLOUDCLICK', "\n" . $header );
+
+    my $output =
+"<div id='tagsplugin_cloudclick'>%INCLUDE{\"$theCloudTopic\" TAGUSER=\"$theSourceUser\" TAGWEB=\"$theSourceWeb\"}%</div>\n";
+    $output .=
+"<div id='tagsplugin_cloudclick_processing'>%ICON{processing-bg}%</div>\n";
     $output .= "<div id='tagsplugin_cloudclick_dialog' />\n";
     return $output;
 }

@@ -48,35 +48,41 @@ sub initPlugin {
     }
 
     # check db_schema_version
-    my $workArea = Foswiki::Func::getWorkArea( $pluginName );
+    my $workArea = Foswiki::Func::getWorkArea($pluginName);
     if ( $workArea !~ m/.*\/$/ ) {
         $workArea .= "/";
-    };
-    if ( Foswiki::Func::readFile( $workArea . "db_schema_version.txt" ) !~ m/^1\.1$/ ) {
+    }
+    if ( Foswiki::Func::readFile( $workArea . "db_schema_version.txt" ) !~
+        m/^1\.1$/ )
+    {
         Foswiki::Func::writeWarning(
             "DB schema Version mismatch. Please convert your database.");
         return 0;
     }
 
-    Foswiki::Func::registerTagHandler( 'TAGLIST',       \&_TAGLIST );
-    Foswiki::Func::registerTagHandler( 'TAGENTRY',      \&_TAGENTRY );
-    Foswiki::Func::registerTagHandler( 'TAGCLOUD',      \&_TAGCLOUD ) if ( defined($Foswiki::cfg{TagsPlugin}{EnableTagCloud}) && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
+    Foswiki::Func::registerTagHandler( 'TAGLIST',  \&_TAGLIST );
+    Foswiki::Func::registerTagHandler( 'TAGENTRY', \&_TAGENTRY );
+    Foswiki::Func::registerTagHandler( 'TAGCLOUD', \&_TAGCLOUD )
+      if ( defined( $Foswiki::cfg{TagsPlugin}{EnableTagCloud} )
+        && $Foswiki::cfg{TagsPlugin}{EnableTagCloud} );
     Foswiki::Func::registerTagHandler( 'TAGCLOUDCLICK', \&_TAGCLOUDCLICK );
     Foswiki::Func::registerTagHandler( 'TAGSEARCH',     \&_TAGSEARCH );
     Foswiki::Func::registerTagHandler( 'TAGGROUPS',     \&_TAGGROUPS );
     Foswiki::Func::registerTagHandler( 'ISTAGADMIN',    \&_ISTAGADMIN );
     Foswiki::Func::registerTagHandler( 'TAGREQUIRE',    \&_TAGREQUIRE );
 
-    Foswiki::Func::registerRESTHandler( 'tag',                \&tagCall );
-    Foswiki::Func::registerRESTHandler( 'untag',              \&untagCall );
-    Foswiki::Func::registerRESTHandler( 'public',             \&publicCall );
-    Foswiki::Func::registerRESTHandler( 'changeOwner',        \&changeOwnerCall );
-    Foswiki::Func::registerRESTHandler( 'delete',             \&deleteCall );
-    Foswiki::Func::registerRESTHandler( 'rename',             \&renameCall );
-    Foswiki::Func::registerRESTHandler( 'merge',              \&mergeCall );
-    Foswiki::Func::registerRESTHandler( 'initialiseDatabase', \&initialiseDatabase );
-    Foswiki::Func::registerRESTHandler( 'convertDatabase',    \&convertDatabase );
-    Foswiki::Func::registerRESTHandler( 'importTagMe',        \&importTagMe );
+    Foswiki::Func::registerRESTHandler( 'tag',         \&tagCall );
+    Foswiki::Func::registerRESTHandler( 'untag',       \&untagCall );
+    Foswiki::Func::registerRESTHandler( 'public',      \&publicCall );
+    Foswiki::Func::registerRESTHandler( 'changeOwner', \&changeOwnerCall );
+    Foswiki::Func::registerRESTHandler( 'delete',      \&deleteCall );
+    Foswiki::Func::registerRESTHandler( 'rename',      \&renameCall );
+    Foswiki::Func::registerRESTHandler( 'merge',       \&mergeCall );
+    Foswiki::Func::registerRESTHandler( 'initialiseDatabase',
+        \&initialiseDatabase );
+    Foswiki::Func::registerRESTHandler( 'convertDatabase', \&convertDatabase );
+    Foswiki::Func::registerRESTHandler( 'importTagMe',     \&importTagMe );
+
     #Foswiki::Func::registerRESTHandler('updateGeoTags', \&updateGeoTags);
 
     # TODO: augment the IfParser and the QuerySearch Parsers to add Tags?
@@ -86,26 +92,62 @@ sub initPlugin {
     # plus add some data through meta tags
     my $tagweb   = Foswiki::Func::getPreferencesValue("TAGWEB")   || $web;
     my $tagtopic = Foswiki::Func::getPreferencesValue("TAGTOPIC") || $topic;
-    my $header  = '<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.web" content="'.$tagweb.'" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.topic" content="'.$tagtopic.'" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Ok" content="%MAKETEXT{"Ok"}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.NothingChanged" content="%MAKETEXT{"Nothing changed."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.TagDetailsOn" content="%MAKETEXT{"Tag Details on"}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Tag400" content="%MAKETEXT{"Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I am sorry about that. (400)"}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Tag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Tag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Tag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.TagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_tag."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Untag400" content="%MAKETEXT{"Assuming you are logged in you probably just revealed a software bug. I am sorry about that. (400)"}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Untag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Untag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Untag404" content="%MAKETEXT{"I am sorry, but either the tag or the topic does not exist."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Untag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.UntagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_untag."}%" />'."\n";
-       $header .= '<meta name="foswiki.tagsplugin.translation.Attention" content="%MAKETEXT{"May I kindly ask for your attention?"}%" />'."\n";
-       $header .= '<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />'."\n";
-    Foswiki::Func::addToHEAD('TAGSPLUGIN', "\n".$header );
+    my $header =
+'<meta name="foswiki.tagsplugin.defaultuser" content="%TAGSPLUGIN_TAGUSER%" />'
+      . "\n";
+    $header .=
+      '<meta name="foswiki.tagsplugin.web" content="' . $tagweb . '" />' . "\n";
+    $header .= '<meta name="foswiki.tagsplugin.topic" content="'
+      . $tagtopic . '" />' . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Ok" content="%MAKETEXT{"Ok"}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.NothingChanged" content="%MAKETEXT{"Nothing changed."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.TagDetailsOn" content="%MAKETEXT{"Tag Details on"}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Tag400" content="%MAKETEXT{"Assuming you are logged-in and assuming you provided a tag name you probably just revealed a software bug. I am sorry about that. (400)"}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Tag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Tag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Tag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.TagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_tag."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Untag400" content="%MAKETEXT{"Assuming you are logged in you probably just revealed a software bug. I am sorry about that. (400)"}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Untag401" content="%MAKETEXT{"According to my data, you are not logged in. Please log-in before you retry."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Untag403" content="%MAKETEXT{"I am sorry, but you are not allowed to do that."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Untag404" content="%MAKETEXT{"I am sorry, but either the tag or the topic does not exist."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Untag500" content="%MAKETEXT{"Something beyond your sphere of influence went wrong. Most probably a problem with the database. May I kindly ask you to inform your administrator? Thank you."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.UntagUnknown" content="%MAKETEXT{"Unknown error in tagsplugin_be_untag."}%" />'
+      . "\n";
+    $header .=
+'<meta name="foswiki.tagsplugin.translation.Attention" content="%MAKETEXT{"May I kindly ask for your attention?"}%" />'
+      . "\n";
+    $header .=
+'<link rel="stylesheet" type="text/css" href="%PUBURL%/System/TagsPlugin/tagsplugin.css" media="all" />'
+      . "\n";
+    Foswiki::Func::addToHEAD( 'TAGSPLUGIN', "\n" . $header );
 
     return 1;
 }
@@ -131,7 +173,8 @@ sub afterSaveHandler {
         "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )")
       if $debug;
 
-    updateTopicTags( 'topic', $_[2], $_[1], Foswiki::Plugins::TagsPlugin::Db::createUserID() );
+    updateTopicTags( 'topic', $_[2], $_[1],
+        Foswiki::Plugins::TagsPlugin::Db::createUserID() );
 
     my $db = new Foswiki::Contrib::DbiContrib;
     $db->disconnect();    #force a commit
@@ -140,22 +183,26 @@ sub afterSaveHandler {
 }
 
 sub afterRenameHandler {
-    my ( $oldWeb, $oldTopic, $oldAttachment,
-         $newWeb, $newTopic, $newAttachment ) = @_;
+    my ( $oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic,
+        $newAttachment ) = @_;
 
     # ignore attachment renamings
     # TODO: we should not ignore web renamings
     if ( $oldTopic && $newTopic ) {
         my $oldLocation = "$oldWeb.$oldTopic";
         my $newLocation = "$newWeb.$newTopic";
-        
-        my $db = new Foswiki::Contrib::DbiContrib;
-        my $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?', qw(Items item_name item_name item_type) );
-        my $rowCount = $db->dbInsert( $statement, $newLocation, $oldLocation, "topic" );
+
+        my $db        = new Foswiki::Contrib::DbiContrib;
+        my $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ?',
+            qw(Items item_name item_name item_type) );
+        my $rowCount =
+          $db->dbInsert( $statement, $newLocation, $oldLocation, "topic" );
         $db->disconnect();
-        Foswiki::Func::writeDebug("- ${pluginName}::afterSaveHandler( SQL: $statement, $newLocation, $oldLocation, topic -> $rowCount )");
+        Foswiki::Func::writeDebug(
+"- ${pluginName}::afterSaveHandler( SQL: $statement, $newLocation, $oldLocation, topic -> $rowCount )"
+        );
     }
-    
+
     return "";
 }
 
@@ -316,9 +363,10 @@ sub _TAGENTRY {
     _loadTemplate();
 
     if ( Foswiki::Func::getSkin() =~ m/tagspluginjquery/ ) {
-      $template = Foswiki::Func::expandTemplate('tagsplugin:jquery:taginput');
-    } else {
-      $template = Foswiki::Func::expandTemplate('tagsplugin:tagentry');
+        $template = Foswiki::Func::expandTemplate('tagsplugin:jquery:taginput');
+    }
+    else {
+        $template = Foswiki::Func::expandTemplate('tagsplugin:tagentry');
     }
     return $template;
 }
@@ -332,26 +380,33 @@ sub _TAGCLOUD {
 
 sub _TAGCLOUDCLICK {
     use Foswiki::Plugins::TagsPlugin::TAGCLOUDCLICK;
-    return Foswiki::Plugins::TagsPlugin::TAGCLOUDCLICK::do( @_ );
+    return Foswiki::Plugins::TagsPlugin::TAGCLOUDCLICK::do(@_);
 }
 
 sub _TAGSEARCH {
     use Foswiki::Plugins::TagsPlugin::TAGSEARCH;
-    return Foswiki::Plugins::TagsPlugin::TAGSEARCH::do( @_ );
+    return Foswiki::Plugins::TagsPlugin::TAGSEARCH::do(@_);
 }
 
 sub _TAGGROUPS {
     use Foswiki::Plugins::TagsPlugin::TAGGROUPS;
-    return Foswiki::Plugins::TagsPlugin::TAGGROUPS::do( @_ );
+    return Foswiki::Plugins::TagsPlugin::TAGGROUPS::do(@_);
 }
 
 sub _ISTAGADMIN {
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
-    if ( !Foswiki::Func::isGroupMember( $tagAdminGroup, Foswiki::Func::getWikiName()) ) {
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
+      || "AdminGroup";
+    if (
+        !Foswiki::Func::isGroupMember(
+            $tagAdminGroup, Foswiki::Func::getWikiName()
+        )
+      )
+    {
         return "0";
-    } else {
+    }
+    else {
         return "1";
-    }    
+    }
 }
 
 sub _TAGREQUIRE {
@@ -359,14 +414,19 @@ sub _TAGREQUIRE {
     my $what = lc( $params->{"_DEFAULT"} || "" );
 
     if ( $what eq "" || $doneLoadJS{$what} ) {
-      return "";
-    } else {
-      my $js = "\n".'<script type="text/javascript" src="'.$Foswiki::cfg{PubUrlPath}.'/System/TagsPlugin/tagsplugin-'.$what.'.js"></script>';
-      Foswiki::Func::addToHEAD("TAGSPLUGIN::" . uc($what), $js );
-      return "";
+        return "";
+    }
+    else {
+        my $js = "\n"
+          . '<script type="text/javascript" src="'
+          . $Foswiki::cfg{PubUrlPath}
+          . '/System/TagsPlugin/tagsplugin-'
+          . $what
+          . '.js"></script>';
+        Foswiki::Func::addToHEAD( "TAGSPLUGIN::" . uc($what), $js );
+        return "";
     }
 }
-
 
 =pod
 
@@ -413,7 +473,7 @@ Add new tag: (aparently SELECT then INSERT is faster than REPLACE)
 
 sub tagCall {
     use Foswiki::Plugins::TagsPlugin::Tag;
-    return Foswiki::Plugins::TagsPlugin::Tag::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Tag::rest(@_);
 }
 
 =begin TML
@@ -448,7 +508,7 @@ TODO:
 
 sub untagCall {
     use Foswiki::Plugins::TagsPlugin::Untag;
-    return Foswiki::Plugins::TagsPlugin::Untag::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Untag::rest(@_);
 }
 
 =pod
@@ -484,9 +544,8 @@ Sets public flag for a given topic/tag/user tupel. Quits silently if nothing to 
 
 sub publicCall {
     use Foswiki::Plugins::TagsPlugin::Public;
-    return Foswiki::Plugins::TagsPlugin::Public::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Public::rest(@_);
 }
-
 
 =pod
 
@@ -522,9 +581,8 @@ Sets a new owner for a given topic/tag/user/public tupel. Quits silently if noth
 
 sub changeOwnerCall {
     use Foswiki::Plugins::TagsPlugin::ChangeOwner;
-    return Foswiki::Plugins::TagsPlugin::ChangeOwner::rest( @_ );
+    return Foswiki::Plugins::TagsPlugin::ChangeOwner::rest(@_);
 }
-
 
 =begin TML
 
@@ -553,9 +611,8 @@ TODO:
 
 sub deleteCall {
     use Foswiki::Plugins::TagsPlugin::Delete;
-    return Foswiki::Plugins::TagsPlugin::Delete::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Delete::rest(@_);
 }
-
 
 =begin TML
 
@@ -585,7 +642,7 @@ TODO:
 
 sub renameCall {
     use Foswiki::Plugins::TagsPlugin::Rename;
-    return Foswiki::Plugins::TagsPlugin::Rename::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Rename::rest(@_);
 }
 
 =begin TML
@@ -615,7 +672,7 @@ TODO:
 
 sub mergeCall {
     use Foswiki::Plugins::TagsPlugin::Merge;
-    return Foswiki::Plugins::TagsPlugin::Merge::rest( @_ );    
+    return Foswiki::Plugins::TagsPlugin::Merge::rest(@_);
 }
 
 =begin TML
@@ -640,31 +697,45 @@ If enabled by {EnableCategories}, the topic is tagged with =Foo= for each link t
 
 sub updateTopicTags {
     my ( $item_type, $web, $topic, $user_id ) = @_;
-        
+
     use Foswiki::Plugins::TagsPlugin::Tag;
-    
-    if ( defined($Foswiki::cfg{TagsPlugin}{EnableWebTags}) && $Foswiki::cfg{TagsPlugin}{EnableWebTags} ) {    
-        Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $web, Foswiki::Func::getCanonicalUserID("AdminUser") );
-    }    
+
+    if ( defined( $Foswiki::cfg{TagsPlugin}{EnableWebTags} )
+        && $Foswiki::cfg{TagsPlugin}{EnableWebTags} )
+    {
+        Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $web,
+            Foswiki::Func::getCanonicalUserID("AdminUser") );
+    }
 
     my ( $meta, $text );
-    if ( $Foswiki::cfg{TagsPlugin}{EnableDataForms} || $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {
-        ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );        
-    }
-    
-    if ( defined($Foswiki::cfg{TagsPlugin}{EnableCategories}) && $Foswiki::cfg{TagsPlugin}{EnableCategories} ) {
-        #open the topic, find WikiWords ending in Category, and add that as a tag.
-        my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
-        #my $capitalized = qr/[$upper][$alpha]+/;
-        $text =~
-          s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo;
+    if (   $Foswiki::cfg{TagsPlugin}{EnableDataForms}
+        || $Foswiki::cfg{TagsPlugin}{EnableCategories} )
+    {
+        ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
     }
 
-    if ( defined($Foswiki::cfg{TagsPlugin}{EnableDataForms}) && $Foswiki::cfg{TagsPlugin}{EnableDataForms} ) {
+    if ( defined( $Foswiki::cfg{TagsPlugin}{EnableCategories} )
+        && $Foswiki::cfg{TagsPlugin}{EnableCategories} )
+    {
+
+      #open the topic, find WikiWords ending in Category, and add that as a tag.
+        my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
+
+        #my $capitalized = qr/[$upper][$alpha]+/;
+        $text =~
+s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo;
+    }
+
+    if ( defined( $Foswiki::cfg{TagsPlugin}{EnableDataForms} )
+        && $Foswiki::cfg{TagsPlugin}{EnableDataForms} )
+    {
+
         #add formname as tag - if present
         my $formName = $meta->getFormName();
         if ( $formName ne '' ) {
-            Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $formName, $user_id );    
+            Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic",
+                $formName, $user_id );
+
             #TODO: tag that tag with FormName..
         }
     }
@@ -676,7 +747,7 @@ sub initialiseDatabase {
 
     #my $query = Foswiki::Func::getCgiQuery();
 
-    #use the traditional file based view of webs and topics, so that we actually give them all tags
+#use the traditional file based view of webs and topics, so that we actually give them all tags
     undef $Foswiki::cfg{WikiRingNetStore}{FilterByTags};
 
     #TODO: if the database tables are not there, create them
@@ -758,10 +829,10 @@ END
     $db->disconnect();    #force a commit
 
     # write the version of the db schema to a file in the work area
-    my $workArea = Foswiki::Func::getWorkArea( $pluginName );
+    my $workArea = Foswiki::Func::getWorkArea($pluginName);
     if ( $workArea !~ m/.*\/$/ ) {
         $workArea .= "/";
-    };
+    }
     Foswiki::Func::saveFile( $workArea . "db_schema_version.txt", "1.1" );
 
     return 'ok ' . $count;
@@ -769,7 +840,7 @@ END
 
 sub convertDatabase {
 
-    #TODO: if there are more than two schemata to convert between, this needs to be more complex
+#TODO: if there are more than two schemata to convert between, this needs to be more complex
     my $db        = new Foswiki::Contrib::DbiContrib;
     my $statement = <<'END';
 ALTER TABLE `UserItemTag` ADD COLUMN `public` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `tag_id`;
@@ -782,7 +853,7 @@ END
 
 sub importTagMe {
     use Foswiki::Plugins::TagsPlugin::ImportTagMe;
-    return Foswiki::Plugins::TagsPlugin::ImportTagMe::rest( @_ );
+    return Foswiki::Plugins::TagsPlugin::ImportTagMe::rest(@_);
 }
 
 1;

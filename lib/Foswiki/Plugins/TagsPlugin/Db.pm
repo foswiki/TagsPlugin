@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
@@ -65,7 +65,6 @@ sub createUserID {
     return $cuid;
 }
 
-
 =begin TML
 
 ---++ getUserID( $user )
@@ -77,14 +76,19 @@ Returns:
 
 sub getUserID {
     my $user = $_[0];
-    my $user_id = Foswiki::Func::isGroup( $user ) ? $user : Foswiki::Func::getCanonicalUserID( $user );
+    my $user_id =
+      Foswiki::Func::isGroup($user)
+      ? $user
+      : Foswiki::Func::getCanonicalUserID($user);
 
     my $db = new Foswiki::Contrib::DbiContrib;
 
     my $cuid;
     my $statement =
       sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::getUserID: $statement - $user_id") if DEBUG;
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::getUserID: $statement - $user_id")
+      if DEBUG;
     my $arrayRef = $db->dbSelect( $statement, $user_id );
     if ( defined( $arrayRef->[0][0] ) ) {
         $cuid = $arrayRef->[0][0];
@@ -106,11 +110,13 @@ Returns:
 sub getTagID {
     my $tag = $_[0];
 
-    my $db = new Foswiki::Contrib::DbiContrib;
+    my $db     = new Foswiki::Contrib::DbiContrib;
     my $tag_id = "0E0";
 
-    my $statement = sprintf( 'SELECT %s FROM %s WHERE binary %s = ? AND %s = ?', qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::getTagID: $statement, $tag, tag") if DEBUG;
+    my $statement = sprintf( 'SELECT %s FROM %s WHERE binary %s = ? AND %s = ?',
+        qw( item_id Items item_name item_type) );
+    Foswiki::Func::writeDebug("TagsPlugin::Db::getTagID: $statement, $tag, tag")
+      if DEBUG;
     my $arrayRef = $db->dbSelect( $statement, $tag, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id = $arrayRef->[0][0];
@@ -131,11 +137,14 @@ Returns:
 sub getItemID {
     my $item = $_[0];
 
-    my $db = new Foswiki::Contrib::DbiContrib;
+    my $db      = new Foswiki::Contrib::DbiContrib;
     my $item_id = "0E0";
 
-    my $statement = sprintf( 'SELECT %s FROM %s WHERE binary %s = ? AND %s = ?', qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::getItemID: $statement, $item, topic") if DEBUG;
+    my $statement = sprintf( 'SELECT %s FROM %s WHERE binary %s = ? AND %s = ?',
+        qw( item_id Items item_name item_type) );
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::getItemID: $statement, $item, topic")
+      if DEBUG;
     my $arrayRef = $db->dbSelect( $statement, $item, 'topic' );
     if ( defined( $arrayRef->[0][0] ) ) {
         $item_id = $arrayRef->[0][0];
@@ -160,7 +169,7 @@ sub updateTagStat {
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # count all instances of this tag
-    my $tagstat = 0;
+    my $tagstat   = 0;
     my $statement = sprintf( 'SELECT COUNT(*) AS count FROM %s WHERE %s = ?',
         qw( UserItemTag tag_id ) );
     my $arrayRef = $db->dbSelect( $statement, $tag_id );
@@ -169,22 +178,27 @@ sub updateTagStat {
     }
 
     # update the stats (assume, there is already an entry)
-    $statement = sprintf( 'UPDATE %s SET %s=? WHERE %s = ?', qw( TagStat num_items tag_id) );
+    $statement = sprintf( 'UPDATE %s SET %s=? WHERE %s = ?',
+        qw( TagStat num_items tag_id) );
     my $modified = $db->dbInsert( $statement, $tagstat, $tag_id );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::updateTagStat: $statement; ($tagstat, $tag_id) -> $modified") if DEBUG;
+    Foswiki::Func::writeDebug(
+"TagsPlugin::Db::updateTagStat: $statement; ($tagstat, $tag_id) -> $modified"
+    ) if DEBUG;
     if ( $modified eq "0E0" ) {
-      return $modified;
-    };
+        return $modified;
+    }
 
     # create new stat line (in case there was no entry)
-    unless ( $modified ) {
+    unless ($modified) {
         $statement = sprintf( 'INSERT INTO %s (%s, %s) VALUES (?, ?)',
             qw( TagStat tag_id num_items ) );
         $modified = $db->dbInsert( $statement, $tag_id, $tagstat );
-        Foswiki::Func::writeDebug("TagsPlugin::Db::updateTagStat: $statement; ($tag_id, $tagstat) -> $modified") if DEBUG;
+        Foswiki::Func::writeDebug(
+"TagsPlugin::Db::updateTagStat: $statement; ($tag_id, $tagstat) -> $modified"
+        ) if DEBUG;
         if ( $modified eq "0E0" ) {
-          return $modified;
-        };
+            return $modified;
+        }
     }
 
     $db->commit();
@@ -210,7 +224,8 @@ sub updateUserTagStat {
 
     # count all instances of this tag
     my $tagstat = 0;
-    my $statement = sprintf( 'SELECT COUNT(*) AS count FROM %s WHERE %s = ? AND %s = ?',
+    my $statement =
+      sprintf( 'SELECT COUNT(*) AS count FROM %s WHERE %s = ? AND %s = ?',
         qw( UserItemTag user_id tag_id ) );
     my $arrayRef = $db->dbSelect( $statement, $user_id, $tag_id );
     if ( defined( $arrayRef->[0][0] ) ) {
@@ -218,22 +233,27 @@ sub updateUserTagStat {
     }
 
     # update the stats (assume, there is already an entry)
-    $statement = sprintf( 'UPDATE %s SET %s=? WHERE %s = ? AND %s = ?', qw( TagStat num_items user_id tag_id) );
+    $statement = sprintf( 'UPDATE %s SET %s=? WHERE %s = ? AND %s = ?',
+        qw( TagStat num_items user_id tag_id) );
     my $modified = $db->dbInsert( $statement, $tagstat, $user_id, $tag_id );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::updateUserTagStat: $statement; ($tagstat, $user_id, $tag_id) -> $modified") if DEBUG;
+    Foswiki::Func::writeDebug(
+"TagsPlugin::Db::updateUserTagStat: $statement; ($tagstat, $user_id, $tag_id) -> $modified"
+    ) if DEBUG;
     if ( $modified eq "0E0" ) {
-      return $modified;
-    };
+        return $modified;
+    }
 
     # create new stat line (in case there was no entry)
-    unless ( $modified ) {
+    unless ($modified) {
         $statement = sprintf( 'INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)',
             qw( TagStat user_id tag_id num_items ) );
         $modified = $db->dbInsert( $statement, $user_id, $tag_id, $tagstat );
-        Foswiki::Func::writeDebug("TagsPlugin::Db::updateUserTagStat: $statement; ($user_id, $tag_id, $tagstat) -> $modified") if DEBUG;
+        Foswiki::Func::writeDebug(
+"TagsPlugin::Db::updateUserTagStat: $statement; ($user_id, $tag_id, $tagstat) -> $modified"
+        ) if DEBUG;
         if ( $modified eq "0E0" ) {
-          return $modified;
-        };
+            return $modified;
+        }
     }
 
     $db->commit();
@@ -257,17 +277,18 @@ sub updateUserTagStatAll {
 
     my $db = new Foswiki::Contrib::DbiContrib;
 
-    my $statement = sprintf( 'SELECT %s FROM %s WHERE %s = ?', qw( user_id UserItemTag tag_id ) );
+    my $statement = sprintf( 'SELECT %s FROM %s WHERE %s = ?',
+        qw( user_id UserItemTag tag_id ) );
     my $arrayRef = $db->dbSelect( $statement, $tag_id );
     foreach my $row ( @{$arrayRef} ) {
         my $user_id = $row->[0];
         if ( updateUserTagStat( $tag_id, $user_id ) eq "0E0" ) {
-          $retval = "0E0";
+            $retval = "0E0";
         }
     }
 
     return $retval;
-    
+
 }
 
 =begin TML
@@ -289,35 +310,44 @@ sub deleteTag {
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # update UserTagStat
-    my $statement = sprintf( 'DELETE from %s WHERE %s = ?', qw( UserTagStat tag_id ) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::deleteTag: $statement; ($tag_id)") if DEBUG;
+    my $statement =
+      sprintf( 'DELETE from %s WHERE %s = ?', qw( UserTagStat tag_id ) );
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::deleteTag: $statement; ($tag_id)")
+      if DEBUG;
     my $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; };
+    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; }
 
     # update TagStat
     $statement = sprintf( 'DELETE from %s WHERE %s = ?', qw( TagStat tag_id ) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::deleteTag: $statement; ($tag_id)") if DEBUG;
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::deleteTag: $statement; ($tag_id)")
+      if DEBUG;
     $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; };
+    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; }
 
     # update UserItemTag
-    $statement = sprintf( 'DELETE from %s WHERE %s = ?', qw( UserItemTag tag_id ) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::deleteTag: $statement; ($tag_id)") if DEBUG;
+    $statement =
+      sprintf( 'DELETE from %s WHERE %s = ?', qw( UserItemTag tag_id ) );
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::deleteTag: $statement; ($tag_id)")
+      if DEBUG;
     $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; };
+    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; }
 
     # update Items
     $statement = sprintf( 'DELETE from %s WHERE %s = ?', qw( Items item_id ) );
-    Foswiki::Func::writeDebug("TagsPlugin::Db::deleteTag: $statement; ($tag_id)") if DEBUG;
+    Foswiki::Func::writeDebug(
+        "TagsPlugin::Db::deleteTag: $statement; ($tag_id)")
+      if DEBUG;
     $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; };
+    if ( $affected_rows eq "0E0" ) { $retval = "0E0"; }
 
     # flushing data to dbms
     $db->commit();
 
     return $retval;
 }
-
 
 =begin TML
 
@@ -333,28 +363,39 @@ sub handleDuplicatePublics {
 
     my $db = new Foswiki::Contrib::DbiContrib;
 
-    my $statement = sprintf( 'SELECT %s, %s, %s, COUNT(%s) AS c FROM %s WHERE %s = ? GROUP BY %s, %s HAVING c>1', qw( item_id tag_id user_id item_id UserItemTag public tag_id item_id ) );
+    my $statement = sprintf(
+'SELECT %s, %s, %s, COUNT(%s) AS c FROM %s WHERE %s = ? GROUP BY %s, %s HAVING c>1',
+        qw( item_id tag_id user_id item_id UserItemTag public tag_id item_id )
+    );
     Foswiki::Func::writeDebug("Outer Select: $statement, 1") if DEBUG;
     my $arrayRef = $db->dbSelect( $statement, 1 );
     foreach my $row ( @{$arrayRef} ) {
-        my $item_id = $row->[0];
-        my $tag_id  = $row->[1];
-        my $counter = 0;
-        my $subStatement = sprintf( 'SELECT %s, %s, %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ?', qw( item_id tag_id user_id public UserItemTag public tag_id item_id ) );
-        Foswiki::Func::writeDebug("Inner Select: $subStatement, 1, $tag_id, $item_id") if DEBUG;
+        my $item_id      = $row->[0];
+        my $tag_id       = $row->[1];
+        my $counter      = 0;
+        my $subStatement = sprintf(
+            'SELECT %s, %s, %s, %s FROM %s WHERE %s = ? AND %s = ? AND %s = ?',
+            qw( item_id tag_id user_id public UserItemTag public tag_id item_id )
+        );
+        Foswiki::Func::writeDebug(
+            "Inner Select: $subStatement, 1, $tag_id, $item_id")
+          if DEBUG;
         my $subArrayRef = $db->dbSelect( $subStatement, 1, $tag_id, $item_id );
         foreach my $subRow ( @{$subArrayRef} ) {
             next if ( $counter == 0 );
             $counter++;
-            my $user_id = $subRow->[2];
-            my $deleteStatement = sprintf( 'DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?', qw( UserItemTag public item_id tag_id user_id ) );
-            my $affected_rows = $db->dbDelete( $deleteStatement, 1, $item_id, $tag_id, $user_id );
-            Foswiki::Func::writeWarning("TagsPlugin: Unable to delete duplicate public tag/item-tupels: $deleteStatement, 1, $item_id, $tag_id, $user_id") if ( $affected_rows eq "0E0" );
+            my $user_id         = $subRow->[2];
+            my $deleteStatement = sprintf(
+                'DELETE FROM %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+                qw( UserItemTag public item_id tag_id user_id ) );
+            my $affected_rows =
+              $db->dbDelete( $deleteStatement, 1, $item_id, $tag_id, $user_id );
+            Foswiki::Func::writeWarning(
+"TagsPlugin: Unable to delete duplicate public tag/item-tupels: $deleteStatement, 1, $item_id, $tag_id, $user_id"
+            ) if ( $affected_rows eq "0E0" );
         }
     }
     $db->commit();
 }
-
-
 
 1;
