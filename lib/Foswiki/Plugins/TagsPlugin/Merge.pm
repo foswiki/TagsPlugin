@@ -88,16 +88,10 @@ sub rest {
       $retval = Foswiki::Plugins::TagsPlugin::Merge::do( $tag1, $tag2 );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1  || $n == 2 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3  || $n == 4 || $n == 5 || $n == 6 || $n == 7 ) {
-        $session->{response}->status(500);
-        return "<h1>500 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }    
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
     
     # redirect on request
@@ -134,107 +128,50 @@ sub do {
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine tag_id for given tag1 and exit if its not there
-    #
-    my $tag_id1;
-    my $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("$statement, $tag1, tag") if DEBUG;
-    my $arrayRef = $db->dbSelect( $statement, $tag1, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id1 = $arrayRef->[0][0];
-    }
-    else { 
-      throw Error::Simple("Database error: tag1 not found.", 1);
+    my $tag_id1 = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag1 );
+    if ( $tag_id1 eq "0E0" ) {
+      throw Error::Simple("Database error: tag1 not found.", 404);
     }
 
     # determine tag_id for given tag2 and exit if its not there
-    #
-    my $tag_id2;
-    $statement = sprintf( 'SELECT %s from %s WHERE binary %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("$statement, $tag2, tag") if DEBUG;
-    $arrayRef = $db->dbSelect( $statement, $tag2, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id2 = $arrayRef->[0][0];
-    }
-    else { 
-      throw Error::Simple("Database error: tag2 not found.", 2);
+    my $tag_id2 = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag2 );
+    if ( $tag_id2 eq "0E0" ) {
+      throw Error::Simple("Database error: tag2 not found.", 404);
     }
     
-    # now we are ready to actually merge
+    # merge the tags (in UserItemTag)
+    # IGNOREing duplicate entries, which usually occur 
+    # (may leave some garbage behind, which is handled by "purge" in next step)
     #
-    
-    # merge the usage of the tags (in UserItemTag)
-    # IGNOREing duplicate entries, which usually occur (may leave some garbage behind)
-    $statement =
-      sprintf( 'UPDATE IGNORE %s SET %s = ? WHERE %s = ?',
-        qw( UserItemTag tag_id tag_id ) );
+    my $statement = sprintf( 'UPDATE IGNORE %s SET %s = ? WHERE %s = ?', qw( UserItemTag tag_id tag_id ) );
     my $affected_rows = $db->dbInsert( $statement, $tag_id1, $tag_id2 );
     Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tag_id2) -> $affected_rows") if DEBUG;
     if ( $affected_rows eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to update the tags.", 3);
+      throw Error::Simple("Database error: failed to update the tags.", 500);
     };
 
-    # DELETEing the garbage (usually tags on topics, which were tagged with tag1 and tag2)
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( UserItemTag tag_id) );
-    my $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
-    if ( $modified eq "0E0" ) { 
-      # throw Error::Simple("Database error: failed to clean up after the merge.", 4);
-    };
-    
-    # update stats in TagStat (rebuild it actually)
-    my $tagstat = 0;
-    $statement = sprintf( 'SELECT count(*) as count from %s WHERE %s = ?',
-        qw( UserItemTag tag_id ) );
-    $arrayRef = $db->dbSelect( $statement, $tag_id1 );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tagstat = $arrayRef->[0][0];
-    }
-    $statement =
-      sprintf( 'UPDATE %s SET %s=? WHERE %s = ?',
-        qw( TagStat num_items tag_id) );
-    $modified = $db->dbInsert( $statement, $tagstat, $tag_id1 );
-    Foswiki::Func::writeDebug("Merge: $statement; ($tagstat, $tag_id1) -> $modified") if DEBUG;        
-    if ( $modified eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to update the tag statistics.", 5);
-    };
-    unless ( $modified ) {
-        $statement =
-          sprintf( 'INSERT INTO %s (%s, %s) VALUES (?, ?)',
-            qw( TagStat tag_id num_items ) );
-        $modified = $db->dbInsert( $statement, $tag_id1, $tagstat );
-        Foswiki::Func::writeDebug("Merge: $statement; ($tag_id1, $tagstat) -> $modified") if DEBUG;        
-    }
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( TagStat tag_id) );
-    $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
-    if ( $modified eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to clean up after updating the tag statistics.", 6);
-    };
-    
-    # update stats in UserTagStat    
-    ### TODO: implement rebuilding UserTagStat rebuild
+    # handle clashing public tags
+    Foswiki::Plugins::TagsPlugin::Db::handleDuplicatePublics();
 
-    # delete (empty) tag2
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( Items item_id) );
-    $modified = $db->dbDelete( $statement, $tag_id2 );        
-    Foswiki::Func::writeDebug("Merge: $statement; ($tag_id2) -> $modified") if DEBUG;    
-    if ( $modified eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to delete the now obsolete tag2.", 7);
-    };
+    # purge tag2
+    if ( Foswiki::Plugins::TagsPlugin::Db::deleteTag( $tag_id2 ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to delete tag2.", 500);
+    }
     
-    # flushing data to dbms
-    #    
+    # update stats in TagStat
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateTagStat( $tag_id1 ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update TagStat.", 500);
+    }
+    
+    # update stats in UserTagStat for all users, who have a relation to this tag
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStatAll( $tag_id1 ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    }
+
     $db->commit();
 
-    # add extra space, so that zero affected rows does not clash with returning "0" from rest invocation
+    # add extra space, so that zero affected rows does not clash 
+    # with returning "0" from rest invocation
     return " $affected_rows";
 }
 

@@ -79,19 +79,18 @@ sub rest {
        $retval = Foswiki::Plugins::TagsPlugin::Delete::do( $tag_text );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
-    
+
     # redirect on request
     if ( $redirectto ) {
-        Foswiki::Func::redirectCgiQuery( undef, $redirectto );
-    }    
+        my ($rweb, $rtopic) = Foswiki::Func::normalizeWebTopicName( undef, $redirectto );
+        my $url = Foswiki::Func::getScriptUrl( $rweb, $rtopic, "view" );
+        Foswiki::Func::redirectCgiQuery( undef, $url );
+    }
     
     return $retval;
 }
@@ -110,61 +109,23 @@ the given tag_text was not found.
 Note: Only use normalized tagnames!
 
 Return:
- number of affected tags in the format "n+m" with n as the number of tags and m as the number of (user) tag instances.
+   * 1 on success
 =cut
 
 sub do {
     my ( $tag_text ) = @_;
-    my $db = new Foswiki::Contrib::DbiContrib;
-    my $retval = "";
 
     # determine tag_id for given tag_text and exit if its not there
-    #
-    my $tag_id;
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    my $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id = $arrayRef->[0][0];
-    }
-    else { 
-      throw Error::Simple("Database error: tag not found.", 1);
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    if ( $tag_id eq "0E0" ) {
+      throw Error::Simple("Database error: tag not found.", 404);
     }
 
-    # now we are ready to actually delete
-    #
-    # delete tag instances first
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( UserItemTag tag_id ) );
-    my $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
-    $retval = "$affected_rows";
-
-    # then delete the tag itself
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( Items item_id ) );
-    $affected_rows = $db->dbDelete( $statement, $tag_id );
-    if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
-    $retval = "$affected_rows+$retval";
-        
-    # update statistics
-    #
-    # ...in UserTagStat
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( UserTagStat tag_id ) );
-    $affected_rows = $db->dbDelete( $statement, $tag_id );
-    # ...in TagStat
-    $statement =
-      sprintf( 'DELETE from %s WHERE %s = ?',
-        qw( TagStat item_id ) );
-    $affected_rows = $db->dbDelete( $statement, $tag_id );    
-
-    # flushing data to dbms
-    #    
-    $db->commit();
+    # delete tag
+    my $retval = Foswiki::Plugins::TagsPlugin::Db::deleteTag( $tag_id );
+    if ( $retval eq "0E0" ) {
+      throw Error::Simple("Database error: failed to delete tag.", 500);
+    }
 
     return $retval;
 }

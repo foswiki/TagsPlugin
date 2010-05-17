@@ -16,6 +16,8 @@ use warnings;
 require Foswiki::Func;       # The plugins API
 require Foswiki::Plugins;    # For the API version
 require Foswiki::Contrib::DbiContrib;
+require Foswiki::Plugins::TagsPlugin::Db;
+require Foswiki::Plugins::TagsPlugin::Func;
 
 use vars
   qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC $doneLoadTemplate %doneLoadJS );
@@ -129,7 +131,7 @@ sub afterSaveHandler {
         "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )")
       if $debug;
 
-    updateTopicTags( 'topic', $_[2], $_[1], getUserId() );
+    updateTopicTags( 'topic', $_[2], $_[1], Foswiki::Plugins::TagsPlugin::Db::createUserID() );
 
     my $db = new Foswiki::Contrib::DbiContrib;
     $db->disconnect();    #force a commit
@@ -198,7 +200,7 @@ sub _TAGLIST {
     if ( !defined($showUser) || ( lc($showUser) ne 'user' ) ) {
     }
     else {
-        my $user_id = getUserId();
+        my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID();
         return '' unless ( defined($user_id) );
         push @whereClauses, " i2t.user_id = '$user_id' ";
     }
@@ -618,47 +620,6 @@ sub mergeCall {
 
 =begin TML
 
----++ getUserId( $user_id )
-Resolves a given wikiname to the id in the database. Creates a new entry if necessary.
-
-If the user_id is not given, the currently logged in user is taken.
-
-Parameters:
- user_id : a wikiname (NOT a cuid) of a user or group.
-
-Return:
- (numerical) ID from the database, which identifies the user.
-
-=cut
-
-sub getUserId {
-    my $user_id = $_[0]; 
-
-    my $FoswikiCuid = $user_id || Foswiki::Func::getCanonicalUserID();
-
-    my $db = new Foswiki::Contrib::DbiContrib;
-    my $cuid;
-    my $statement =
-      sprintf( 'SELECT %s from %s WHERE %s = ? ', qw( CUID Users FoswikicUID) );
-    my $arrayRef = $db->dbSelect( $statement, $FoswikiCuid );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $cuid = $arrayRef->[0][0];
-    }
-    else {
-        $statement =
-          sprintf( 'INSERT INTO %s (%s) VALUES (?)', qw(Users FoswikicUID) );
-        my $rowCount = $db->dbInsert( $statement, $FoswikiCuid );
-        my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? ',
-            qw( CUID Users FoswikicUID) );
-        $arrayRef = $db->dbSelect( $statement, $FoswikiCuid );
-        $cuid = $arrayRef->[0][0];
-    }
-
-    return $cuid;
-}
-
-=begin TML
-
 --+++ updateTopicTags($item_type, $web, $topic, $user_id)
 Update some (automatic) tags for the given topic.
 
@@ -782,7 +743,7 @@ END
     # - each topic is tagged with the web its in (tag type?)
     # - import TagMe tags
     my $count   = 0;
-    my $user_id = getUserId();
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID();
     use Foswiki::Plugins::TagsPlugin::Tag;
     my @weblist = Foswiki::Func::getListOfWebs();
     foreach my $web (@weblist) {

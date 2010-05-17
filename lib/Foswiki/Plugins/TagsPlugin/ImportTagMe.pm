@@ -93,7 +93,7 @@ sub do {
           my $tag   = Foswiki::Plugins::TagsPlugin::Func::normalizeTagname( $2 );
           my @users = split( /,\s*/, $3 );
           foreach my $user ( @users ) {
-            my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+            my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
             Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import: $webTopic, $tag, $user_id, $public") if DEBUG;
             $retval .= "$webTopic, $tag, $user_id, $public <br />"; 
             Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic, $tag, $user_id, $public );

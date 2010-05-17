@@ -46,6 +46,8 @@ sub do {
     my $theOrder  = $params->{order}      || ''; 
     my $thePublic = $params->{visibility} || 'all'; 
     my $theAlt    = $params->{alt}        || ''; 
+    my $theLimit  = $params->{limit}      || 0; 
+    my $theOffset = $params->{offset}     || 0; 
     my $theFormat = $params->{format};
 
     use Foswiki::Plugins::TagsPlugin::Func;
@@ -140,7 +142,7 @@ sub do {
       } elsif ( lc($thePublic) eq "user" ) {
 
         my @membershipClauses = ();
-        my $cuid = Foswiki::Plugins::TagsPlugin::Func::getUserID();
+        my $cuid = Foswiki::Plugins::TagsPlugin::Db::getUserID();
         push @membershipClauses, "i2t.user_id='$cuid'";
 
         # calculate group memberships
@@ -148,7 +150,7 @@ sub do {
         while ($it->hasNext()) {
           my $group = $it->next();
           if ( !Foswiki::Func::isGroupMember( $group ) ) { next; };
-          my $group_id = Foswiki::Plugins::TagsPlugin::Func::getUserID( $group );
+          my $group_id = Foswiki::Plugins::TagsPlugin::Db::getUserID( $group );
           Foswiki::Func::writeDebug("TAGSEARCH::groups: $group_id") if DEBUG;
           if ($group_id) {
             push @membershipClauses, "i2t.user_id='$group_id'";
@@ -197,6 +199,16 @@ sub do {
         $order = "ORDER BY u.FoswikicUID";
     }
 
+    # build LIMIT and OFFSET
+    #
+    my $limit = '';
+    if ( $theLimit > 0 ) {
+        $limit = "LIMIT $theLimit";
+        if ( $theOffset > 0 ) {
+            $limit .= " OFFSET $theOffset";
+        }
+    }
+
     # create the final SELECT statement
     #
     $statement = "
@@ -213,7 +225,8 @@ INNER JOIN TagStat ts ON t.item_id = ts.tag_id
 INNER JOIN Users u ON i2t.user_id = u.CUID 
 $where 
 $groupby 
-$order";
+$order
+$limit";
 
     Foswiki::Func::writeDebug("TAGSEARCH: $statement") if DEBUG;
 

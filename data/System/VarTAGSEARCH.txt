@@ -17,6 +17,8 @@
      | =alt="..."= | If nothing is found, =alt= is returned instead of =header=, =format= and =footer=. | =empty= |
      | =separator=", "= <br /> =sep=", "= | Separator _between_ search hits | =", "= |
      | =order="tag"= <br /> =order="topic"= <br /> =order="user"= | This affects the sorting. | =none= |
+     | =limit="..."= | Numerical value. Limits the number of hits. | =not set= |
+     | =offset="..."= | Numerical value. May only be used in conjunction with =limit=. Number of hits to be skipped. | =not set= |
    * If two hits only differ in (tag|topic|user) and the =format= does not contain a (tag|topic|user) variable, the (two) hits clash into a single hit.
    * Supported variables in custom formatting:
      | *Name:* | *Expands To:* |

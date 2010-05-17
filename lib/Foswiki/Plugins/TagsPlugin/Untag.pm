@@ -109,22 +109,16 @@ sub rest {
     
     # handle errors and finally return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
 
     try {
       $retval  = Foswiki::Plugins::TagsPlugin::Untag::do( $item_name, $tag_text, $user_id, $public );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1  || $n == 2 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3  || $n == 4 || $n == 5 ) {
-        $session->{response}->status(500);
-        return "<h1>500 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
 
     # redirect on request
@@ -160,68 +154,38 @@ sub do {
     my $db = new Foswiki::Contrib::DbiContrib;
 
     # determine item_id for given item_name and exit if its not there
-    #
-    my $item_id;
-    my $statement = sprintf(
-        'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type)
-    );
-    my $arrayRef = $db->dbSelect( $statement, $item_name, 'topic' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $item_id = $arrayRef->[0][0];
+    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID( $item_name );
+    if ( $item_id eq "0E0" ) {
+      throw Error::Simple("Database error: topic not found.", 404); 
     }
-    else { throw Error::Simple("Database error: topic not found.", 1); }
 
     # determine tag_id for given tag_text and exit if its not there
-    #
-    my $tag_id;
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id = $arrayRef->[0][0];
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    if ( $tag_id eq "0E0" ) {
+      throw Error::Simple("Database error: tag not found.", 404); 
     }
-    else { throw Error::Simple("Database error: tag not found.", 2); }
-
 
     # now we are ready to actually untag
-    #
-    $statement =
+    my $statement =
       sprintf( 'DELETE from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
         qw( UserItemTag item_id tag_id user_id public) );
     Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $item_id, $tag_id, $cuid, $public" ) if DEBUG;
     my $affected_rows = $db->dbDelete( $statement, $item_id, $tag_id, $cuid, $public );
     if ( $affected_rows eq "0E0" ) { 
-      throw Error::Simple("Database warning: nothing there to delete.", 3);
+      throw Error::Simple("Database error: failed to untag.", 500);
     };
     
-    # update statistics
-    #
-    if ( 0 == 1 ) { # dont update Stats now. leave this job to the garbage collector.
-    # if ( $affected_rows > 0 ) {
-        # ...in UserTagStat
-        $statement =
-          sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ? AND %s = ?',
-            qw( UserTagStat num_items num_items tag_id user_id) );
-        Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $tag_id, $cuid" ) if DEBUG;
-        my $modified = $db->dbInsert( $statement, $tag_id, $cuid );
-        if ( $modified eq "0E0" ) { 
-          throw Error::Simple("Database error: cannot update user statistics.", 4);
-        };
+    # update stats in TagStat
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateTagStat( $tag_id ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update TagStat.", 500);
+    }
 
-        # ... in TagStat
-        $statement =
-          sprintf( 'UPDATE %s SET %s=%s-1 WHERE %s = ?',
-            qw( TagStat num_items num_items tag_id) );
-        Foswiki::Func::writeDebug("TagsPlugin::Untag: $statement, $tag_id" ) if DEBUG;
-        $modified = $db->dbInsert( $statement, $tag_id );
-        if ( $modified eq "0E0" ) {     
-          throw Error::Simple("Database error: cannot update tag statistics.", 5);
-        };
+    # update stats in UserTagStat for all users, who have a relation to this tag
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $cuid ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
     }
 
     # flushing data to dbms
-    #    
     $db->commit();
 
     # add extra space, so that zero affected rows does not clash with returning "0" from rest invocation

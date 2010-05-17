@@ -16,8 +16,11 @@ If you want to customize the "user buttons", this is the right place.
 
 ---++ Implementation
 <verbatim>
-%STARTINCLUDE%        <span class='foswikiGrayText'>%MAKETEXT{"Users"}%:</span>
-        <a href='#' class='tagsplugin_user tagsplugin_user_active' user='all'>%ICON{filter}% %MAKETEXT{"all"}%</a>
-        <a href='#' class='tagsplugin_user' user='%WIKINAME%'>%ICON{filter}% %SPACEOUT{"%WIKINAME%"}%</a>
-%TAGGROUPS{format="        <a href='#' class='tagsplugin_user' user='$group'>$percntICON{filter}$percnt $percntSPACEOUT{\"$group\"}$percnt</a>" sep="$n" }%%STOPINCLUDE%
+%STARTINCLUDE%
+        <span class="%IF{"$ TAGSPLUGIN_USERSELECTOR_DISABLE='1'" then="tagsplugin_hide"}%">
+          <span class='foswikiGrayText'>%MAKETEXT{"Users"}%:</span>
+          <a href='#' class='tagsplugin_user tagsplugin_user_active' user='all'>%ICON{filter}% %MAKETEXT{"all"}%</a>
+          <a href='#' class='tagsplugin_user' user='%WIKINAME%'>%ICON{filter}% %SPACEOUT{"%WIKINAME%"}%</a>
+%TAGGROUPS{format="          <a href='#' class='tagsplugin_user' user='$group'>$percntICON{filter}$percnt $percntSPACEOUT{\"$group\"}$percnt</a>" sep="$n" }%
+        </span>%STOPINCLUDE%
 </verbatim>

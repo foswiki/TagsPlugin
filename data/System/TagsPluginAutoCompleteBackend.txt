@@ -4,6 +4,7 @@
 %TAGSEARCH{
   query="tag"
   tag="%%URLPARAM{"q"}%%"
+  web="%URLPARAM{"web" default="all"}%"
   format="$tag"
   sep="$n"
   visibility="user"

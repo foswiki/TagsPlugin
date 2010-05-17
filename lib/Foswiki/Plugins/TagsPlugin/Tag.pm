@@ -116,7 +116,7 @@ sub rest {
     
     # returning nothing of interest
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
     Foswiki::Func::writeDebug("ID: $user_id") if DEBUG;
 
     try {

@@ -107,22 +107,16 @@ sub rest {
     
     # handle errors and return the number of affected tags
     my $retval;
-    my $user_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
 
     try {
        $retval = Foswiki::Plugins::TagsPlugin::Public::do( $item, $tag, $user_id, $publicflag );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1  || $n == 2 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3 ) {
-        $session->{response}->status(500);
-        return "<h1>500 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
     
     # redirect on request
@@ -160,64 +154,43 @@ sub do {
     my $db = new Foswiki::Contrib::DbiContrib;
     my $retval = "";
 
-    # determine tag_id for given tag_text and exit if its not there
-    #
-    my $tag_id;
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $tag_text, tag") if DEBUG;
-    my $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id = $arrayRef->[0][0];
-    }
-    else { 
-      throw Error::Simple("Database error: tag not found.", 1);
+    # determine item_id for given item and exit if its not there
+    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID( $item );
+    if ( $item_id eq "0E0" ) {
+      throw Error::Simple("Database error: topic not found.", 404);
     }
 
-    # determine item_id for given item and exit if its not there
-    #   
-    my $item_id;
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item, topic" ) if DEBUG;
-    $arrayRef = $db->dbSelect( $statement, $item, 'topic' );
-    if ( defined( $arrayRef->[0][0] ) ) { 
-        $item_id = $arrayRef->[0][0];
-    }   
-    else { 
-      throw Error::Simple("Database error: item not found.", 2); 
+    # determine tag_id for given tag_text and exit if its not there
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    if ( $tag_id eq "0E0" ) {
+      throw Error::Simple("Database error: tag not found.", 404);
     }
 
     # if public=1: check, if there is already a public tag
     #
     if ( $public eq "1" ) {
-      $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND public=1',
-          qw( public UserItemTag item_id tag_id ) );
-      Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id" ) if DEBUG;
-      $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id );
+      my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ?',
+          qw( public UserItemTag item_id tag_id public ) );
+      Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id, 1" ) if DEBUG;
+      my $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id, 1 );
       if ( defined( $arrayRef->[0][0] ) ) { 
         if ( $arrayRef->[0][0] == "1" ) {
-          throw Error::Simple("There is already a public tag.", 3); 
+          throw Error::Simple("There is already a public tag.", 500); 
         }
       }
     }
 
     # now we are ready to actually update
-    #
     # try to update the tupel. dont care, if it exists. 
-    #
     my $affected_rows = 0;
-    $statement = sprintf( 'UPDATE %s SET public = ? WHERE %s = ? AND %s = ? AND %s = ? AND public = ?',
+    my $statement = sprintf( 'UPDATE %s SET public = ? WHERE %s = ? AND %s = ? AND %s = ? AND public = ?',
       qw( UserItemTag item_id tag_id user_id ) );
-    $affected_rows = $db->dbInsert( $statement, $public, $item_id, $tag_id, $user_id, $public=="0" ? 1 : 0 );
+    my $affected_rows = $db->dbInsert( $statement, $public, $item_id, $tag_id, $user_id, $public=="0" ? 1 : 0 );
     Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id" ) if DEBUG;
     if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
     $retval = "$affected_rows";
 
-    # SMELL: We might need to update some Stat tables here
-
     # flushing data to dbms
-    #    
     $db->commit();
 
     return $retval;

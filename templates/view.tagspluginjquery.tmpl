@@ -6,7 +6,7 @@
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-base.js"></script>
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagentry.js"></script>
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagcloud.js"></script>
-  <div id="tagsplugin">
+  <div id="tagsplugin" class="%IF{"$ TAGSPLUGIN_TOPBAR_DISABLE='1'" then="tagsplugin_hide"}%">
     <div id='tagsplugin_view_basic'>
       <div id='tagsplugin_view_basic_content'>
         %TMPL:P{"tagsplugin:jquery:processing"}%
@@ -26,7 +26,7 @@
 	   </div>   
     </div> <!-- tagsplugin_tagcloud -->
   </div> <!-- tagsplugin -->
-  %TMPL:P{"tagsplugin:clear"}%
+  %TMPL:P{"tagsplugin:jquery:clear"}%
 </literal>
 %JQREQUIRE{"ui"}%
 %JQREQUIRE{"autocomplete"}%

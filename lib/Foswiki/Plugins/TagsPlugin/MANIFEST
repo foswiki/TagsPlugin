@@ -17,13 +17,14 @@ data/System/VarTAGSEARCH.txt 0644 Documentation
 data/System/VarTAGCLOUDCLICK.txt 0644 Documentation
 pub/System/TagsPlugin/tagsplugin.css 0644 Stylesheets
 pub/System/TagsPlugin/tagsplugin-base.js 0644 Javascript
-pub/System/TagsPlugin/tagsplugin-cloudclick.js 0644 Javascript
+# pub/System/TagsPlugin/tagsplugin-cloudclick.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-tagentry.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-taglist.js 0644 Javascript
 pub/System/TagsPlugin/tagsplugin-tagdetails.js 0644 Javascript
 pub/System/TagsPlugin/TagsButton.png 0644 Image
 lib/Foswiki/Plugins/TagsPlugin.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Func.pm 0644 Perl module
+lib/Foswiki/Plugins/TagsPlugin/Db.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Tag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/Untag.pm 0644 Perl module
 lib/Foswiki/Plugins/TagsPlugin/ChangeOwner.pm 0644 Perl module
@@ -41,7 +42,7 @@ templates/view.tagspluginjquery.tmpl
 lib/Foswiki/Store/TagsStore.pm
 lib/Foswiki/Plugins/TagsPlugin/Config.spec
 locale/TagsPlugin.pot
-locale/TagsPlugin.de.pot
+locale/TagsPlugin.de.po
 
 #data/System/WebSearch.txt
 #data/System/WebSearchAdvanced.txt

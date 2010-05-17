@@ -33,7 +33,7 @@
 
 %TAGCLOUD{
   terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntTAGNAME$percnt\" format=\"$item:1:$web:$topic:$user\" visibility=\"user\" }$percnt"
-  split="[,]"
+  split="[,]+"
   header="%MAKETEXT{"Where else can I find this tag:"}%%BR% <div style=\"text-align:center; padding:15px;line-height:180%\">"
   format="<span style='font-size:$weightpx;line-height:90%'><a href='$percntSCRIPTURL{view}$percnt/$3/$4' style='color:$fadeRGB(104,144,184,0,102,255);text-decoration:none' title='$count'>$4</a></span>"
   footer="</div>"

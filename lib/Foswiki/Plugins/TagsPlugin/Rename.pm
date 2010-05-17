@@ -87,19 +87,10 @@ sub rest {
       $retval = Foswiki::Plugins::TagsPlugin::Rename::do( $tag_old, $tag_new );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 2 ) {
-        $session->{response}->status(409);
-        return "<h1>409 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3 ) {
-        $session->{response}->status(500);
-        return "<h1>500 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
     
     # redirect on request
@@ -143,7 +134,7 @@ sub do {
     if ( defined( $arrayRef->[0][0] ) ) {
         $tag_id = $arrayRef->[0][0];
     } else { 
-        throw Error::Simple("Database error: tag_old not found.", 1);
+        throw Error::Simple("Database error: tag_old not found.", 404);
     }
     
     # check if new tagname already exists by probing for an tag_id
@@ -152,7 +143,7 @@ sub do {
         qw( item_id Items item_name item_type) );
     $arrayRef = $db->dbSelect( $statement, $tag_new, 'tag' );
     if ( defined( $arrayRef->[0][0] ) ) {
-        throw Error::Simple("Database error: tag_new already exists.", 2);
+        throw Error::Simple("Database error: tag_new already exists.", 409);
     }    
 
     # now we are ready to actually rename
@@ -163,7 +154,7 @@ sub do {
     Foswiki::Func::writeDebug("Rename: $statement; ($tag_new, $tag_id)") if DEBUG;
     my $affected_rows = $db->dbInsert( $statement, $tag_new, $tag_id );
     if ( $affected_rows eq "0E0" ) { 
-      throw Error::Simple("Database error: failed to rename the tag.", 3);
+      throw Error::Simple("Database error: failed to rename the tag.", 500);
     };
     
     # flushing data to dbms

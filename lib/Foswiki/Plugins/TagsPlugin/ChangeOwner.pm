@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use Error qw(:try);
 
-use constant DEBUG => 0; # toggle me
+use constant DEBUG => 1; # toggle me
 
 =begin TML
 
@@ -98,24 +98,18 @@ sub rest {
     $session->{response}->status(200);
     
     my $retval;
-    my $user_id    = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
-    my $newuser_id = Foswiki::Plugins::TagsPlugin::getUserId( Foswiki::Func::isGroup($newuser) ? $newuser : Foswiki::Func::getCanonicalUserID( $newuser ) );
+    my $user_id    = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($user) ? $user : Foswiki::Func::getCanonicalUserID( $user ) );
+    my $newuser_id = Foswiki::Plugins::TagsPlugin::Db::createUserID( Foswiki::Func::isGroup($newuser) ? $newuser : Foswiki::Func::getCanonicalUserID( $newuser ) );
 
     # handle errors and return the number of affected tags
     try {
        $retval = Foswiki::Plugins::TagsPlugin::ChangeOwner::do( $item, $tag, $user_id, $newuser_id, $publicflag );
     } catch Error::Simple with {
       my $e = shift;
-      my $n = $e->{'-value'};
-      if ( $n == 1  || $n == 2 ) {
-        $session->{response}->status(404);
-        return "<h1>404 " . $e->{'-text'} . "</h1>";
-      } elsif ( $n == 3 ) {
-        $session->{response}->status(500);
-        return "<h1>500 " . $e->{'-text'} . "</h1>";
-      } else {
-        $e->throw();
-      }
+      my $code = $e->{'-value'};
+      my $text = $e->{'-text'};
+      $session->{response}->status($code);
+      return "<h1>$code $text</h1>";
     };
     
     # redirect on request
@@ -155,60 +149,47 @@ sub do {
     my $retval = "";
 
     # determine tag_id for given tag_text and exit if its not there
-    #
-    my $tag_id;
-    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $tag_text, tag") if DEBUG;
-    my $arrayRef = $db->dbSelect( $statement, $tag_text, 'tag' );
-    if ( defined( $arrayRef->[0][0] ) ) {
-        $tag_id = $arrayRef->[0][0];
-    }
-    else { 
-      throw Error::Simple("Database error: tag not found.", 1);
+    my $tag_id = Foswiki::Plugins::TagsPlugin::Db::getTagID( $tag_text );
+    if ( $tag_id eq "0E0" ) {
+      throw Error::Simple("Database error: tag not found.", 404);
     }
 
     # determine item_id for given item and exit if its not there
-    #   
-    my $item_id;
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ?',
-        qw( item_id Items item_name item_type) );
-    Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item, topic" ) if DEBUG;
-    $arrayRef = $db->dbSelect( $statement, $item, 'topic' );
-    if ( defined( $arrayRef->[0][0] ) ) { 
-        $item_id = $arrayRef->[0][0];
-    }   
-    else { 
-      throw Error::Simple("Database error: item not found.", 2); 
+    my $item_id = Foswiki::Plugins::TagsPlugin::Db::getItemID( $item );
+    if ( $item_id eq "0E0" ) {
+      throw Error::Simple("Database error: topic not found.", 404);
     }
 
     # check, if there is already that tag for the new user
-    #
-    $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
+    my $statement = sprintf( 'SELECT %s from %s WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
         qw( user_id UserItemTag item_id tag_id user_id public ) );
     Foswiki::Func::writeDebug("TagsPlugin::Public: $statement, $item_id, $tag_id, $newuser_id, $public" ) if DEBUG;
-    $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id, $newuser_id, $public );
+    my $arrayRef = $db->dbSelect( $statement, $item_id, $tag_id, $newuser_id, $public );
     if ( defined( $arrayRef->[0][0] && $arrayRef->[0][0] == $newuser_id) ) { 
-  Foswiki::Func::writeDebug($newuser_id ) if DEBUG;
-      throw Error::Simple("This tag already exists.", 3); 
+      throw Error::Simple("This tag already exists.", 400); 
     }
 
     # now we are ready to actually update
-    #
     # try to update the tupel. dont care, if it exists. 
-    #
     my $affected_rows = 0;
     $statement = sprintf( 'UPDATE %s SET %s = ? WHERE %s = ? AND %s = ? AND %s = ? AND %s = ?',
       qw( UserItemTag user_id item_id tag_id user_id public ) );
     Foswiki::Func::writeDebug("TagsPlugin::ChangeOwner: $statement, pub:$public, item:$item_id, tag:$tag_id, user:$user_id newuser:$newuser_id" ) if DEBUG;
     $affected_rows = $db->dbInsert( $statement, $newuser_id, $item_id, $tag_id, $user_id, $public );
     if ( $affected_rows eq "0E0" ) { $affected_rows=0; };
-    $retval = "$affected_rows";
+    $retval = " $affected_rows";
 
-    # SMELL: We might need to update some Stat tables here
+    # update stats in UserTagStat for user_id
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $user_id ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    }
+
+    # update stats in UserTagStat for newuser_id
+    if ( Foswiki::Plugins::TagsPlugin::Db::updateUserTagStat( $tag_id, $newuser_id ) eq "0E0" ) {
+      throw Error::Simple("Database error: failed to update UserTagStat.", 500);
+    }
 
     # flushing data to dbms
-    #    
     $db->commit();
 
     return $retval;
