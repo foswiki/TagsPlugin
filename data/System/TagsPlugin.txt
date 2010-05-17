@@ -59,7 +59,13 @@ Available variables which can be used to change the (default) behaviour of the j
 | *preference name* | *description* |
 | TAGSPLUGIN_WEBSELECTOR_DEFAULT | The default value for the <nop>TagCloud view: Default: the current web. |
 | TAGSPLUGIN_USERSELECTOR_DEFAULT | The default value for the <nop>TagCloud view. Default: =all= |
+| TAGSPLUGIN_AUTOCOMPLETE_WEBDEFAULT  | Sets the web from where the tags names from the input field's autocomplete is filled with. |
 | TAGSPLUGIN_TAGUSER | New tags are created with this user. Default: the current user. |
+| TAGSPLUGIN_TOPBAR_DISABLE | Set to =1= to hide the standard TagsPlugin UI. |
+| TAGSPLUGIN_INPUT_DISABLE | Set to =1= to hide the input field. |
+| TAGSPLUGIN_TAGSBUTTON_DISABLE | Set to =1= to hide the Tags-button, which reveals the tagcloud in the topbar. |
+| TAGSPLUGIN_WEBSELECTOR_DISABLE  | Set to =1= to disable the web selector control panel in the topbar. |
+| TAGSPLUGIN_USERSELECTOR_DISABLE  | Set to =1= to disable the user selector control panel in the topbar. |
 
 ---+++ Tag Filters (classic flavor only)
 (This section needs to be rewritten.)
