@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1263789345" format="1.1" reprev="1.54" version="1.54"}%
+%META:TOPICINFO{author="OliverKrueger" date="1274088203" format="1.1" version="1.13"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 <!--
       * Set TAGNAME = %URLPARAM{"tag" default="undef" encode="safe"}%
@@ -13,6 +13,7 @@
 
 <div style="text-align:left;">
 <noautolink>
+
 <div class="tagsplugin_tagdetails_table">
 %TAGSEARCH{
   query="user" 
@@ -28,8 +29,28 @@
 
 <img src="%PUBURL%/%SYSTEMWEB%/DocumentGraphics/processing.gif" id="tagsplugin_tagdetails_processing" style="display:none;" />
 
-%IF{ "'%ISTAGADMIN%'='1'" then="$percntSITETREE$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagMerge?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Merge</a> this tag with another tag" }% %BR%
-%IF{ "'%ISTAGADMIN%'='1'" then="$percntPENCIL$percnt <a href='%SCRIPTURL{view}%/%SYSTEMWEB%.TagsPluginTagRename?tag=%TAGNAMEURL%&redirectto=%TAGWEB%.%TAGTOPIC%'>Rename</a> this tag" }%
+<div id="tagsplugin_tagdetails_rename" class="%IF{ "'%ISTAGADMIN%'='1'" then="tagsplugin_show" else="tagsplugin_hide"}%">
+  <form name="foswikiTagsPluginRename" id="foswikiTagsPluginRename" action="%SCRIPTURL{rest}%/TagsPlugin/rename" method="post">
+    <input type="hidden" name="redirectto" value="%TAGWEB%.%TAGTOPIC%" />
+    <input type="hidden" name="oldtag" value="%TAGNAME%" />
+    %MAKETEXT{"New name for this tag:"}% <input type="text" name="newtag" size="20" value="%TAGNAME%" /> <input type="submit" id="foswikiTagsPluginRename_submit" value="%MAKETEXT{"Rename"}%" class="foswikiSubmit" />
+  </form>
+</div>
+
+<div id="tagsplugin_tagdetails_merge" class="%IF{ "'%ISTAGADMIN%'='1'" then="tagsplugin_show" else="tagsplugin_hide"}%">
+  <form name="foswikiTagsPluginMerge" id="foswikiTagsPluginMerge" action="%SCRIPTURL{rest}%/TagsPlugin/merge" method="post">
+    <input type="hidden" name="redirectto" value="%TAGWEB%.%TAGTOPIC%" />
+    <input type="hidden" name="tag2" value="%TAGNAME%" />
+    %MAKETEXT{"Merge this tag into:"}% <select name="tag1">
+%TAGSEARCH{ 
+  query="tag" 
+  format="  <option value='$percntENCODE{\"$tag\" type=\"safe\"}$percnt'>$tag</option>"
+  sep="$n" 
+}%
+    </select>
+    <input type="submit" value="%MAKETEXT{"Merge"}%" id="foswikiTagsPluginMerge_submit" class="foswikiSubmit" />
+  </form>
+</div>
 
 %TAGCLOUD{
   terms="$percntTAGSEARCH{ query=\"topic\" tag=\"$percntTAGNAME$percnt\" format=\"$item:1:$web:$topic:$user\" visibility=\"user\" }$percnt"

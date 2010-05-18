@@ -125,6 +125,52 @@
           );
         };
 
+        jQuery.tagsplugin.rename = function(oldtag,newtag,options) {
+          var settings = $.extend({
+            oldtag:     oldtag,
+            newtag:     newtag,
+            redirectto: "",
+            completed: function(){}
+          },options||{});
+
+          $.ajax(
+            { url: foswiki.scriptUrl+'/rest/TagsPlugin/rename',
+              type: "POST",
+              data: { oldtag     : settings.oldtag,
+                      newtag     : settings.newtag,
+                      redirectto : settings.redirectto
+                    },
+              complete: function(xhr, statusText) {
+                settings.completed();
+                $(".tagsplugin_update_observer").trigger("tagsplugin_update");
+              }
+            }
+          );
+        };
+
+        jQuery.tagsplugin.merge = function(tag1,tag2,options) {
+          var settings = $.extend({
+            tag1:     tag1,
+            tag2:     tag2,
+            redirectto: "",
+            completed: function(){}
+          },options||{});
+
+          $.ajax(
+            { url: foswiki.scriptUrl+'/rest/TagsPlugin/merge',
+              type: "POST",
+              data: { tag1       : settings.tag1,
+                      tag2       : settings.tag2,
+                      redirectto : settings.redirectto
+                    },
+              complete: function(xhr, statusText) {
+                settings.completed();
+                $(".tagsplugin_update_observer").trigger("tagsplugin_update");
+              }
+            }
+          );
+        };
+
         jQuery.tagsplugin.changeOwner = function(tag,public,options) {
           var settings = $.extend({
             tag:       tag,
@@ -189,7 +235,7 @@
                 $("<div id='tagsplugin_dialog_details' class='tagsplugin_update_observer' />")
                 .dialog( { autoOpen: false } )
                 .dialog('option', 'modal', true)
-                .dialog('option', 'width', 460)
+                .dialog('option', 'width', 600)
                 .dialog('option', 'title', foswiki.tagsplugin.translation.TagDetailsOn+' '+tag+' @ '+topic)
                 .bind(
                   'dialogclose',

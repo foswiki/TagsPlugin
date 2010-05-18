@@ -67,5 +67,48 @@
         );
       }
     );
+
+    $("#foswikiTagsPluginRename_submit")
+    .bind(
+      "click",
+      function(event) {
+        event.preventDefault();
+
+        $("#tagsplugin_tagdetails_processing").show();
+
+        var oldtag     = $("#foswikiTagsPluginRename>input[name=oldtag]").val();
+        var newtag     = $("#foswikiTagsPluginRename>input[name=newtag]").val();
+        var redirectto = $("#foswikiTagsPluginRename>input[name=redirectto]").val();
+
+        jQuery.tagsplugin.rename(oldtag, newtag, { redirectto : redirectto, 
+                                                   completed : function() { 
+                                                     $("#tagsplugin_dialog_details").dialog("close");
+                                                   } 
+                                                 } 
+        );
+      }
+    );
+
+    $("#foswikiTagsPluginMerge_submit")
+    .bind(
+      "click",
+      function(event) {
+        event.preventDefault();
+
+        $("#tagsplugin_tagdetails_processing").show();
+
+        var tag2     = $("#foswikiTagsPluginMerge>input[name=tag2]").val();
+        var tag1     = $("#foswikiTagsPluginMerge>select[name=tag1]").val();
+        var redirectto = $("#foswikiTagsPluginMerge>input[name=redirectto]").val();
+
+        jQuery.tagsplugin.merge(tag1, tag2, { redirectto : redirectto, 
+                                              completed : function() { 
+                                                $("#tagsplugin_dialog_details").dialog("close");
+                                              } 
+                                            } 
+        );
+      }
+    );
+
   });
 })(jQuery);
