@@ -19,6 +19,7 @@ package Foswiki::Plugins::TagsPlugin::Merge;
 use strict;
 use warnings;
 use Error qw(:try);
+use Encode ();
 
 use constant DEBUG => 0;    # toggle me
 
@@ -32,7 +33,6 @@ see Foswiki::Plugins::TagsPlugin::mergeCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $tag1       = $query->param('tag1')       || '';
     my $tag2       = $query->param('tag2')       || '';
@@ -42,14 +42,22 @@ sub rest {
     $tag2       = Foswiki::Sandbox::untaintUnchecked($tag2);
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
 
-    # input data is assumed to be utf8 (usually in AJAX environments)
-    require Unicode::MapUTF8;
-    $tag1 =
-      Unicode::MapUTF8::from_utf8( { -string => $tag1, -charset => $charset } );
-    $tag2 =
-      Unicode::MapUTF8::from_utf8( { -string => $tag2, -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8(
-        { -string => $redirectto, -charset => $charset } );
+    # handle utf8 if necessary
+    my $site_charset = $Foswiki::cfg{Site}{CharSet} || "iso-8859-1";
+    my $remote_charset = $site_charset;
+    if ( $session->{request}->header( -name => "Content-Type" ) =~
+        m/charset=([^;\s]+)/i )
+    {
+        $remote_charset = $1;
+    }
+
+    if (   $site_charset !~ /^utf-?8$/i
+        && $remote_charset =~ /^utf-?8$/i )
+    {
+        Encode::from_to( $tag1,       "utf8", $site_charset );
+        Encode::from_to( $tag2,       "utf8", $site_charset );
+        Encode::from_to( $redirectto, "utf8", $site_charset );
+    }
 
     # sanatize the tag_text
     use Foswiki::Plugins::TagsPlugin::Func;

@@ -104,7 +104,8 @@ sub do {
                       Foswiki::Plugins::TagsPlugin::Db::createUserID(
                         Foswiki::Func::isGroup($user)
                         ? $user
-                        : Foswiki::Func::getCanonicalUserID($user) );
+                        : Foswiki::Func::getCanonicalUserID($user)
+                      );
                     Foswiki::Func::writeDebug(
 "TagsPlugin:TagMe-Import: $webTopic, $tag, $user_id, $public"
                     ) if DEBUG;

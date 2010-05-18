@@ -25,7 +25,7 @@ use constant DEBUG => 0;    # toggle me
 =begin TML
 
 ---++ normalizeTagname( $tag_text )
-Replaces <, >, ' and " with html entities.
+Replaces <, >, ' and " with html entities and decodes uri escapes.
 
 =cut
 
@@ -38,6 +38,8 @@ sub normalizeTagname {
     $tag_text =~ s/>/&#62;/g;
     $tag_text =~ s/'/&#39;/g;
     $tag_text =~ s/"/&#34;/g;
+
+    $tag_text =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C",hex($1))/eg;
 
     return $tag_text;
 }

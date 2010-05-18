@@ -21,6 +21,7 @@ package Foswiki::Plugins::TagsPlugin::Tag;
 use strict;
 use warnings;
 use Error qw(:try);
+use Encode ();
 
 use constant DEBUG => 0;    # toggle me
 
@@ -34,7 +35,6 @@ see Foswiki::Plugins::TagsPlugin::tagCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $item_name     = $query->param('item');
     my $item_type     = $query->param('type') || 'topic';
@@ -51,18 +51,24 @@ sub rest {
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
     $user       = Foswiki::Sandbox::untaintUnchecked($user);
 
-    # input data is assumed to be utf8 (usually in AJAX environments)
-    require Unicode::MapUTF8;
-    $item_name = Unicode::MapUTF8::from_utf8(
-        { -string => $item_name, -charset => $charset } );
-    $item_type = Unicode::MapUTF8::from_utf8(
-        { -string => $item_type, -charset => $charset } );
-    $tag_text = Unicode::MapUTF8::from_utf8(
-        { -string => $tag_text, -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8(
-        { -string => $redirectto, -charset => $charset } );
-    $user =
-      Unicode::MapUTF8::from_utf8( { -string => $user, -charset => $charset } );
+    # handle utf8 if necessary
+    my $site_charset = $Foswiki::cfg{Site}{CharSet} || "iso-8859-1";
+    my $remote_charset = $site_charset;
+    if ( $session->{request}->header( -name => "Content-Type" ) =~
+        m/charset=([^;\s]+)/i )
+    {
+        $remote_charset = $1;
+    }
+
+    if (   $site_charset !~ /^utf-?8$/i
+        && $remote_charset =~ /^utf-?8$/i )
+    {
+        Encode::from_to( $item_name,  "utf8", $site_charset );
+        Encode::from_to( $item_type,  "utf8", $site_charset );
+        Encode::from_to( $tag_text,   "utf8", $site_charset );
+        Encode::from_to( $redirectto, "utf8", $site_charset );
+        Encode::from_to( $user,       "utf8", $site_charset );
+    }
 
     # sanatize the tag_text
     use Foswiki::Plugins::TagsPlugin::Func;
@@ -127,11 +133,11 @@ sub rest {
 
     # returning nothing of interest
     my $retval;
-    my $user_id =
-      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID(
         Foswiki::Func::isGroup($user)
         ? $user
-        : Foswiki::Func::getCanonicalUserID($user) );
+        : Foswiki::Func::getCanonicalUserID($user)
+    );
     Foswiki::Func::writeDebug("ID: $user_id") if DEBUG;
 
     try {

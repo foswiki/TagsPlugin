@@ -19,6 +19,7 @@ package Foswiki::Plugins::TagsPlugin::Public;
 use strict;
 use warnings;
 use Error qw(:try);
+use Encode ();
 
 use constant DEBUG => 0;    # toggle me
 
@@ -32,7 +33,6 @@ see Foswiki::Plugins::TagsPlugin::publicCall()
 sub rest {
     my $session = shift;
     my $query   = Foswiki::Func::getCgiQuery();
-    my $charset = $Foswiki::cfg{Site}{CharSet};
 
     my $item = $query->param('item') || '';
     my $tag  = $query->param('tag')  || '';
@@ -49,18 +49,24 @@ sub rest {
     $publicflag = Foswiki::Sandbox::untaintUnchecked($publicflag);
     $redirectto = Foswiki::Sandbox::untaintUnchecked($redirectto);
 
-    # input data is assumed to be utf8 (usually in AJAX environments)
-    require Unicode::MapUTF8;
-    $item =
-      Unicode::MapUTF8::from_utf8( { -string => $item, -charset => $charset } );
-    $tag =
-      Unicode::MapUTF8::from_utf8( { -string => $tag, -charset => $charset } );
-    $user =
-      Unicode::MapUTF8::from_utf8( { -string => $user, -charset => $charset } );
-    $publicflag = Unicode::MapUTF8::from_utf8(
-        { -string => $publicflag, -charset => $charset } );
-    $redirectto = Unicode::MapUTF8::from_utf8(
-        { -string => $redirectto, -charset => $charset } );
+    # handle utf8 if necessary
+    my $site_charset = $Foswiki::cfg{Site}{CharSet} || "iso-8859-1";
+    my $remote_charset = $site_charset;
+    if ( $session->{request}->header( -name => "Content-Type" ) =~
+        m/charset=([^;\s]+)/i )
+    {
+        $remote_charset = $1;
+    }
+
+    if (   $site_charset !~ /^utf-?8$/i
+        && $remote_charset =~ /^utf-?8$/i )
+    {
+        Encode::from_to( $item,       "utf8", $site_charset );
+        Encode::from_to( $tag,        "utf8", $site_charset );
+        Encode::from_to( $user,       "utf8", $site_charset );
+        Encode::from_to( $publicflag, "utf8", $site_charset );
+        Encode::from_to( $redirectto, "utf8", $site_charset );
+    }
 
     # sanatize the tag
     use Foswiki::Plugins::TagsPlugin::Func;
@@ -119,11 +125,11 @@ sub rest {
 
     # handle errors and return the number of affected tags
     my $retval;
-    my $user_id =
-      Foswiki::Plugins::TagsPlugin::Db::createUserID(
+    my $user_id = Foswiki::Plugins::TagsPlugin::Db::createUserID(
         Foswiki::Func::isGroup($user)
         ? $user
-        : Foswiki::Func::getCanonicalUserID($user) );
+        : Foswiki::Func::getCanonicalUserID($user)
+    );
 
     try {
         $retval =
