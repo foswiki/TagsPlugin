@@ -218,8 +218,8 @@
         }
 
         jQuery.tagsplugin.redirect_tagdetails = function() {
-          $("div#tagsplugin .tagsplugin_tag")
-          .add("div#tagsplugin .tagsplugin_tagcloud_tag")
+          $(".tagsplugin_tag")
+          .add(".tagsplugin_tagcloud_tag")
           .bind(
             'click',
             function(event) {
