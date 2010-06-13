@@ -9,7 +9,7 @@
      | *Parameter:* | *Description:* | *Default:* |
      | =query="tag"= <br /> =query="topic"= <br /> =query="user"= | This defines the primary dimension for your search. Every search has three dimensions: =tag=, =topic= and =user=. | ="tag"= |
      | =tag="text"= <br /> =tag="all"= | Filter the =tag= dimension with this setting. Use =%= as a wildcard. | ="all"= |
-     | =user="wikiname"= <br /> =user="all"= | Filter the =user= dimension with this setting. Leave out the =%MAINWEB%= part here. | ="all"= |
+     | =user="wikiname"= <br /> =user="all"= | Filter the =user= dimension with this setting. Leave out the =%MAINWEB%= part here. <br /> *Note:* This is forced to the current user, if the =visibility= is set to =private=. | ="all"= |
      | =web="Name"= <br /> =web="%USERSWEB%, Know"= <br /> =web="all"= | Comma-separated list of webs to search. The special word =all= means all webs (inlcuding those which have the =NOSEARCHALL= preference set to =on=). Use =%= as a wildcard. | ="all"= |
      | =topic="Name"= <br /> =topic="<nop>TestTopic1, <nop>TestTopic2"= <br /> =topic="all"= | Comma-separated list of topics (without a webname) to search. The special word =all= means all topics. Use =%= as a wildcard. | ="all"= |
      | =visibility="all"= <br /> =visibility="public"= <br /> =visibility="private"= <br /> =visibility="user"= | Filter by the public flag: either show all, only public or only private tags. =user= is a combination of "all public tags" and "my private tags". <br /> *Note:* You *must not* set a =user= parameter with =visibility=user=. | ="all"= |
