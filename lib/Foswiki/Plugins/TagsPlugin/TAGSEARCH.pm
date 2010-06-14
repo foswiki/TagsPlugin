@@ -44,7 +44,7 @@ sub do {
     my $theTopic     = $params->{topic}      || '';
     my $theQuery     = $params->{query}      || 'tag';
     my $theOrder     = $params->{order}      || '';
-    my $thePublic    = $params->{visibility} || 'all';
+    my $thePublic    = $params->{visibility} || 'user';
     my $theAlt       = $params->{alt}        || '';
     my $theLimit     = $params->{limit}      || 0;
     my $theOffset    = $params->{offset}     || 0;
@@ -80,6 +80,10 @@ sub do {
     my $isTagAdmin =
       Foswiki::Func::isGroupMember( $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
           || "AdminGroup" ) ? 1 : 0;
+
+    if ( $thePublic =~ /^all$/i && !$isTagAdmin ) {
+        $thePublic = "user";
+    }
 
     my $output    = '';
     my $statement = '';
