@@ -226,9 +226,10 @@
 
               event.preventDefault();
 
-              var web   = $(event.target).closest("[web]").attr("web"); 
-              var topic = $(event.target).closest("[topic]").attr("topic");
-              var tag   = $(event.target).closest("[tag]").attr("tag");
+              var web         = $(event.target).closest("[web]").attr("web"); 
+              var topic       = $(event.target).closest("[topic]").attr("topic");
+              var tag         = $(event.target).closest("[tag]").attr("tag");
+              var dialog_type = $(event.target).closest("[dialog]").attr("dialog");
 
               $("#tagsplugin_processing img").show();
               if ( $("#tagsplugin_dialog_details").size() == 0 ) {
@@ -236,21 +237,21 @@
                 .dialog( { autoOpen: false } )
                 .dialog('option', 'modal', true)
                 .dialog('option', 'width', 600)
-                .dialog('option', 'title', foswiki.tagsplugin.translation.TagDetailsOn+' '+tag+' @ '+topic)
+                .dialog('option', 'title', foswiki.tagsplugin.translation.TagDetailsOn+' '+tag)
                 .bind(
                   'dialogclose',
                   function(event,ui) {
                     $("#tagsplugin_dialog_details").remove();
                   }
                 );
-                refreshTagDetailsDialog( tag, web, topic );
+                refreshTagDetailsDialog( tag, web, topic, dialog_type );
               }
             }
           );
         }
 
         $("#tagsplugin_taglist_tags.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagList() } );
-        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.web, foswiki.topic ) } );
+        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.web, foswiki.topic, "Simple" ) } );
 
 	jQuery.tagsplugin.redirect_tagdetails();
 
@@ -269,10 +270,13 @@
 	);
   }
 
-  function refreshTagDetailsDialog( tag, web, topic ) {
+  function refreshTagDetailsDialog( tag, web, topic, dialog_type ) {
+    if ( dialog_type == undefined ) {
+      dialog_type = "Simple";
+    };
     $('#tagsplugin_dialog_details')
     .load(
-      foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsDialog?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic),
+      foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsDialog?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic)+"&dialog="+escape(dialog_type),
       null,
       function() {
         $("#tagsplugin_dialog_details").dialog("open");

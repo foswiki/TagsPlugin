@@ -9,6 +9,8 @@ data/System/TagsPluginTagListJSON.txt 0644 Topic
 data/System/TagsPluginTagCloud.txt 0644 Topic
 data/System/TagsPluginTagDetails.txt  Topic
 data/System/TagsPluginTagDetailsDialog.txt  Topic
+data/System/TagsPluginTagDetailsDialogSimple.txt  Topic
+data/System/TagsPluginTagDetailsDialogExtended.txt  Topic
 data/System/TagsPluginTagRename.txt  Topic
 data/System/TagsPluginTagMerge.txt  Topic
 data/System/TagsPluginUserSelector.txt  Topic

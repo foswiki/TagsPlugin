@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="BaseUserMapping_333" date="1263482161" format="1.1" version="1.22"}%
+%META:TOPICINFO{author="BaseUserMapping_333" date="1276558637" format="1.1" version="1.1"}%
 %META:TOPICPARENT{name="TagsPlugin"}%
 %TAGSEARCH{ 
   query="tag" 
@@ -6,6 +6,6 @@
   topic="%URLPARAM{"tagtopic" default="%TAGTOPIC%" }%" 
   visibility="user"
   xformat="      <li class='tagsplugin_tag $percntIF{ \"'$public'='1'\" then=\"tagsplugin_public\" }$percnt'><a class='tagsplugin_tag_link' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=$tag' tag='$tag' web='$web' topic='$topic'>$tag</a></li>"
-  format="      <li class='tagsplugin_tag $percntIF{ \"'$public'='1'\" then=\"tagsplugin_public\" }$percnt' tag='$tag' web='$web' topic='$topic'>$tag</li>"
+  format="      <li class='tagsplugin_tag $percntIF{ \"'$public'='1'\" then=\"tagsplugin_public\" }$percnt' tag='$tag' web='$web' topic='$topic' dialog='Extended'>$tag</li>"
   sep="$n" 
 }%
