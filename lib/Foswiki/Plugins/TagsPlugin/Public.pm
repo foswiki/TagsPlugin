@@ -217,7 +217,7 @@ sub do {
     my $statement     = sprintf(
 'UPDATE %s SET public = ? WHERE %s = ? AND %s = ? AND %s = ? AND public = ?',
         qw( UserItemTag item_id tag_id user_id ) );
-    my $affected_rows =
+    $affected_rows =
       $db->dbInsert( $statement, $public, $item_id, $tag_id, $user_id,
         $public == "0" ? 1 : 0 );
     Foswiki::Func::writeDebug(
