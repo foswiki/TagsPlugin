@@ -21,7 +21,7 @@ use warnings;
 use Error qw(:try);
 use Encode ();
 
-use constant DEBUG => 1;    # toggle me
+use constant DEBUG => 0;    # toggle me
 
 =begin TML
 
