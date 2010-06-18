@@ -119,6 +119,7 @@
                     },
               complete: function(xhr, statusText) {
                 settings.completed();
+                $("#tagsplugin_dialog_details").dialog("close");
                 $(".tagsplugin_update_observer").trigger("tagsplugin_update");
               }
             }
@@ -142,6 +143,7 @@
                     },
               complete: function(xhr, statusText) {
                 settings.completed();
+                $("#tagsplugin_dialog_details").dialog("close");
                 $(".tagsplugin_update_observer").trigger("tagsplugin_update");
               }
             }
@@ -165,6 +167,7 @@
                     },
               complete: function(xhr, statusText) {
                 settings.completed();
+                $("#tagsplugin_dialog_details").dialog("close");
                 $(".tagsplugin_update_observer").trigger("tagsplugin_update");
               }
             }
@@ -194,6 +197,7 @@
                     },
               complete: function(xhr, statusText) {
                 settings.completed();
+                $("#tagsplugin_dialog_details").dialog("close");
                 $(".tagsplugin_update_observer").trigger("tagsplugin_update");
               }
             }

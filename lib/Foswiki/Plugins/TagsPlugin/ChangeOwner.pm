@@ -21,7 +21,7 @@ use warnings;
 use Error qw(:try);
 use Encode ();
 
-use constant DEBUG => 0;    # toggle me
+use constant DEBUG => 1;    # toggle me
 
 =begin TML
 
@@ -41,6 +41,9 @@ sub rest {
     my $publicflag =
       ( defined $query->param('public') ) ? $query->param('public') : '1';
     my $redirectto = $query->param('redirectto') || '';
+
+    my $current_user = Foswiki::Func::getWikiName();
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
     $item       = Foswiki::Sandbox::untaintUnchecked($item);
     $tag        = Foswiki::Sandbox::untaintUnchecked($tag);
@@ -100,9 +103,10 @@ sub rest {
         return "<h1>400 'public' is not 0 or 1</h1>";
     }
 
-    if ( $user ne Foswiki::Func::getWikiName()
-        && not Foswiki::Func::isGroupMember( $user,
-            Foswiki::Func::getWikiName() ) )
+    if ( $user ne $current_user
+        && not Foswiki::Func::isGroupMember(
+            $tagAdminGroup, Foswiki::Func::getWikiName()
+        ) )
     {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
