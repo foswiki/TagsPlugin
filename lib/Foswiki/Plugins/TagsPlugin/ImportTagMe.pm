@@ -124,7 +124,7 @@ sub do {
                     }
                     else {
                         try {
-                            Foswiki::Plugins::TagsPlugin::Tag::do( "tag",
+                            Foswiki::Plugins::TagsPlugin::Tag::do( "topic",
                                 $webTopic, $tag, $user_id, $public );
                         }
                         catch Error::Simple with {
