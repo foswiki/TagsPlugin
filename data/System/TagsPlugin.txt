@@ -53,6 +53,16 @@ with the =taggedwith(tagname)= operator.
 
 TagsPluginViews defines the common Tag widgets that can be reused via Sectional includes.
 
+---+++ <nop>TagMePlugin data import
+%SYSTEMWEB%.TagsPlugin can import the data from the !TagMePlugin. Please use the following links to directly start the import process.
+In comparison to !TagMe %SYSTEMWEB%.TagsPlugin offers an additional public/visibility attribute. You can either import all tags as public
+or private tags into %SYSTEMWEB%.TagsPlugin.
+
+|*Action*|*Link*|
+| Import all tags from !TagMePlugin... | [[%SCRIPTURL{rest}%/TagsPlugin/importTagMe?visibility=public][...as public tags.]] |
+| &nbsp; | [[%SCRIPTURL{rest}%/TagsPlugin/importTagMe?visibility=private][...as private tags.]] |
+| Don't import tags from !TagMePlugin, just... | [[%SCRIPTURL{rest}%/TagsPlugin/importTagMe?visibility=public&dryrun=1][...do a dry-run.]] |
+
 ---+++ Preferences (used by the jquery flavor)
 Available variables which can be used to change the (default) behaviour of the jquery skin:
 

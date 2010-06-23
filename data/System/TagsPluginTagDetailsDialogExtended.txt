@@ -44,7 +44,7 @@
   query="topic" 
   tag="%TAGNAME%" 
   header="%MAKETEXT{"Where else can I find this tag:"}%%BR%%BR%$n"
-  format="   * <span class='foswikiGrayText'>$web</span> [[$item][$topic]]" 
+  format="   * [[$item][$item]]" 
   sep="$n" 
   visibility="user" 
   order="topic"

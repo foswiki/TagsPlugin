@@ -34,6 +34,10 @@ sub rest {
     my $query   = Foswiki::Func::getCgiQuery();
 
     my $public = $query->param('visibility') || "NULL";
+    $public = Foswiki::Sandbox::untaintUnchecked($public);
+
+    my $dryrun = $query->param('dryrun')     || "0";
+    $dryrun = Foswiki::Sandbox::untaintUnchecked($dryrun);
 
     # check if current user is allowed to do so
     #
@@ -51,12 +55,12 @@ sub rest {
 
     # interpret the public url param as a confirmation
     if ( $public eq "public" || $public eq "private" ) {
-        $public = Foswiki::Sandbox::untaintUnchecked($public);
+        $dryrun = ( $dryrun eq "1" ) ? "1" : "0";
         $public = ( $public eq "public" ) ? "1" : "0";
-        return Foswiki::Plugins::TagsPlugin::ImportTagMe::do($public);
+        return Foswiki::Plugins::TagsPlugin::ImportTagMe::do($public, $dryrun);
     }
     else {
-        return "Please use ?visibility=public or visibility=private";
+        return "Please use <a href='importTagMe?visibility=public'>visibility=public</a> or <a href='importTagMe?visibility=private'>visibility=private</a>.";
     }
 }
 
@@ -67,7 +71,7 @@ sub rest {
 =cut
 
 sub do {
-    my ($public) = @_;
+    my ($public, $dryrun) = @_;
     my $retval = "";
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:Start") if DEBUG;
@@ -109,9 +113,14 @@ sub do {
                     Foswiki::Func::writeDebug(
 "TagsPlugin:TagMe-Import: $webTopic, $tag, $user_id, $public"
                     ) if DEBUG;
-                    $retval .= "$webTopic, $tag, $user_id, $public <br />";
-                    Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic,
-                        $tag, $user_id, $public );
+                    $retval .= "$webTopic, $tag, $user_id, $public";
+                    if ($dryrun) {
+                        $retval .= "(dryrun) <br />";
+                    } else {
+                        Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic,
+                            $tag, $user_id, $public );
+                        $retval .= "<br />";
+                    }
                 }
             }
         }
