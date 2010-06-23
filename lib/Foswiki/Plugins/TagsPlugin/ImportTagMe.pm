@@ -120,8 +120,19 @@ sub do {
                     if ($dryrun) {
                         $retval .= "(dryrun) <br />";
                     } else {
+                        try {
                         Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic,
                             $tag, $user_id, $public );
+                        }
+                        catch Error::Simple with {
+                            my $e = shift;
+                            my $n = $e->{'-value'};
+                            if ( $n == 3 ) {
+                                $retval .= " (skipping, duplicate)";
+                            } else {
+                                $e->throw();
+                            }
+                        }
                         $retval .= "<br />";
                     }
                 }
