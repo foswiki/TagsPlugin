@@ -104,14 +104,17 @@ sub do {
                   Foswiki::Plugins::TagsPlugin::Func::normalizeTagname($2);
                 my @users = split( /,\s*/, $3 );
                 foreach my $user (@users) {
-                    my $user_id =
-                      Foswiki::Plugins::TagsPlugin::Db::createUserID(
-                        Foswiki::Func::isGroup($user)
-                        ? $user
-                        : Foswiki::Func::getCanonicalUserID($user)
-                      );
+                    my $user_id = 0;
+                    if (not $dryrun) {
+                      $user_id = 
+                        Foswiki::Plugins::TagsPlugin::Db::createUserID(
+                          Foswiki::Func::isGroup($user)
+                          ? $user
+                          : Foswiki::Func::getCanonicalUserID($user)
+                      )
+                    };
                     Foswiki::Func::writeDebug(
-"TagsPlugin:TagMe-Import: $webTopic, $tag, $user_id, $public"
+"TagsPlugin:TagMe-Import: $webTopic, tag:$tag, user:$user_id, vis:$public, dry:$dryrun"
                     ) if DEBUG;
                     $retval .= "$webTopic, $tag, $user_id, $public";
                     if ($dryrun) {
