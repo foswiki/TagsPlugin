@@ -36,7 +36,7 @@ sub rest {
     my $public = $query->param('visibility') || "NULL";
     $public = Foswiki::Sandbox::untaintUnchecked($public);
 
-    my $dryrun = $query->param('dryrun')     || "0";
+    my $dryrun = $query->param('dryrun') || "0";
     $dryrun = Foswiki::Sandbox::untaintUnchecked($dryrun);
 
     # check if current user is allowed to do so
@@ -55,12 +55,14 @@ sub rest {
 
     # interpret the public url param as a confirmation
     if ( $public eq "public" || $public eq "private" ) {
-        $dryrun = ( $dryrun eq "1" ) ? "1" : "0";
+        $dryrun = ( $dryrun eq "1" )      ? "1" : "0";
         $public = ( $public eq "public" ) ? "1" : "0";
-        return Foswiki::Plugins::TagsPlugin::ImportTagMe::do($public, $dryrun);
+        return Foswiki::Plugins::TagsPlugin::ImportTagMe::do( $public,
+            $dryrun );
     }
     else {
-        return "Please use <a href='importTagMe?visibility=public'>visibility=public</a> or <a href='importTagMe?visibility=private'>visibility=private</a>.";
+        return
+"Please use <a href='importTagMe?visibility=public'>visibility=public</a> or <a href='importTagMe?visibility=private'>visibility=private</a>.";
     }
 }
 
@@ -71,7 +73,7 @@ sub rest {
 =cut
 
 sub do {
-    my ($public, $dryrun) = @_;
+    my ( $public, $dryrun ) = @_;
     my $retval = "";
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:Start") if DEBUG;
@@ -105,35 +107,36 @@ sub do {
                 my @users = split( /,\s*/, $3 );
                 foreach my $user (@users) {
                     my $user_id = 0;
-                    if (not $dryrun) {
-                      $user_id = 
-                        Foswiki::Plugins::TagsPlugin::Db::createUserID(
-                          Foswiki::Func::isGroup($user)
-                          ? $user
-                          : Foswiki::Func::getCanonicalUserID($user)
-                      )
-                    };
+                    if ( not $dryrun ) {
+                        $user_id =
+                          Foswiki::Plugins::TagsPlugin::Db::createUserID(
+                            Foswiki::Func::isGroup($user)
+                            ? $user
+                            : Foswiki::Func::getCanonicalUserID($user)
+                          );
+                    }
                     Foswiki::Func::writeDebug(
 "TagsPlugin:TagMe-Import: $webTopic, tag:$tag, user:$user_id, vis:$public, dry:$dryrun"
                     ) if DEBUG;
-                    $retval .= "$webTopic, $tag, $user_id, $public";
+                    $retval .= "<br /> $webTopic, $tag, $user_id, $public";
                     if ($dryrun) {
-                        $retval .= "(dryrun) <br />";
-                    } else {
+                        $retval .= " (dryrun)";
+                    }
+                    else {
                         try {
-                        Foswiki::Plugins::TagsPlugin::Tag::do( "tag", $webTopic,
-                            $tag, $user_id, $public );
+                            Foswiki::Plugins::TagsPlugin::Tag::do( "tag",
+                                $webTopic, $tag, $user_id, $public );
                         }
                         catch Error::Simple with {
                             my $e = shift;
                             my $n = $e->{'-value'};
                             if ( $n == 3 ) {
                                 $retval .= " (skipping, duplicate)";
-                            } else {
+                            }
+                            else {
                                 $e->throw();
                             }
                         }
-                        $retval .= "<br />";
                     }
                 }
             }
@@ -142,7 +145,7 @@ sub do {
 
     Foswiki::Func::writeDebug("TagsPlugin:TagMe-Import:End") if DEBUG;
 
-    return $retval . "done";
+    return $retval . "<p>done</p>";
 }
 
 1;
