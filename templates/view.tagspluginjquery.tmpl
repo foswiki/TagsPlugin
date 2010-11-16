@@ -3,9 +3,16 @@
 
 %TMPL:DEF{"tagsplugin:jquery:header"}%
 <literal>
+<!-- 
+  TMPL:P{"LIBJS" id="TAGSPLUGIN:base" path="TagsPlugin/tagsplugin-base" requires="FOSWIKILIB,FOSWIKILIB:Pref"}%
+  TMPL:P{"LIBJS" id="TAGSPLUGIN:tagentry" path="TagsPlugin/tagsplugin-tagentry" requires="TAGSPLUGIN:base"}%
+  TMPL:P{"LIBJS" id="TAGSPLUGIN:tagcloud" path="TagsPlugin/tagsplugin-tagcloud" requires="TAGSPLUGIN:base"}%
+-->
+
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-base.js"></script>
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagentry.js"></script>
   <script type="text/javascript" src="%PUBURL%/System/TagsPlugin/tagsplugin-tagcloud.js"></script>
+
   <div id="tagsplugin" class="%IF{"$ TAGSPLUGIN_TOPBAR_DISABLE='1'" then="tagsplugin_hide"}%">
     <div id='tagsplugin_view_basic'>
       <div id='tagsplugin_view_basic_content'>

@@ -5,15 +5,17 @@
         jQuery.tagsplugin.tag = function(tag,options) {
           var settings = $.extend({
             tag:            tag,
-            user:           foswiki.wikiName,
-            item:           foswiki.web+"."+foswiki.topic,
+            user:           foswiki.WIKINAME,
+            item:           foswiki.WEB+"."+foswiki.TOPIC,
             public:         1,
             warn_unchanged: false,
             completed: function(){}
           },options||{});
 
+          alert("item: "+settings.item);
+
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/tag',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/tag',
               type: "POST",
               data: { tag    : settings.tag,
                       item   : settings.item,
@@ -53,14 +55,14 @@
         jQuery.tagsplugin.untag = function(tag,public,options) {
           var settings = $.extend({
             tag:            tag,
-            user:           foswiki.wikiName,
-            item:           foswiki.web+"."+foswiki.topic,
+            user:           foswiki.WIKINAME,
+            item:           foswiki.WEB+"."+foswiki.TOPIC,
             warn_unchanged: false,
             completed:      function(){}
           },options||{});
 
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/untag',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/untag',
               type: "POST",
               data: { tag    : settings.tag,
                       item   : settings.item,
@@ -103,14 +105,14 @@
         jQuery.tagsplugin.public = function(tag,public,options) {
           var settings = $.extend({
             tag:       tag,
-            user:      foswiki.wikiName,
-            item:      foswiki.web+"."+foswiki.topic,
+            user:      foswiki.WIKINAME,
+            item:      foswiki.WEB+"."+foswiki.TOPIC,
             public:    public,
             completed: function(){}
           },options||{});
 
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/public',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/public',
               type: "POST",
               data: { tag    : settings.tag,
                       item   : settings.item,
@@ -135,7 +137,7 @@
           },options||{});
 
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/rename',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/rename',
               type: "POST",
               data: { oldtag     : settings.oldtag,
                       newtag     : settings.newtag,
@@ -159,7 +161,7 @@
           },options||{});
 
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/merge',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/merge',
               type: "POST",
               data: { tag1       : settings.tag1,
                       tag2       : settings.tag2,
@@ -177,9 +179,9 @@
         jQuery.tagsplugin.changeOwner = function(tag,public,options) {
           var settings = $.extend({
             tag:       tag,
-            user:      foswiki.wikiName,
-            newuser:   foswiki.wikiName,
-            item:      foswiki.web+"."+foswiki.topic,
+            user:      foswiki.WIKINAME,
+            newuser:   foswiki.WIKINAME,
+            item:      foswiki.WEB+"."+foswiki.TOPIC,
             public:    public,
             completed: function(){}
           },options||{});
@@ -187,7 +189,7 @@
           foswiki.tag = tag; // SMELL
 
           $.ajax(
-            { url: foswiki.scriptUrl+'/rest/TagsPlugin/changeOwner',
+            { url: foswiki.SCRIPTURL+'/rest/TagsPlugin/changeOwner',
               type: "POST",
               data: { tag     : settings.tag,
                       item    : settings.item,
@@ -255,7 +257,7 @@
         }
 
         $("#tagsplugin_taglist_tags.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagList() } );
-        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.web, foswiki.topic, "Simple" ) } );
+        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.WEB, foswiki.TOPIC, "Simple" ) } );
 
 	jQuery.tagsplugin.redirect_tagdetails();
 
@@ -264,8 +266,8 @@
   function refreshTagList() {
 	$("#tagsplugin_processing img").show();
 	$.get(
-	  foswiki.scriptUrl+"/view/"+foswiki.systemWebName+'/TagsPluginTagList',
-	  { skin: 'text', cover: 'text', tagweb: foswiki.web, tagtopic: foswiki.topic },
+	  foswiki.SCRIPTURL+"/view/"+foswiki.SYSTEMWEB+'/TagsPluginTagList',
+	  { skin: 'text', cover: 'text', tagweb: foswiki.WEB, tagtopic: foswiki.TOPIC },
 	  function(data) {
 		$("#tagsplugin_taglist_tags").html(data);
 		jQuery.tagsplugin.redirect_tagdetails();
@@ -280,7 +282,7 @@
     };
     $('#tagsplugin_dialog_details')
     .load(
-      foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagDetailsDialog?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic)+"&dialog="+escape(dialog_type),
+      foswiki.SCRIPTURL+"/view/"+foswiki.SYSTEMWEB+"/TagsPluginTagDetailsDialog?skin=text&cover=text&tag="+escape(tag)+"&tagweb="+escape(web)+"&tagtopic="+escape(topic)+"&dialog="+escape(dialog_type),
       null,
       function() {
         $("#tagsplugin_dialog_details").dialog("open");
@@ -288,7 +290,7 @@
         /*
         TODO: hide those you cannot change
         $(".tagsplugin_dialog_editUserButton").each( function() {
-                                                       var regexp = RegExp("\b"+foswiki.wikiName+"\b");
+                                                       var regexp = RegExp("\b"+foswiki.WIKINAME+"\b");
                                                        var groups = $('#tagsplugin_groups').text() + "," + $(this).attr("user");
                                                        if ( !regexp.test(groups) ) { $(this).hide(); };
                                                      } );
@@ -304,12 +306,12 @@
 
             // construct <select>
             var group_select = "<select>";
-            if ( foswiki.wikiName != user ) { groups.push( foswiki.wikiName ) };
+            if ( foswiki.WIKINAME != user ) { groups.push( foswiki.WIKINAME ) };
             for (var i=0; i < groups.length; i++) {
               var current_user = (user == groups[i]) ? "selected" : "";
               group_select += "<option "+current_user+">"+groups[i]+"</option>";
             };
-            group_select += "</select>&nbsp;<img src='"+foswiki.pubUrl+"/"+foswiki.systemWebName+"/DocumentGraphics/choice-yes.gif' />";
+            group_select += "</select>&nbsp;<img src='"+foswiki.PUBURL+"/"+foswiki.SYSTEMWEB+"/DocumentGraphics/choice-yes.gif' />";
 
             // replace owner with select-box
             $(event.target).closest('span')
@@ -324,7 +326,7 @@
                 var user    = event.data.user;
                 var public  = event.data.public;
                 var newuser = selection.val();
-                var item = foswiki.web+"."+foswiki.topic;
+                var item = foswiki.WEB+"."+foswiki.TOPIC;
                 if ( user != newuser ) {
                   $("#tagsplugin_tagdetails_processing").show();
                   jQuery.tagsplugin.changeOwner(tag, public, { user:user, 

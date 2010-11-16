@@ -19,7 +19,7 @@
         var tagsplugin_taginput_input = $("#tagsplugin_taginput_input");
         var tagsplugin_autocomplete_webdefault = tagsplugin_taginput_input.attr("autocomplete_web");
         tagsplugin_taginput_input.autocomplete(
-          foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginAutoCompleteBackend", {
+          foswiki.SCRIPTURL+"/view/"+foswiki.SYSTEMWEB+"/TagsPluginAutoCompleteBackend", {
                 extraParams: { skin:"text", cover:"text", web: tagsplugin_autocomplete_webdefault },
                 multiple:    false,
                 highlight:   false,

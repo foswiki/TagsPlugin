@@ -44,7 +44,7 @@
   function refreshTagCloud() {
         $("#tagsplugin_processing img").show();
         $.get(
-          foswiki.scriptUrl+"/view/"+foswiki.systemWebName+"/TagsPluginTagCloud",
+          foswiki.SCRIPTURL+"/view/"+foswiki.SYSTEMWEB+"/TagsPluginTagCloud",
           { skin     : "text",
                 cover    : "text",
                 tagweb   : $(".tagsplugin_web_active").attr("web"),
