@@ -25,6 +25,13 @@ If you want to preload the tags database with Country Names, you need to install
 and click [[%SCRIPTURL{rest}%/TagsPlugin/updateGeoTags][updateGeoTags]] (uses the CC licenced 
 http://www.geonames.org ([[http://download.geonames.org/export/dump/allCountries.zip][allCountries.zip]]).
 
+%I% If you have a large number of topics in your Wiki the call to %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase may time out. If this happens you can initialise the database from the command line as follows:
+
+<pre>
+cd &lt;foswiki_bin_dir>
+./rest /TagsPlugin/initialiseDatabase
+</pre>
+
 %$INSTALL_INSTRUCTIONS%
 
 
