@@ -10,12 +10,12 @@ One line description, required for extensions repository catalog.
 
 ---++ For Administrators
 ---+++ Installation Instructions
-   1 configure various TagsPlugin toggles in [[%SCRIPTURL{configure}%][configure]] (section Extensions, TagsPlugin)
    1 setup your database (currently only tested using !MySQL)
-      1 create the database in !MySQL server and add the user with permission to create tables
+      1 create the database in !MySQL server and add the user with permission to create tables =mysql -p=, =CREATE DATABASE IF NOT EXISTS example_com_tags;=, =CREATE USER 'foswiki'@'localhost' IDENTIFIED BY 'foswiki';=, =GRANT ALL PRIVILEGES ON *.* TO 'foswiki'@'localhost' WITH GRANT OPTION;=
       1 set ={DbiContrib}{DBI_dsn}=, ={DbiContrib}{DBI_username}= and ={DbiContrib}{DBI_password}=
       1 *initialise the tag database* 
          * %SCRIPTURL{rest}%/TagsPlugin/initialiseDatabase to automatically create the database tables and to add initial values
+   1 configure various TagsPlugin toggles in [[%SCRIPTURL{configure}%][configure]] (section Extensions, TagsPlugin)
    1 choose between the two flavors of the TagsPlugin and alter your SKIN variable
       * %GRAY%classic flavor:%ENDCOLOR% Set SKIN = tagsplugin, pattern
       * %GRAY%jquery flavor:%ENDCOLOR% Set SKIN = tagspluginjquery, pattern
