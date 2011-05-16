@@ -57,7 +57,13 @@ sub initPlugin {
     {
         Foswiki::Func::writeWarning(
             "DB schema Version mismatch. Please convert your database.");
-        return 0;
+
+#TODO: need a more correct error for NO DB INITIALISED yet
+#need to allow the user to init, or update the db - so the plugin needs to succeed..
+    Foswiki::Func::registerRESTHandler( 'initialiseDatabase',
+        \&initialiseDatabase );
+    Foswiki::Func::registerRESTHandler( 'convertDatabase', \&convertDatabase );
+        return 1;
     }
 
     Foswiki::Func::registerTagHandler( 'TAGLIST',  \&_TAGLIST );
@@ -722,8 +728,10 @@ sub updateTopicTags {
         my $alpha = Foswiki::Func::getRegularExpression('mixedAlphaNum');
 
         #my $capitalized = qr/[$upper][$alpha]+/;
+        use Foswiki::Plugins::TagsPlugin::Tag;
         $text =~
-s/[;,\s]([$alpha]*)Category[;,\s]/tagItem($item_type, "$web.$topic", $1, $user_id);tagItem('tag', $1, $web, $user_id);''/geo;
+s/[;,\s]([$alpha]+)Category[;,\s]/Foswiki::Plugins::TagsPlugin::Tag::do($item_type, "$web.$topic", $1, $user_id);Foswiki::Plugins::TagsPlugin::Tag::do('tag', $1, $web, $user_id);''/geo;
+#        Foswiki::Plugins::TagsPlugin::Tag::do( $item_type, "$web.$topic", $tag, Foswiki::Func::getCanonicalUserID("AdminUser") );
     }
 
     if ( defined( $Foswiki::cfg{TagsPlugin}{EnableDataForms} )
@@ -761,6 +769,16 @@ CREATE TABLE IF NOT EXISTS `Items` (
 ) ENGINE=InnoDB AUTO_INCREMENT=904 DEFAULT CHARSET=latin1;
 END
     my $arrayRef = $db->dbInsert($statement);
+
+    $statement = <<'END';
+CREATE TABLE IF NOT EXISTS `TagsPlugin_info` (
+  `name` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
+   PRIMARY KEY  (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=904 DEFAULT CHARSET=latin1;
+END
+    $arrayRef = $db->dbInsert($statement);
+
 
     $statement = <<'END';
 CREATE TABLE IF NOT EXISTS  `Users` (
@@ -810,6 +828,13 @@ CREATE TABLE IF NOT EXISTS  `UserTagStat` (
 END
     $arrayRef = $db->dbInsert($statement);
 
+#TODO: save the schema version.
+#    $statement = <<'END';
+#UPDATE 
+#END
+#    $arrayRef = $db->dbInsert($statement);
+
+
     #add basic tags
     # - each topic is tagged with the web its in (tag type?)
     # - import TagMe tags
@@ -846,6 +871,16 @@ sub convertDatabase {
 ALTER TABLE `UserItemTag` ADD COLUMN `public` INT UNSIGNED NOT NULL DEFAULT 0 AFTER `tag_id`;
 END
     my $arrayRef = $db->dbInsert($statement);
+    
+    $statement = <<'END';
+CREATE TABLE IF NOT EXISTS `TagsPlugin_info` (
+  `name` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
+   PRIMARY KEY  (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=904 DEFAULT CHARSET=latin1;
+END
+    $arrayRef = $db->dbInsert($statement);
+    
     $db->disconnect();    #force a commit
 
     return "ok";
