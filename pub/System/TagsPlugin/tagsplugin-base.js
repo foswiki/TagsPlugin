@@ -5,8 +5,8 @@
         jQuery.tagsplugin.tag = function(tag,options) {
           var settings = $.extend({
             tag:            tag,
-            user:           foswiki.WIKINAME,
-            item:           foswiki.WEB+"."+foswiki.TOPIC,
+            user:           foswiki.wikiName,
+            item:           foswiki.web+"."+foswiki.topic,
             public:         1,
             warn_unchanged: false,
             completed: function(){}
@@ -55,8 +55,8 @@
         jQuery.tagsplugin.untag = function(tag,public,options) {
           var settings = $.extend({
             tag:            tag,
-            user:           foswiki.WIKINAME,
-            item:           foswiki.WEB+"."+foswiki.TOPIC,
+            user:           foswiki.wikiName,
+            item:           foswiki.web+"."+foswiki.TOPIC,
             warn_unchanged: false,
             completed:      function(){}
           },options||{});
@@ -105,8 +105,8 @@
         jQuery.tagsplugin.public = function(tag,public,options) {
           var settings = $.extend({
             tag:       tag,
-            user:      foswiki.WIKINAME,
-            item:      foswiki.WEB+"."+foswiki.TOPIC,
+            user:      foswiki.wikiName,
+            item:      foswiki.web+"."+foswiki.TOPIC,
             public:    public,
             completed: function(){}
           },options||{});
@@ -179,9 +179,9 @@
         jQuery.tagsplugin.changeOwner = function(tag,public,options) {
           var settings = $.extend({
             tag:       tag,
-            user:      foswiki.WIKINAME,
-            newuser:   foswiki.WIKINAME,
-            item:      foswiki.WEB+"."+foswiki.TOPIC,
+            user:      foswiki.wikiName,
+            newuser:   foswiki.wikiName,
+            item:      foswiki.web+"."+foswiki.TOPIC,
             public:    public,
             completed: function(){}
           },options||{});
@@ -257,7 +257,7 @@
         }
 
         $("#tagsplugin_taglist_tags.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagList() } );
-        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.WEB, foswiki.TOPIC, "Simple" ) } );
+        $("#tagsplugin_dialog_details.tagsplugin_update_observer").live("tagsplugin_update", function() { refreshTagDetailsDialog( foswiki.tag, foswiki.web, foswiki.TOPIC, "Simple" ) } );
 
 	jQuery.tagsplugin.redirect_tagdetails();
 
@@ -267,7 +267,7 @@
 	$("#tagsplugin_processing img").show();
 	$.get(
 	  foswiki.SCRIPTURL+"/view/"+foswiki.SYSTEMWEB+'/TagsPluginTagList',
-	  { skin: 'text', cover: 'text', tagweb: foswiki.WEB, tagtopic: foswiki.TOPIC },
+	  { skin: 'text', cover: 'text', tagweb: foswiki.web, tagtopic: foswiki.TOPIC },
 	  function(data) {
 		$("#tagsplugin_taglist_tags").html(data);
 		jQuery.tagsplugin.redirect_tagdetails();
@@ -290,7 +290,7 @@
         /*
         TODO: hide those you cannot change
         $(".tagsplugin_dialog_editUserButton").each( function() {
-                                                       var regexp = RegExp("\b"+foswiki.WIKINAME+"\b");
+                                                       var regexp = RegExp("\b"+foswiki.wikiName+"\b");
                                                        var groups = $('#tagsplugin_groups').text() + "," + $(this).attr("user");
                                                        if ( !regexp.test(groups) ) { $(this).hide(); };
                                                      } );
@@ -306,7 +306,7 @@
 
             // construct <select>
             var group_select = "<select>";
-            if ( foswiki.WIKINAME != user ) { groups.push( foswiki.WIKINAME ) };
+            if ( foswiki.wikiName != user ) { groups.push( foswiki.wikiName ) };
             for (var i=0; i < groups.length; i++) {
               var current_user = (user == groups[i]) ? "selected" : "";
               group_select += "<option "+current_user+">"+groups[i]+"</option>";
@@ -326,7 +326,7 @@
                 var user    = event.data.user;
                 var public  = event.data.public;
                 var newuser = selection.val();
-                var item = foswiki.WEB+"."+foswiki.TOPIC;
+                var item = foswiki.web+"."+foswiki.TOPIC;
                 if ( user != newuser ) {
                   $("#tagsplugin_tagdetails_processing").show();
                   jQuery.tagsplugin.changeOwner(tag, public, { user:user, 
