@@ -97,23 +97,27 @@ sub do {
     use Foswiki::Plugins::TagsPlugin::Tag;
     foreach my $webTopic (@list) {
 
-        my ($web, $topic) = Foswiki::Func::normalizeWebTopicName( "", $webTopic );
+        my ( $web, $topic ) =
+          Foswiki::Func::normalizeWebTopicName( "", $webTopic );
         $webTopic =~ s/[\/\\]/\./g;
         $web      =~ s/[\/\\]/\./g;
 
         # do not import garbage
-        if ($web =~ m/^Trash/) {
-            Foswiki::Func::writeDebug("TagsPlugin::TagMe-Import: skipping topic from Trash: $webTopic");
+        if ( $web =~ m/^Trash/ ) {
+            Foswiki::Func::writeDebug(
+                "TagsPlugin::TagMe-Import: skipping topic from Trash: $webTopic"
+            );
             $retval .= "<br /> $webTopic (skipping, trash topic)";
             next;
-        }; 
+        }
 
         # do not import legacy
-        if (not Foswiki::Func::topicExists( $web, $topic )) {
-            Foswiki::Func::writeDebug("TagsPlugin::TagMe-Import: skipping nonexisting $webTopic");
+        if ( not Foswiki::Func::topicExists( $web, $topic ) ) {
+            Foswiki::Func::writeDebug(
+                "TagsPlugin::TagMe-Import: skipping nonexisting $webTopic");
             $retval .= "<br /> $webTopic (skipping, non-existsing)";
             next;
-        }; 
+        }
 
         my $text = Foswiki::Func::readFile("$workAreaDir/_tags_$webTopic.txt");
         my @tagInfo = grep { /^[0-9]/ } split( /\n/, $text );
