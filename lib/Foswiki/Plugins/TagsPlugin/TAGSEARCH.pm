@@ -35,21 +35,21 @@ Return:
 sub do {
     my ( $session, $params, $topic, $web ) = @_;
 
-    my $theHeader = $params->{header}     || '';
-    my $theSep    = $params->{separator}  || $params->{sep} || ', ';
-    my $theFooter = $params->{footer}     || '';
-    my $theUser   = $params->{user}       || 'all';
-    my $theWeb    = $params->{web}        || 'all';
-    my $theTag    = $params->{tag}        || 'all';
-    my $theTopic  = $params->{topic}      || '';
-    my $theQuery  = $params->{query}      || 'tag';
-    my $theOrder  = $params->{order}      || '';
-    my $thePublic = $params->{visibility} || 'user';
-    my $theAlt    = $params->{alt}        || '';
-    my $theLimit  = $params->{limit}      || 0;
-    my $theOffset = $params->{offset}     || 0;
-    my $theFormat = $params->{format};
-    my $theRendering = $params->{rendering} || '';
+    my $theHeader    = $params->{header}     || '';
+    my $theSep       = $params->{separator}  || $params->{sep} || ', ';
+    my $theFooter    = $params->{footer}     || '';
+    my $theUser      = $params->{user}       || 'all';
+    my $theWeb       = $params->{web}        || 'all';
+    my $theTag       = $params->{tag}        || 'all';
+    my $theTopic     = $params->{topic}      || '';
+    my $theQuery     = $params->{query}      || 'tag';
+    my $theOrder     = $params->{order}      || '';
+    my $thePublic    = $params->{visibility} || 'user';
+    my $theAlt       = $params->{alt}        || '';
+    my $theLimit     = $params->{limit}      || 0;
+    my $theOffset    = $params->{offset}     || 0;
+    my $theFormat    = $params->{format};
+    my $theRendering = $params->{rendering}  || '';
 
     if ( $thePublic =~ m/private/i ) {
         $theUser = Foswiki::Func::getWikiName();
@@ -339,10 +339,10 @@ $limit";
 
     # handle special renderings (ie. cloud)
     if ( $theRendering =~ /^cloud$/i && $row_counter > 0 ) {
-        my $tml =
-"%TAGCLOUD{ terms=\"$output\" format=\"<a style='font-size:\$weightpx;' class='tagsplugin_tagcloud_tag' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=\$term' item='\$3.\$4' topic='\$4' web='\$3' tag='\$term' user='\$5'>\$term</a>\" warn=\"off\" split=\"[,]+\" }%";
+        my $tml = "%TAGCLOUD{ terms=\"$output\" format=\"<a style='font-size:\$weightpx;' class='tagsplugin_tagcloud_tag' href='%SCRIPTURL{view}%/%SYSTEMWEB%/TagsPluginTagDetails?tag=\$term' item='\$3.\$4' topic='\$4' web='\$3' tag='\$term' user='\$5'>\$term</a>\" warn=\"off\" split=\"[,]+\" }%";
         $output = Foswiki::Func::expandCommonVariables( $tml, $topic, $web );
     }
+    
 
     return $output;
 }

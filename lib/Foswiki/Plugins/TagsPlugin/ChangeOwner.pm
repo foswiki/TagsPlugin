@@ -42,9 +42,8 @@ sub rest {
       ( defined $query->param('public') ) ? $query->param('public') : '1';
     my $redirectto = $query->param('redirectto') || '';
 
-    my $current_user  = Foswiki::Func::getWikiName();
-    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup}
-      || "AdminGroup";
+    my $current_user = Foswiki::Func::getWikiName();
+    my $tagAdminGroup = $Foswiki::cfg{TagsPlugin}{TagAdminGroup} || "AdminGroup";
 
     $item       = Foswiki::Sandbox::untaintUnchecked($item);
     $tag        = Foswiki::Sandbox::untaintUnchecked($tag);
@@ -104,12 +103,10 @@ sub rest {
         return "<h1>400 'public' is not 0 or 1</h1>";
     }
 
-    if (
-        $user ne $current_user
+    if ( $user ne $current_user
         && not Foswiki::Func::isGroupMember(
             $tagAdminGroup, Foswiki::Func::getWikiName()
-        )
-      )
+        ) )
     {
         $session->{response}->status(403);
         return "<h1>403 Forbidden</h1>";
